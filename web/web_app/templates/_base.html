@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title class="no-print">{% block title %}{% endblock %} - Moon2Dashboard</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="keywords" content="productivity tool, task management, work management, project management">
+	<meta name="description" content="Dashboard for Mooncord.">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="mobile-web-app-capable" content="yes">
+	<link rel="apple-touch-icon-precomposed" href="{{ url_for('static', filename='images/native/apple-touch-icon-blue.png') }}">
+	<link rel="apple-touch-startup-image" href="{{ url_for('static', filename='images/native/apple-touch-icon-blue.png') }}">
+	<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+	<!-- Dependencies -->
+	<link href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" media="screen">
+	<link href="{{ url_for('static', filename='node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css') }}" rel="stylesheet">
+	<link href="{{ url_for('static', filename='node_modules/bootstrap-icons/font/bootstrap-icons.css') }}" rel="stylesheet" media="screen">
+	<!-- Global -->
+	<link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet" media="screen">
+	<!-- Per view -->
+	{% block css %}{% endblock %}
+	{% block style %}{% endblock %}
+</head>
+
+<body {% block bodyclass %}{% endblock %}>
+	
+	<input type="hidden" id="session_id" value="{{session['user_id']}}" readonly>
+	<div id="floating-container"></div>
+	
+	{% include '_header.html' %}
+
+	<div class="container-fluid">
+	{%- with errors = get_flashed_messages(category_filter=["success"]) -%}
+		{% if errors %}
+		<br>
+		{% for msg in errors %}
+		<div class="alert alert-success alert-dismissable text-center">
+		{{ msg | safe }}
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+		{% endfor %}
+		{% endif %}
+	{% endwith %}
+	{%- with errors = get_flashed_messages(category_filter=["warning"]) -%}
+		{% if errors %}
+		<br>
+		{% for msg in errors %}
+		<div class="alert alert-warning alert-dismissable text-center">
+		{{ msg | safe }}
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+		{% endfor %}
+		{% endif %}
+	{% endwith %}
+	{%- with errors = get_flashed_messages(category_filter=["danger"]) -%}
+		{% if errors %}
+		<br>
+		{% for msg in errors %}
+		<div class="alert alert-danger alert-dismissable text-center">
+		{{ msg | safe }}
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+		{% endfor %}
+		{% endif %}
+	{% endwith %}
+	</div>
+
+	<!-- Begin .container page wrapper -->
+	{% block content %}{% endblock %}
+	<script src="{{ url_for('static', filename='node_modules/jquery/dist/jquery.min.js') }}" type="application/JavaScript"></script>
+  	<script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}" type="application/JavaScript"></script>
+	<script src="{{ url_for('static', filename='node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') }}" type="application/JavaScript"></script>
+	<script src="{{ url_for('static', filename='js/floating-notifs.js') }}" type="application/JavaScript"></script>
+	
+    <!-- Include all individual files as needed -->
+  {% block js %}{% endblock %}
+</body>
+
+</html>

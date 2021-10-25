@@ -1,0 +1,19 @@
+{
+  "name": "static",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Yui",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "bootstrap": "^5.0.2",
+    "bootstrap-datepicker": "^1.9.0",
+    "bootstrap-icons": "^1.5.0",
+    "chart.js": "^3.4.1",
+    "lightense-images": "^1.0.17",
+    "socket.io": "^4.1.3"
+  }
+}

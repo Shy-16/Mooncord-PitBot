@@ -1,0 +1,31 @@
+{% extends "_base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block js %}
+	<script src="{{ url_for('static', filename='js/login.js') }}" type="text/JavaScript"></script>
+{% endblock %}
+
+{% block style %}
+<link href="{{ url_for('static', filename='css/login.css') }}" rel="stylesheet" media="screen">
+{% endblock %}
+ 
+{% block content %}
+<div class="container">
+
+	<div class="row justify-content-center">
+		<div class="col-12 col-sm-8 col-md-6 col-lg-6">
+			<img src="{{ url_for('static', filename='images/logo.gif') }}" alt="m2" class="img-responsive">
+		</div>
+	</div>
+
+	<div class="row justify-content-center">
+		<div class="col-12 col-sm-8 col-md-6 col-lg-6 text-center">
+			<a href="{{ url_for('oauth.redirect') }}" class="btn btn-outline-light">
+				<img src="{{ url_for('static', filename='images/discord_logo.png') }}" width="64" height="64" alt="m2" class="img-responsive">
+			</a>
+		</div>
+	</div>
+	
+</div>
+{% endblock %}

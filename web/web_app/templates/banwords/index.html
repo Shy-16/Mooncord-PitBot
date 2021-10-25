@@ -1,0 +1,305 @@
+{% extends "_base.html" %}
+
+{% block title %}Banwords{% endblock %}
+
+{% block js %}
+	<script src="{{ url_for('static', filename='js/banwords.js') }}" type="text/JavaScript"></script>
+{% endblock %}
+
+{% block style %}
+<link href="{{ url_for('static', filename='css/banwords.css') }}" rel="stylesheet" media="screen">
+{% endblock %}
+ 
+{% block content %}
+<div class="container">
+
+	<div class="row my-3">
+		<div class="col-12">
+			<h1 class="d-inline">Banwords</h1>
+
+			<a href="" data-bs-toggle="modal" data-bs-target="#create-banword-modal" class="btn btn-primary float-end mt-2">
+				<i class="bi bi-plus"></i> Add
+			</a>
+		</div>
+	</div>
+
+	<div id="banwords-container" class="row">
+
+		{% for banword in banwords %}
+		<div class="col-3 banword">
+			<div class="banword-title-row">
+				<h4>{{ banword['word'] }}</h4>
+
+				<label class="switch-small ml-auto">
+					<input type="checkbox" name="status" {{ 'checked' if banword['active'] }} />
+					<span class="slider round"></span>
+				</label>
+
+				<label class="timeout-info">{{ seconds_to_string_full(banword['duration']) }} timeout</label>
+			</div>
+
+			<div class="banword-options-row mt-3">
+				<i class="bi bi-link-45deg {{ 'text-success' if banword['include_link'] else 'text-muted' }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete message"></i>&emsp;
+				<i class="bi bi-trash {{ 'text-success' if banword['delete_message'] else 'text-muted' }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete message"></i>&emsp;
+				<i class="bi bi-clock {{ 'text-success' if banword['variable_time'] else 'text-muted' }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Variable time"></i>&emsp;
+				<i class="bi bi-calendar3 {{ 'text-danger' if banword['temporary_ban'] else 'text-muted' }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Temporary ban"></i>&emsp;
+				<i class="bi bi-calendar2-x {{ 'text-danger' if banword['permanent_ban'] else 'text-muted' }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Permanent ban"></i>
+
+				<button type="button" class="btn btn-link btn-sm float-end py-0 edit-banword" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ banword['_id']}} ">
+					<i class="bi bi-pencil-fill"></i>
+				</button>
+			</div>
+		</div>
+		{% endfor %}
+
+	</div>
+	
+</div>
+
+<div class="modal fade" id="create-banword-modal" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">New Banword</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+
+				<form id="create-banword-form" method="POST" action="">
+				
+					<div class="row mb-3">
+						<div class="col">
+							<div class="form-group">
+								<label for="create-banword-word">Banned word:</label>
+								<input type="text" name="word" class="form-control" id="create-banword-word" placeholder="Ex: retard" />
+							</div>
+						</div>
+					</div>
+
+					<div class="row mb-3">
+						<div class="col">
+							<label for="create-banword-time">Time:</label>
+							<input type="text" name="time" class="form-control" id="create-banword-time" placeholder="Ex: 3" />
+						</div>
+						<div class="col">
+							<label for="create-banword-duration">Duration:</label>
+							<select name="duration" class="form-control" id="create-banword-duration">
+								<option value="seconds">seconds</option>
+								<option value="minutes">minutes</option>
+								<option value="hours">hours</option>
+								<option value="days">days</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col switch-group">
+							<label class="switch-small me-2">
+								<input type="checkbox" name="include_link" />
+								<span class="slider round"></span>
+							</label>
+							<label>Include links</label>
+						</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col">
+							<small class="text-muted d-block">Links will also be parsed against the word.</small>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col switch-group">
+							<label class="switch-small me-2">
+								<input type="checkbox" name="delete_message" checked />
+								<span class="slider round"></span>
+							</label>
+							<label>Delete message</label>
+						</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col">
+							<small class="text-muted d-block">The message will be deleted.</small>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col switch-group">
+							<label class="switch-small me-2">
+								<input type="checkbox" name="variable_time" checked />
+								<span class="slider round"></span>
+							</label>
+							<label>Variable time</label>
+						</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col">
+							<small class="text-muted d-block">The time will scalate from base depending on strikes of user.</small>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col switch-group">
+							<label class="switch-small me-2">
+								<input type="checkbox" name="temporary_ban" />
+								<span class="slider round"></span>
+							</label>
+							<label>Temporary ban</label>
+						</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col">
+							<small class="text-muted d-block">The user will get kicked from the server for a certain amount of time.</small>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col switch-group">
+							<label class="switch-small me-2">
+								<input type="checkbox" name="permanent_ban" />
+								<span class="slider round"></span>
+							</label>
+							<label>Permanent ban</label>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<small class="text-muted d-block">The user will get kicked from the server without the possibility of returning.</small>
+						</div>
+					</div>
+
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" id="create-banword-button">Create</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="edit-banword-modal" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Edit Banword</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+
+				<form id="edit-banword-form" method="POST" action="">
+
+					<input type="hidden" id="edit-banword-id" value="">
+				
+					<div class="row mb-3">
+						<div class="col">
+							<div class="form-group">
+								<label for="edit-banword-word">Banned word:</label>
+								<input type="text" name="word" class="form-control" id="edit-banword-word" placeholder="Ex: retard" />
+							</div>
+						</div>
+					</div>
+
+					<div class="row mb-3">
+						<div class="col">
+							<label for="edit-banword-time">Time:</label>
+							<input type="text" name="time" class="form-control" id="edit-banword-time" placeholder="Ex: 3" />
+						</div>
+						<div class="col">
+							<label for="edit-banword-duration">Duration:</label>
+							<select name="duration" class="form-control" id="edit-banword-duration">
+								<option value="seconds">seconds</option>
+								<option value="minutes">minutes</option>
+								<option value="hours">hours</option>
+								<option value="days">days</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col switch-group">
+							<label class="switch-small me-2">
+								<input type="checkbox" name="include_link" id="edit-include" />
+								<span class="slider round"></span>
+							</label>
+							<label>Include links</label>
+						</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col">
+							<small class="text-muted d-block">Links will also be parsed against the word.</small>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col switch-group">
+							<label class="switch-small me-2">
+								<input type="checkbox" name="delete_message" id="edit-delete" />
+								<span class="slider round"></span>
+							</label>
+							<label>Delete message</label>
+						</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col">
+							<small class="text-muted d-block">The message will be deleted.</small>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col switch-group">
+							<label class="switch-small me-2">
+								<input type="checkbox" name="variable_time" id="edit-variable" />
+								<span class="slider round"></span>
+							</label>
+							<label>Variable time</label>
+						</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col">
+							<small class="text-muted d-block">The time will scalate from base depending on strikes of user.</small>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col switch-group">
+							<label class="switch-small me-2">
+								<input type="checkbox" name="temporary_ban" id="edit-temporary" />
+								<span class="slider round"></span>
+							</label>
+							<label>Temporary ban</label>
+						</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col">
+							<small class="text-muted d-block">The user will get kicked from the server for a certain amount of time.</small>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col switch-group">
+							<label class="switch-small me-2">
+								<input type="checkbox" name="permanent_ban" id="edit-permanent" />
+								<span class="slider round"></span>
+							</label>
+							<label>Permanent ban</label>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<small class="text-muted d-block">The user will get kicked from the server without the possibility of returning.</small>
+						</div>
+					</div>
+
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger me-auto" id="delete-banword-button">Delete</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" id="edit-banword-button">Save</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

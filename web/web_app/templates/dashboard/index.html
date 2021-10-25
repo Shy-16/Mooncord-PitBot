@@ -1,0 +1,105 @@
+{% extends "_base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block js %}
+	<script src="{{ url_for('static', filename='node_modules/chart.js/dist/chart.min.js') }}" type="text/JavaScript"></script>
+	<script src="{{ url_for('static', filename='js/dashboard.js') }}" type="text/JavaScript"></script>
+{% endblock %}
+
+{% block style %}
+<link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet" media="screen">
+{% endblock %}
+ 
+{% block content %}
+<div class="container-fluid">
+	<input type="hidden" id="timeout-chart-data" value='{{ timeout_data["chart_data"] | tojson | safe }}'>
+	<input type="hidden" id="strikes-chart-data" value='{{ strikes_data["chart_data"] | tojson | safe }}'>
+	<input type="hidden" id="aggregated-chart-data" value='{{ aggregated_data["chart_data"] | tojson | safe }}'>
+
+	<div class="row mt-3">
+		<div class="col-12">
+			<h1>Dashboard</h1>
+		</div>
+	</div>
+
+	<div class="row mt-3">
+		<div class="col-12">
+			<h4>Server Information</h4>
+		</div>
+	</div>
+
+	<div class="row charts-row justify-content-center">
+		<div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4 chart-divider">
+			<canvas id="strikes-chart" height="300"></canvas>
+		</div>
+		<div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+			<canvas id="aggregated-chart" height="300"></canvas>
+		</div>
+	</div>
+
+	<div class="row mt-5">
+		<div class="col-6">
+			<h3 class="mb-2">Users with an active Timeout</h3>
+
+			<ul class="list-unstyled entry-list">
+				<li>
+					<span class="entry-user fw-bold">User</span>
+					<span class="entry-reason fw-bold">Reason</span>
+					<span class="entry-time fw-bold">Total Time</span>
+					<span class="entry-time fw-bold">Remaining time</span>
+					<span class="entry-issuer fw-bold">Issuer</span>
+				</li>
+				{% for timeout in timeout_data['active'] %}
+				<li>
+					<span class="entry-user user-id" data-id="{{ timeout['user']['discord_id'] }}">
+						<img src="{{ build_avatar_url(timeout['user']['discord_id'], timeout['user']['avatar']) }}" width="32" class="img-responsive user-avatar" />
+						{{ timeout['user']['username'] }}#{{ timeout['user']['username_handle'] }}
+					</span>
+					<span class="entry-reason">{{ timeout['reason'] }}</span>
+					<span class="entry-time">{{ seconds_to_string(timeout['time']) }} total</span>
+					<span class="entry-time">{{ remaining_strike_time(timeout['created_date'], timeout['time']) }} remaining</span>
+					<span class="entry-issuer">{{ timeout['issuer']['username'] }}#{{ timeout['issuer']['username_handle'] }}</span>
+				</li>
+				{% endfor %}
+			</ul>
+		</div>
+
+		<div class="col-6">
+			<h3 class="mb-2">Users with most strikes</h3>
+
+			<ul class="list-unstyled strikes-list">
+				{% for user in strikes_data['users'] %}
+				<li class="strike-item">
+					<span class="strikes-user user-id" data-id="{{ strikes_data['users'][user]['discord_id'] }}">
+						<img src="{{ build_avatar_url(strikes_data['users'][user]['discord_id'], strikes_data['users'][user]['avatar']) }}" width="32" class="img-responsive user-avatar" />
+						{{ strikes_data['users'][user]['username'] }}#{{ strikes_data['users'][user]['username_handle'] }}
+					</span>
+					<span class="entry-issuer">{{ strikes_data['users'][user]['strikes'] | length }} strikes</span>
+					<ul class="list-unstyled strike-list d-none">
+						<li class="list-header">
+							<h6>Active strikes</h6>
+						</li>
+						<lI class="list-columns">
+							<span class="entry-user fw-bold">Strike ID</span>
+							<span class="entry-reason fw-bold">Reason</span>
+							<span class="entry-date fw-bold">Date</span>
+							<span class="entry-issuer fw-bold">Issuer</span>
+						</li>
+						{% for strike in strikes_data['users'][user]['strikes'] %}
+						<li>
+							<span class="entry-user strike-id" data-id="{{ strike['_id'] }}">{{ strike['_id'] }}</span>
+							<span class="entry-reason">{{ strike['reason'] }}</span>
+							<span class="entry-date">{{ date_to_string(strike['created_date']) }}</span>
+							<span class="entry-issuer">{{ strike['issuer']['username'] }}#{{ strike['issuer']['username_handle'] }}</span>
+						</li>
+						{% endfor %}
+					</ul>
+				</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+	
+</div>
+{% endblock %}

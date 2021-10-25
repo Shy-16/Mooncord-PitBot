@@ -1,0 +1,78 @@
+body {
+	color:  white;
+	background-color: #14130a;
+}
+
+.modal {
+	color: #212529;
+}
+
+ul.nav > li.active {
+	background-color: #161a1f;
+}
+
+ul.nav > li.active a {
+	color: white;
+}
+
+@keyframes float-enter {
+	from {
+		width: 50%;
+	}
+ 	to {
+ 		width: 100%;
+ 	}
+}
+
+@keyframes float-leave {
+	from {
+		opacity: 1;
+	}
+ 	to {
+ 		opacity: 0;
+ 	}
+}
+
+#floating-container {
+    position: absolute;
+    right: 20px;
+    top: 8vh;
+    width: 20vw;
+}
+
+.floating-notification {
+	display: flex;
+    padding: 0.5rem 1rem;
+    border-radius: .25rem;
+    margin-bottom: .5rem;
+    white-space: nowrap;
+}
+
+.floating-notification--enter {
+	animation: float-enter;
+    animation-duration: .5s;
+}
+
+.floating-notification--leave {
+	animation: float-leave;
+	animation-duration: .5s;
+}
+
+.floating-notification.success {
+    background: #427f42;
+    border: 2px solid #9cff9c;
+}
+
+.floating-notification.warning {
+    background: #928f27;
+    border: 2px solid #fff800;
+}
+
+.floating-notification.danger {
+    background: #73282a;
+    border: 2px solid #ff5257;
+}
+
+.floating-notification .btn-close{
+	margin-left: auto;
+}

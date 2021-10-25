@@ -1,0 +1,42 @@
+# Python-specific stuff
+__pycache__
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# system files
+.DS_Store
+
+# PID files
+.*.pid
+
+# Log folder
+logs/
+*.log
+
+node_modules/
+
+# Config
+configs/
+uwsgiconfigs/
+config.ini
+config.yaml
+config.py
+!uwsgi_cache.ini
+!uwsgi_shared.ini
+!.mypy.ini
+
+# User created code
+userdispatch.py
+
+# Ignore virtual environment folder
+venv/
+
+.idea/
+.vscode/
+.vscode-server/
+.vim/
+
+# Run bat made for development
+start.bat
+git_push.bat
