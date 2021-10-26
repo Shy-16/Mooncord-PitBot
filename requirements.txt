@@ -17,10 +17,12 @@ MarkupSafe==2.0.1
 multidict==5.1.0
 pymongo==3.11.4
 python-engineio==4.2.0
+python-levenshtein>=0.12
 python-socketio==5.3.0
 pytz==2021.1
 PyYAML==5.4.1
 simple_websocket==0.2.0
+thefuzz[speedup]==0.19.0
 typing-extensions==3.10.0.0
 Werkzeug==2.0.1
 yarl==1.6.3

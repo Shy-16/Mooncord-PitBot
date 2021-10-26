@@ -95,6 +95,48 @@ body {
   border-radius: 50%;
 }
 
+/* Slider range */
+.slidecontainer {
+  width: 100%; /* Width of the outside container */
+}
+
+/* The slider itself */
+.range-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 5px;  
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+/* Mouse-over effects */
+.range-slider:hover {
+  opacity: 1;
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%; 
+  background: #2196F3;
+  cursor: pointer;
+}
+
+.range-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2196F3;
+  cursor: pointer;
+}
+
 /* Banword */
 .banword {
     width: 24%;
@@ -113,7 +155,7 @@ body {
 }
 
 .banword-title-row > h4 {
-	flex: 1 0 auto;
+	flex: 1 0 85%;
 	margin-bottom: 0;
 }
 
@@ -121,9 +163,15 @@ body {
 	flex: 1 0 auto;
 }
 
-.banword-title-row > .timeout-info {
-	flex: 1 1 100%;
-	font-size: 95%;
+.banword-title-row > .timeout-info{
+	flex: 1 1 50%;
+  font-size: 95%;
+}
+
+.banword-title-row > .strictness {
+  flex: 1 1 50%;
+  font-size: 95%;
+  text-align: right;
 }
 
 .banword-config-row {

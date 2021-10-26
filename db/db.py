@@ -423,6 +423,24 @@ class Database:
 
 		return guild_info
 
+	def get_banwords(self, query=None):
+		"""
+		Return all banwords associated with it
+
+		returns: list of Banword
+		"""
+
+		col = self._db['banwords']
+
+		params = {}
+
+		if query is not None:
+			params.update(query)
+
+		results = col.find(params)
+
+		return list(results)
+
 
 if __name__ == '__main__':
 	import pprint

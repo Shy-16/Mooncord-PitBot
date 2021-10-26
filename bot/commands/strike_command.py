@@ -120,8 +120,8 @@ class Strike(Command):
 
 		user_strikes = self._bot.db.get_all_user_strikes(mention)
 
-		active_strike_text = ""
-		expired_strike_text = ""
+		active_strike_text = '```No active strikes```'
+		expired_strike_text = '```No previous strikes```'
 		if user_strikes.count() > 0:
 			active_strike_messages = list()
 			expired_strike_messages = list()

@@ -48,3 +48,26 @@ def get_banword(banword_id):
     banword['user_id'] = str(banword['user_id'])
 
     return jsonify(banword), 200
+
+@banwords_bp.route('/banwords/<banword_id>', methods=['PUT'], endpoint="put")
+@verify_session
+def put_banword(banword_id):
+
+    data = request.json
+
+    db = Database()
+    banword = db.put_banword(banword_id, data)
+    banword['_id'] = str(banword['_id'])
+    banword['guild_id'] = str(banword['guild_id'])
+    banword['user_id'] = str(banword['user_id'])
+
+    return jsonify(banword), 200
+
+@banwords_bp.route('/banwords/<banword_id>', methods=['DELETE'], endpoint="delete")
+@verify_session
+def delete_banword(banword_id):
+
+    db = Database()
+    banword = db.delete_banword(banword_id)
+
+    return jsonify({'status': 'OK', 'id': str(banword_id)}), 200

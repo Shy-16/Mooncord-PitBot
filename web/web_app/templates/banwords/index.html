@@ -31,21 +31,22 @@
 				<h4>{{ banword['word'] }}</h4>
 
 				<label class="switch-small ml-auto">
-					<input type="checkbox" name="status" {{ 'checked' if banword['active'] }} />
+					<input type="checkbox" name="status" {{ 'checked' if banword['active'] }} data-id="{{ banword['_id']}}" />
 					<span class="slider round"></span>
 				</label>
 
 				<label class="timeout-info">{{ seconds_to_string_full(banword['duration']) }} timeout</label>
+				<label class="strictness">{{ banword['strength'] }}% strict</label>
 			</div>
 
 			<div class="banword-options-row mt-3">
-				<i class="bi bi-link-45deg {{ 'text-success' if banword['include_link'] else 'text-muted' }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete message"></i>&emsp;
+				<i class="bi bi-link-45deg {{ 'text-primary' if banword['include_link'] else 'text-muted' }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Include links"></i>&emsp;
 				<i class="bi bi-trash {{ 'text-success' if banword['delete_message'] else 'text-muted' }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete message"></i>&emsp;
 				<i class="bi bi-clock {{ 'text-success' if banword['variable_time'] else 'text-muted' }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Variable time"></i>&emsp;
 				<i class="bi bi-calendar3 {{ 'text-danger' if banword['temporary_ban'] else 'text-muted' }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Temporary ban"></i>&emsp;
 				<i class="bi bi-calendar2-x {{ 'text-danger' if banword['permanent_ban'] else 'text-muted' }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Permanent ban"></i>
 
-				<button type="button" class="btn btn-link btn-sm float-end py-0 edit-banword" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ banword['_id']}} ">
+				<button type="button" class="btn btn-link btn-sm float-end py-0 edit-banword" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ banword['_id']}}">
 					<i class="bi bi-pencil-fill"></i>
 				</button>
 			</div>
@@ -89,6 +90,20 @@
 								<option value="hours">hours</option>
 								<option value="days">days</option>
 							</select>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col">
+							<label>Strictness: </label>
+							<div id="create-range-value" class="d-inline">95</div>%
+						</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col">
+							<div class="slidecontainer">
+								<input type="range" min="1" max="100" value="95" class="range-slider" id="create-range" name="strength">
+							</div>
 						</div>
 					</div>
 
@@ -213,6 +228,20 @@
 								<option value="hours">hours</option>
 								<option value="days">days</option>
 							</select>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col">
+							<label>Strength: </label>
+							<div id="edit-range-value" class="d-inline">95</div>%
+						</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col">
+							<div class="slidecontainer">
+								<input type="range" min="1" max="100" value="95" class="range-slider" id="edit-range" name="strength">
+							</div>
 						</div>
 					</div>
 

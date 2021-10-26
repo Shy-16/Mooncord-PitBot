@@ -5,7 +5,7 @@
 
 import logging
 import datetime
-from pymongo import MongoClient
+from pymongo import MongoClient, ReturnDocument
 import bson
 from bson.objectid import ObjectId
 
@@ -464,6 +464,7 @@ class Database:
 			'user_id': bson.Int64(data['user_id']),
 			'word': data['word'],
 			'duration': data['duration'],
+			'strength': data['strength'],
 			'delete_message': data['delete_message'],
 			'variable_time': data['variable_time'],
 			'temporary_ban': data['temporary_ban'],
@@ -492,6 +493,42 @@ class Database:
 		col = self._db['banwords']
 
 		result = col.find_one({'_id': ObjectId(banword_id)})
+
+		return result
+
+	def put_banword(self, banword_id, data):
+		"""
+		Given a banword_id and data update banword of ID with given data
+
+		@banword_id: ID of banword
+		@data: json like of update data
+
+		returns: Banword
+		"""
+
+		col = self._db['banwords']
+
+		result = col.find_one_and_update({'_id': ObjectId(banword_id)},
+			{"$set" : data }, return_document=ReturnDocument.AFTER
+		)
+
+		if result is None:
+			result = dict()
+
+		return result
+
+	def delete_banword(self, banword_id):
+		"""
+		Given a banword_id delete a banword with that ID
+
+		@banword_id: ID of banword
+
+		returns: deleted banword
+		"""
+
+		col = self._db['banwords']
+
+		result = col.find_one_and_delete({'_id': ObjectId(banword_id)})
 
 		return result
 

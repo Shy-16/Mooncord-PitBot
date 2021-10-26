@@ -13,6 +13,7 @@ from discord.ext import tasks
 from db import Database
 from .utils import iso_to_datetime, datetime_to_iso, date_string_to_timedelta
 from .log_utils import init_log, do_log
+from .modules.banwords import Banwords
 
 from .commands import CommandContext, DMContext, Timeout, BotConfig, Release, Strike, Roles, Help, Close, Shutdown
 
@@ -31,6 +32,9 @@ class Sayo(discord.Client):
         self.args = args
         self.db = Database(self.config['database'])
         self.silent = config['discord']['silent']
+        self.banwords = list()
+        self.banword_list = list()
+        self.banword_module = Banwords(self)
 
         self.end_bot = False
 
@@ -62,6 +66,7 @@ class Sayo(discord.Client):
 
     def run(self):
         self.free_users.start()
+        self.refresh_banword_cache.start()
         super().run(self.args.token)
 
     ### Run Scheduler
@@ -111,6 +116,16 @@ class Sayo(discord.Client):
                    data_dict={'event': 'auto_release', 'author_id': self.user.id, 'author_handle': f'{self.user.name}#{self.user.discriminator}'},
                    member=member)
 
+    @tasks.loop(seconds=300)
+    async def refresh_banword_cache(self):
+        if not self.is_ready():
+            return
+
+        banwords = self.db.get_banwords()
+
+        self.banwords = list(banwords)
+        self.banword_list = [banword['word'] for banword in banwords]
+
     ### Client Events
     async def on_message(self, message):
         # we do not want the bot to reply to itself
@@ -126,13 +141,13 @@ class Sayo(discord.Client):
                         return
             return
 
+        command = message.content
+        params = message.content.split()
+
         # Check for pings
         if len(message.mentions) > 0 and message.mentions[0] == self.user:
             # Someone pinged the bot, so lets activate the ping command.
             # We need to make sure that whoever pinged the bot used @sayo as first positional argument
-            command = message.content
-            params = message.content.split()
-
             if len(params) <= 1:
                 # we dont care about people just pinging the bot
                 return
@@ -149,8 +164,6 @@ class Sayo(discord.Client):
             return
 
         if message.content.startswith(self.guild_config[message.guild.id]['command_character']):
-            command = message.content
-            params = list()
             command = command.replace(self.guild_config[message.guild.id]['command_character'], '')
 
             if ' ' in command:
@@ -161,6 +174,9 @@ class Sayo(discord.Client):
             if command in self.commands:
                 await self.commands[command].execute(CommandContext(self, command, params, message))
             return
+
+        # Apply banwords
+        #await self.banword_module.handle_message(CommandContext(self, command, params, message))
 
     async def on_reaction_add(self, reaction, user):
         # This event doesnt trigger if the message is no longer cached
