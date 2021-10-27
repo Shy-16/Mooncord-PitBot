@@ -118,9 +118,6 @@ class Sayo(discord.Client):
 
     @tasks.loop(seconds=300)
     async def refresh_banword_cache(self):
-        if not self.is_ready():
-            return
-
         banwords = self.db.get_banwords()
 
         self.banwords = list(banwords)
@@ -176,7 +173,7 @@ class Sayo(discord.Client):
             return
 
         # Apply banwords
-        #await self.banword_module.handle_message(CommandContext(self, command, params, message))
+        await self.banword_module.handle_message(CommandContext(self, command, params, message))
 
     async def on_reaction_add(self, reaction, user):
         # This event doesnt trigger if the message is no longer cached

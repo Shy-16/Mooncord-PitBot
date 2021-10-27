@@ -7,7 +7,8 @@ import asyncio
 import math
 from thefuzz import fuzz, process
 
-from bot.utils import seconds_to_string
+from bot.utils import iso_to_datetime, seconds_to_string
+from bot.log_utils import do_log
 
 class Banwords:
 
@@ -26,23 +27,23 @@ class Banwords:
 		"""
 
 		# Get banwords from bot
-		matches = process.extract(context.message, self._bot.banwords, scorer=fuzz.partial_ratio)
+		matches = process.extract(context.message.content, self._bot.banword_list, scorer=fuzz.partial_ratio)
 
 		for match in matches:
 			for banword in self._bot.banwords:
 				if banword['word'] == match[0]:
-					if banword['strength'] >= match[1]:
-
+					if match[1] >= banword['strength']:
 						# Timeout user based on selected configuration
-						await do_timeout(banword, context)
+						await self.do_timeout(banword, context)
+						return
 
 	async def do_timeout(self, banword, context):
 		# Check if its inside a link and if we allow links or not.
-		if context.message.startswith("http") and not banword['include_link']:
+		if context.message.content.startswith("http") and not banword['include_link']:
 			return
 
 		# Get user information and user strikes
-		user_strikes = list(self._bot.db.get_user_strikes(context.author))
+		user_strikes = self._bot.db.get_user_strikes(context.author)
 
 		# First check base duration
 		duration = banword['duration'] # in seconds
@@ -61,7 +62,7 @@ class Banwords:
 		reason = 'Automatic timeout issued for typing a banned word: ({})'.format(banword['word'])
 
 		# Issue the timeout
-		timeout_info = self._bot.db.add_user_timeout(context.author, context.guild, duration+increment, self._bot, reason)
+		timeout_info = self._bot.db.add_user_timeout(context.author, context.guild, duration+increment, self._bot.user, reason)
 
 		# Add the roles
 		for role in context.ban_roles:
@@ -71,7 +72,7 @@ class Banwords:
 
 		# generate logs in proper channel
 		if context.log_channel:
-			user_timeouts = self._bot.db.get_user_timeouts(mention, {'status': 'expired'})
+			user_timeouts = self._bot.db.get_user_timeouts(context.author, {'status': 'expired'})
 
 			strike_text = ""
 			if user_strikes.count() > 0:
@@ -84,13 +85,13 @@ class Banwords:
 
 				strike_text = "```" + "\r\n".join(strike_messages) + "```"
 
-			info_message = f"<@{mention.id}> was timed out for {seconds_to_string(duration+increment)} for typing a banned word: {banword['word']} \r\n\
+			info_message = f"<@{context.author.id}> was timed out for {seconds_to_string(duration+increment)} for typing a banned word: {banword['word']} \r\n\
 			The timeout has a {seconds_to_string(duration)} base duration with {seconds_to_string(increment)} additional time from previous strikes."
 
 			fields = [
 				{'name': 'Issue', 'value': info_message, 'inline': False},
-				{'name': 'Timeouts', 'value': f"<@{mention.id}> has {user_timeouts.count()} previous timeouts.", 'inline': False},
-				{'name': 'Strikes', 'value': f"<@{mention.id}> has {user_strikes.count()} active strikes:\r\n{strike_text}", 'inline': False}
+				{'name': 'Timeouts', 'value': f"<@{context.author.id}> has {user_timeouts.count()} previous timeouts.", 'inline': False},
+				{'name': 'Strikes', 'value': f"<@{context.author.id}> has {user_strikes.count()} active strikes:\r\n{strike_text}", 'inline': False}
 			]
 
 			await self._bot.send_embed_message(context.log_channel, "User Timeout", fields=fields)
@@ -108,5 +109,5 @@ class Banwords:
 				to get a summary of your disciplinary history on Mooncord.", 'inline': False}
 		]
 
-		await self._bot.send_embed_dm(mention, "User Timeout", fields=fields)
+		await self._bot.send_embed_dm(context.author, "User Timeout", fields=fields)
 

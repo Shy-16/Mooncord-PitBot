@@ -97,7 +97,7 @@ class Database:
 			'guild_id': bson.Int64(guild.id),
 			'issuer_id': None,
 			'reason': 'No reason specified',
-			'time': time,
+			'time': int(time),
 			'status': 'active',
 			'created_date': datetime.now().isoformat(),
 			'updated_date': datetime.now().isoformat()
