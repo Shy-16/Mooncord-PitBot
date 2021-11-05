@@ -6,8 +6,7 @@ chardet==4.0.0
 click==8.0.1
 colorama==0.4.4
 DateTime==4.3
-discord==1.7.3
-discord.py==1.7.3
+discord-continued==1.0.2
 Flask==2.0.1
 Flask-SocketIO==5.1.0
 idna==3.2

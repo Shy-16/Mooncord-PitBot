@@ -1,1 +1,0 @@
-from .modmail import modmail_bp

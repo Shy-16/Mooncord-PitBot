@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-## Parse Args ##
-# Get OS arguments and make sure Token is in it #
+## Utils ##
+# Any utlity functions required to get prepare the bot #
 
 import argparse
-
 
 def parse_args():
     """

@@ -8,12 +8,16 @@ import signal
 import sys
 import yaml
 
-from bot.sayo import Sayo
-from bot.utils import parse_args
+from bot import Bot
+from .utils import parse_args
 
 if __name__ == '__main__':
 
     args = parse_args()
+    if(not args.token):
+        print("You need to provide a secret token with \"--token\" or \"-t\" ")
+        sys.exit(0)
+
     try:
         config_file = open('config.yaml', 'r')
         config = yaml.load(config_file, Loader=yaml.FullLoader)
@@ -23,14 +27,11 @@ if __name__ == '__main__':
         sys.exit(0)
 
     except IOError:
-        print("Sayo doesn't have the proper permissions to read \"config.yaml\".")
+        print("Pit Bot doesn't have the proper permissions to read \"config.yaml\".")
         sys.exit(0)
-
-    def on_break(signal, frame):
-        print("Sayo is now exiting.")
 
     # This logger is used only for Bot information, not discord information.
     logging.basicConfig(filename='bot.log', level=logging.INFO)
 
-    sayo = Sayo(config, args)
-    sayo.run()
+    sayo = Bot(config)
+    sayo.run(token=args.token)

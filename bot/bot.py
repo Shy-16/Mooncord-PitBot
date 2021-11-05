@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-## Sayo Module ##
+## Bot Module ##
 # This is the main Bot module with functionality #
 
 import logging
 import yaml
 import datetime
 import discord
-from discord.utils import get
 from discord.ext import tasks
 
 from db import Database
@@ -17,19 +16,14 @@ from .modules.banwords import Banwords
 
 from .commands import CommandContext, DMContext, Timeout, BotConfig, Release, Strike, Roles, Help, Close, Shutdown
 
-class Sayo(discord.Client):
+class Bot(discord.Client):
 
-    def __init__(self, config, args):
+    def __init__(self, config):
         super().__init__(intents=discord.Intents.all())
-
-        if(not args.token):
-            print("You need to provide a secret token with \"--token\" or \"-t\" ")
-            return
 
         self.config = config
         self.guild_config = dict()
         self.default_guild = None
-        self.args = args
         self.db = Database(self.config['database'])
         self.silent = config['discord']['silent']
         self.banwords = list()
@@ -64,10 +58,10 @@ class Sayo(discord.Client):
 
         init_log()
 
-    def run(self):
+    def run(self, *, token):
         self.free_users.start()
         self.refresh_banword_cache.start()
-        super().run(self.args.token)
+        super().run(token)
 
     ### Run Scheduler
     @tasks.loop(seconds=60)
@@ -82,11 +76,12 @@ class Sayo(discord.Client):
             issued_date = iso_to_datetime(timeout['created_date'])
             expire_date = issued_date + datetime.timedelta(seconds=timeout['time'])
 
-            user = self.get_user(timeout['user_id'])
-            guild = self.get_guild(timeout['guild_id'])
+            user = await self.http.get_user(timeout['user_id'])
+            guild = self.guilds[0] # await self.http.get_guild(timeout['guild_id']) - maybe we need to do this in the future but not for now
             member = None
+
             if user is not None:
-                member = guild.get_member(user.id)
+                member = await self.http.get_member(guild_id=guild.id, member_id=user['id'])
 
             if datetime.datetime.now() >= expire_date:
                 if user is not None:
@@ -98,7 +93,7 @@ class Sayo(discord.Client):
                     return
 
                 for role in self.guild_config[guild.id]['ban_roles']:
-                    await member.remove_roles(guild.get_role(role), reason="Timeout expired.")
+                    await self.http.remove_member_role(guild_id=guild.id, user_id=member['id'], role_id=role, reason="Timeout expired.")
 
                 if not self.is_silent(timeout_info['guild_id']):
                     await self.send_embed_message(self.guild_config[guild.id]['log_channel'], "User Released",
@@ -124,9 +119,16 @@ class Sayo(discord.Client):
         self.banword_list = [banword['word'] for banword in banwords]
 
     ### Client Events
-    async def on_message(self, message):
+    async def on_message_create(self, ctx: discord.Context):
+        # <Context type=0 tts=False timestamp=2021-11-04T16:29:05.213000+00:00 referenced_message=None pinned=False nonce=905856187830894592 mentions=[] 
+        # mention_roles=[] mention_everyone=False member={'roles': ['555747311016476693', ...], 'premium_since': None, 'pending': False, 'nick': 'yui', 
+        # 'mute': False, 'joined_at': '2019-03-08T05:49:16.519000+00:00', 'is_pending': False, 'hoisted_role': '553454347795824650', 'deaf': False, 
+        # 'avatar': None} id=905856187998806076 flags=0 embeds=[] edited_timestamp=None content=test components=[] channel_id=593048383405555725 
+        # author={'username': 'yuigahamayui', 'public_flags': 128, 'id': '539881999926689829', 'discriminator': '7441', 
+        # 'avatar': 'f493550c33cd55aaa0819be4e9a988a6'} attachments=[] guild_id=553454168631934977 event_name=MESSAGE_CREATE>
+        
         # we do not want the bot to reply to itself
-        if message.author == self.user or message.author.bot:
+        if ctx.author['id'] == self.user.id or message.author.get('bot'):
             return
 
         if message.channel.type == discord.enums.ChannelType.private:
@@ -182,7 +184,7 @@ class Sayo(discord.Client):
         if user == self.user or user.bot:
             return
 
-    async def on_ready(self):
+    async def on_ready(self, ctx: discord.Context):
         print('Logged in as')
         print(self.user.name)
         print(self.user.id)
@@ -202,8 +204,8 @@ class Sayo(discord.Client):
         print('Finished loading all guild info.')
         logging.info("All configuration finished.")
 
-        activity = discord.Game("DM to contact staff | DM help for more info.")
-        await super().change_presence(activity=activity)
+        #activity = discord.Game("DM to contact staff | DM help for more info.")
+        #await super().change_presence(activity=activity)
 
     async def update_guild_configuration(self, guild):
         guild_config = self.db.load_server_configuration(guild, self)
