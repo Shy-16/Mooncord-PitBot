@@ -1,0 +1,19 @@
+db.users.update( {discord_id: { $type: 18} }, [{ $set: { discord_id: { $convert: { input: "$discord_id", to: 2 } } } }], {multi: true} )
+
+db.users_strikes.update( {user_id: { $type: 18} }, [{ $set: { user_id: { $convert: { input: "$user_id", to: 2 } } } }], {multi: true} )
+db.users_strikes.update( {guild_id: { $type: 18} }, [{ $set: { guild_id: { $convert: { input: "$guild_id", to: 2 } } } }], {multi: true} )
+db.users_strikes.update( {issuer_id: { $type: 18} }, [{ $set: { issuer_id: { $convert: { input: "$issuer_id", to: 2 } } } }], {multi: true} )
+
+db.users_timeouts.update( {user_id: { $type: 18} }, [{ $set: { user_id: { $convert: { input: "$user_id", to: 2 } }, guild_id: { $convert: { input: "$guild_id", to: 2 } } } }], {multi: true} )
+db.users_timeouts.update( {issuer_id: { $type: 18} }, [{ $set: { issuer_id: { $convert: { input: "$issuer_id", to: 2 } } } }], {multi: true} )
+
+db.modmail_users.update( {discord_id: { $type: 18} }, [{ $set: { discord_id: { $convert: { input: "$discord_id", to: 2 } } } }], {multi: true} )
+
+db.modmail_tickets.update( {user_id: { $type: 18} }, [{ $set: { user_id: { $convert: { input: "$user_id", to: 2 } } } }], {multi: true} )
+db.modmail_tickets.update( {channel_id: { $type: 18} }, [{ $set: { channel_id: { $convert: { input: "$channel_id", to: 2 } } } }], {multi: true} )
+db.modmail_tickets.update( {guild_id: { $type: 18} }, [{ $set: { guild_id: { $convert: { input: "$guild_id", to: 2 } } } }], {multi: true} )
+
+db.modmail_history.update( {user_id: { $type: 18} }, [{ $set: { user_id: { $convert: { input: "$user_id", to: 2 } } } }], {multi: true} )
+
+db.banwords.update( {guild_id: { $type: 18} }, [{ $set: { guild_id: { $convert: { input: "$guild_id", to: 2 } } } }], {multi: true} )
+db.banwords.update( {user_id: { $type: 18} }, [{ $set: { user_id: { $convert: { input: "$user_id", to: 2 } } } }], {multi: true} )

@@ -5,6 +5,9 @@
 
 import logging
 import discord
+import traceback
+import random
+from typing import Optional
 
 from database import Database
 from log_utils import init_log, do_log
@@ -35,8 +38,9 @@ class Bot(discord.Client):
         super().run(token)
 
     ## On error handler
-    #async def on_error(self, event, err):
-    #    log.error("Bot handled an error on event: {} with error: {}".format(event, err))
+    async def on_error(self, event, err):
+        exc_err = traceback.format_exc()
+        log.error("Bot handled an error on event: {} with error:\r\n{}".format(event, exc_err))
 
     ### Client Events
     async def on_message_create(self, message: discord.Context) -> None:
@@ -164,12 +168,31 @@ class Bot(discord.Client):
             strike_info = self.db.add_strike(after, after.guild, self.user, 'A moderator manually sent this user to the pit.')
 
     ### Utils
+    async def get_guild(self, *, guild_id: int) -> Optional[discord.Guild]:
+        """
+        Looks for guild information
+        """
+
+        guild = next((g for g in self.guilds if g.id == guild_id), None)
+        # Optionally maybe get info from discord itself?
+        # but for now hard pass since we only work in 1 server.
+
+        return guild
+
+    def get_timeout_image(self):
+        """
+        Dont ask
+        """
+
+        index = random.randint(0, len(self.default_guild['timeout_images']) -1)
+        return self.default_guild['timeout_images'][index]
+
     async def send_message(self, channel_id: int, content: str = "") -> dict:
         message = await self.http.send_message(channel_id, content)
         return message
 
     async def send_embed_message(self, channel_id: int, title: str = "", description: str = "", color: int = 0x0aeb06, fields: list = list(),
-        footer: dict = None) -> dict:
+        footer: dict = None, image: dict= None) -> dict:
         embed = {
             "type": "rich",
             "title": title,
@@ -180,6 +203,9 @@ class Bot(discord.Client):
 
         if footer is not None:
             embed['footer'] = footer
+
+        if image is not None:
+            embed['image'] = image
 
         message = await self.http.send_message(channel_id, '', embed=embed)
 
@@ -192,7 +218,7 @@ class Bot(discord.Client):
         return message
 
     async def send_embed_dm(self, user_id: int, title: str = "", description: str = "", color: int = 0x0aeb06, fields: list = list(),
-        footer: dict = None) -> dict:
+        footer: dict = None, image: dict = None) -> dict:
 
         embed = {
             "type": "rich",
@@ -205,13 +231,16 @@ class Bot(discord.Client):
         if footer is not None:
             embed['footer'] = footer
 
+        if image is not None:
+            embed['image'] = image
+
         dm_channel = await self.http.create_dm(user_id)
         message = await self.http.send_message(dm_channel['id'], '', embed=embed)
 
         return message
 
     ### Helpers:
-    def is_silent(self, guild_id):
+    def is_silent(self, guild_id) -> bool:
         """Return if silent including config and overrides."""
 
         if not self.config['discord']['silent'] and not self.guild_config[guild_id]['override_silent']:

@@ -24,19 +24,26 @@ class Timeout(Command):
 			await self.send_help(context)
 			return
 
-		if len(context.params) <= 1:
-			await self.send_help(context)
-			return
+		user = None
 
+		# We either need a mention or an ID as first parameter.
 		if not context.mentions:
-			await self.send_help(context)
-			return
+			user_id = context.params[0]
+			# review its a "valid" snowflake
+			if not len(user_id) > 16:
+				await self.send_help(context)
+				return
 
-		mention = context.mentions[0]
+			user = self._pitbot.get_user(user_id=user_id)
+
+		else:
+			user = context.mentions[0]
+
 		amount = context.params[1]
 		delta = date_string_to_timedelta(amount)
+		
 		if not delta:
-			await self.send_help(context)
+			await self._send_timeout_info(user, context)
 			return
 
 		reason = ''
@@ -44,52 +51,52 @@ class Timeout(Command):
 			reason = ' '.join(context.params[2:])
 
 		if not self.skip_strike:
-			strike_info = self._pitbot.add_strike(user=mention, guild_id=context.guild.id,
+			strike_info = self._pitbot.add_strike(user=user, guild_id=context.guild.id,
 				issuer_id=context.author['id'], reason=reason)
 
-		timeout_info = self._pitbot.get_user_timeout(mention)
+		timeout_info = self._pitbot.get_user_timeout(user)
 		extended = False
 
 		if not timeout_info:
-			timeout_info = self._pitbot.add_timeout(user=mention, guild_id=context.guild.id,
+			timeout_info = self._pitbot.add_timeout(user=user, guild_id=context.guild.id,
 				time=int(delta.total_seconds()), issuer_id=context.author['id'], reason=reason)
 		else:
 			new_time = int(delta.total_seconds() + timeout_info['time'])
-			timeout_info = self._pitbot.extend_timeout(user=mention, time=new_time)
+			timeout_info = self._pitbot.extend_timeout(user=user, time=new_time)
 			extended = True
 
 		for role in context.ban_roles:
-			await self._bot.http.add_member_role(context.guild.id, mention['id'], role, "Timeout issued by a mod.")
+			await self._bot.http.add_member_role(context.guild.id, user['id'], role, "Timeout issued by a mod.")
 		
-		await do_log(place="guild", data_dict={'event': 'command', 'command': 'timeout'}, message=context.message)
+		await do_log(place="guild", data_dict={'event': 'command', 'command': 'timeout'}, context=context)
 
-		user_strikes = self._pitbot.get_user_strikes(mention)
+		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), partial=False)
 
 		if not context.is_silent and context.log_channel:
-			user_timeouts = self._pitbot.get_user_timeouts(user=mention, status='expired')
+			user_timeouts = self._pitbot.get_user_timeouts(user=user, status='expired')
 
 			strike_text = ""
-			if user_strikes.count() > 0:
+			if len(user_strikes) > 0:
 				strike_messages = list()
 
-				for strike in user_strikes.sort('_id', -1)[:5]:
+				for strike in user_strikes[:5]:
 					date = iso_to_datetime(strike['created_date']).strftime("%m/%d/%Y %H:%M")
-					issuer = await self._bot.http.get_member(context.guild.id, strike['issuer_id'])
-					strike_messages.append(f"{date} Strike by {issuer.display_name} for {strike['reason'][0:90]} - {strike['_id']}")
+					issuer = strike['issuer'] if strike.get('issuer') else {'username': 'Unknown Issuer'}
+					strike_messages.append(f"{date} Strike by {issuer['username']} for {strike['reason'][0:90]} - {strike['_id']}")
 
 				strike_text = "```" + "\r\n".join(strike_messages) + "```"
 
-			info_message = f"<@{mention['id']}> was timedout by <@{context.author['id']}> for {amount}."
+			info_message = f"<@{user['id']}> was timed out by <@{context.author['id']}> for {amount}."
 			if extended:
-				info_message = f"<@{mention['id']}>'s timeout has been extended by <@{context.author['id']}> for {amount}."
+				info_message = f"<@{user['id']}>'s timeout has been extended by <@{context.author['id']}> for {amount}."
 
 			fields = [
-				{'name': 'Issue', 'value': info_message, 'inline': False},
-				{'name': 'Timeouts', 'value': f"<@{mention['id']}> has {user_timeouts.count()} previous timeouts.", 'inline': False},
-				{'name': 'Strikes', 'value': f"<@{mention['id']}> has {user_strikes.count()} active strikes:\r\n{strike_text}", 'inline': False}
+				{'name': 'Timeouts', 'value': f"{len(user_timeouts)} previous timeouts.", 'inline': True},
+				{'name': 'Strikes', 'value': f"{len(user_strikes)} active strikes", 'inline': True},
+				{'name': '\u200B', 'value': strike_text, 'inline': False}
 			]
 
-			await self._bot.send_embed_message(context.log_channel, "User Timeout", fields=fields)
+			await self._bot.send_embed_message(context.log_channel, "User Timeout", info_message, fields=fields)
 
 		# Send a DM to the user
 		info_message = f"You've been pitted by {context.guild.name} mod staff for {amount} for the following reason:\n\n{reason}"
@@ -97,55 +104,56 @@ class Timeout(Command):
 			info_message = f"Your active timeout in {context.guild.name} has been extended by {amount} for the following reason:\n\n{reason}"
 
 		fields = [
-			{'name': 'Ban', 'value': info_message, 'inline': False},
-			{'name': 'Strikes', 'value': f"You currently have {user_strikes.count()} active strikes in {context.guild.name} (including this one).\r\n"+
-				f"If you receive a few more pits, your following punishments will be escalated--most likely to a temporary or permanent ban.", 'inline': False},
+			{'name': 'Strikes', 'value': f"You currently have {len(user_strikes)} active strikes in {context.guild.name} (including this one).\r\n"+
+				f"If you receive a few more pits, your following punishments will be escalated, most likely to a temporary or permanent ban.", 'inline': False},
 			{'name': 'Info', 'value': f"You can message me `pithistory` or `strikes` \
-				to get a summary of your disciplinary history on Mooncord.", 'inline': False}
+				to get a summary of your disciplinary history on {context.guild.name}.", 'inline': False}
 		]
 
-		await self._bot.send_embed_dm(mention, "User Timeout", fields=fields)
+		await self._bot.send_embed_dm(user['id'], "User Timeout", info_message, fields=fields)
 
-	async def dm(self, context):
+	async def dm(self, context: DMContext) -> None:
 
-		timeout = self._bot.db.get_user_timeout(context.author)
+		timeout = self._pitbot.get_user_timeout(context.author)
 
 		if not timeout or timeout is None:
-			fields = [
-				{'name': 'Timeout Info', 'value': f"You dont have an active timeout right now.", 'inline': False}
-			]
-
-			await self._bot.send_embed_dm(context.author, "User Timeout", fields=fields)
+			await self._bot.send_embed_dm(context.author['id'], "Timeout Info", "You don't have an active timeout right now.")
 			return
 
-		guild = self._bot.get_guild(timeout['guild_id'])
+		guild = await self._bot.get_guild(guild_id=timeout['guild_id'])
+		if not guild:
+			guild = self._bot.default_guild
 
 		issued_date = iso_to_datetime(timeout['created_date'])
 		expire_date = issued_date + datetime.timedelta(seconds=timeout['time'])
 		delta = expire_date - datetime.datetime.now()
 		expires_in = seconds_to_string(int(delta.total_seconds()))
 
-		reason = ''
-		if timeout['reason']: reason = f" with reason: {timeout['reason']}"
+		reason = timeout['reason'] if timeout['reason'] else ''
+
+		description = f"You are currently timed out from {guild.name} and it will expire in {expires_in}."
 
 		fields = [
-			{'name': 'Info', 'value': f"You have an active timeout in {guild.name}.\r\nIt will expire in {expires_in}", 'inline': False},
-			{'name': 'Mods', 'value': f"Timeout was for: {reason}. Type `strikes` to get more information about your strikes.", 'inline': False}
+			{'name': 'Reason', 'value': reason, 'inline': False},
+			{'name': 'Info', 'value': f"Type `strikes` to get more information about your strikes.", 'inline': False}
 		]
 
-		await self._bot.send_embed_dm(context.author, "User Timeout", fields=fields)
-		await do_log(place="dm", data_dict={'event': 'command', 'command': 'timeout', 'author_id': context.author.id,
-				   			  'author_handle': f'{context.author.name}#{context.author.discriminator}'})
+		await self._bot.send_embed_dm(context.author['id'], "Timeout Info", description, fields=fields)
+		await do_log(place="dm", data_dict={'event': 'command', 'command': 'timeout', 'author_id': context.author['id'],
+				   			  'author_handle': f'{context.author["username"]}#{context.author["discriminator"]}'})
 
 	@verify_permission
 	async def ping(self, context):
 		if len(context.mentions) < 2:
 			return
 
+		if len(context.params) < 3:
+			return
+
 		# the way this command works is as follows:
 		# ["<@!mention_id>", "for", "30d", "for", "reason1", "reason2"..., "reasonN"]
 
-		mention = context.mentions[1] # by now we've already stablished mentions 0 is the bot
+		user = context.mentions[1] # by now we've already stablished mentions 0 is the bot
 		amount = context.params[2]
 		delta = date_string_to_timedelta(amount)
 		if not delta:
@@ -156,54 +164,63 @@ class Timeout(Command):
 			reason = ' '.join(context.params[4:])
 
 		for role in context.ban_roles:
-			await mention.add_roles(context.guild.get_role(role), reason="Timeout issued by a mod.")
-		timeout_info = self._bot.db.add_user_timeout(mention, context.guild, int(delta.total_seconds()), context.author, reason)
-		strike_info = self._bot.db.add_strike(mention, context.guild, context.author, reason)
-		await do_log(place="guild", data_dict={'event': 'command', 'command': 'timeout'}, message=context.message)
+			await self._bot.http.add_member_role(context.guild.id, user['id'], role, "Timeout issued by a mod.")
 
-		user_strikes = self._bot.db.get_user_strikes(mention)
+		timeout_info = self._pitbot.add_timeout(user=user, guild_id=context.guild.id,
+				time=int(delta.total_seconds()), issuer_id=context.author['id'], reason=reason)
+		strike_info = self._pitbot.add_strike(user=user, guild_id=context.guild.id,
+				issuer_id=context.author['id'], reason=reason)
+
+		await do_log(place="guild", data_dict={'event': 'command', 'command': 'timeout'}, context=context)
+
+		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), partial=False)
 
 		if not context.is_silent and context.log_channel:
 			# Send a smug notification on the channel
-			fields = [
-				{'name': 'Info', 'value': f"<@{mention.id}> has been sent to the pit for {amount} <:moon2H:814618028691161152>", 'inline': False}
-			]
+			description = f"<@{user['id']}> has been sent to the pit for {amount}"
 
-			await self._bot.send_embed_message(context.channel, "User Timeout", fields=fields)
+			image = {
+				"url": self._bot.get_timeout_image(),
+				"height": 0,
+				"width": 0
+			}
 
-			user_timeouts = self._bot.db.get_user_timeouts(mention, {'status': 'expired'})
+			await self._bot.send_embed_message(context.channel_id, "User Timeout", description, image=image)
+
+			user_timeouts = self._pitbot.get_user_timeouts(user=user, status='expired')
 
 			strike_text = ""
-			if user_strikes.count() > 0:
+			if len(user_strikes) > 0:
 				strike_messages = list()
 
-				for strike in user_strikes.sort('_id', -1)[:5]:
+				for strike in user_strikes[:5]:
 					date = iso_to_datetime(strike['created_date']).strftime("%m/%d/%Y %H:%M")
-					issuer = context.guild.get_member(strike['issuer_id'])
-					strike_messages.append(f"{date} Strike by {issuer.display_name} for {strike['reason']} - {strike['_id']}")
+					issuer = strike['issuer'] if strike.get('issuer') else {'username': 'Unknown Issuer'}
+					strike_messages.append(f"{date} Strike by {issuer['username']} for {strike['reason'][0:90]} - {strike['_id']}")
 
 				strike_text = "```" + "\r\n".join(strike_messages) + "```"
 
+			info_message = f"<@{user['id']}> was timed out by <@{context.author['id']}> for {amount}."
+
 			fields = [
-				{'name': 'Issue', 'value': f"<@{mention.id}> was timedout by <@{context.author.id}> for {amount}.", 'inline': False},
-				{'name': 'Timeouts', 'value': f"<@{mention.id}> has {user_timeouts.count()} previous timeouts.", 'inline': False},
-				{'name': 'Strikes', 'value': f"<@{mention.id}> has {user_strikes.count()} active strikes:\r\n{strike_text}", 'inline': False}
+				{'name': 'Timeouts', 'value': f"{len(user_timeouts)} previous timeouts.", 'inline': True},
+				{'name': 'Strikes', 'value': f"{len(user_strikes)} active strikes", 'inline': True},
+				{'name': '\u200B', 'value': strike_text, 'inline': False}
 			]
 
-			await self._bot.send_embed_message(context.log_channel, "User Timeout", fields=fields)
+			await self._bot.send_embed_message(context.log_channel, "User Timeout", info_message, fields=fields)
 
 		# Send a DM to the user
+		info_message = f"You've been pitted by {context.guild.name} mod staff for {amount} for the following reason:\n\n{reason}"
+
 		fields = [
-			{'name': 'Ban', 'value': f"You've been pitted by {context.guild.name} mod staff for {amount} \
-				for the following reason:\n\n{reason}", 'inline': False},
-			{'name': 'Strikes', 'value': f"You currently have {user_strikes.count()} active strikes in {context.guild.name} (including this one).\r\n"+
-				f"If you receive a few more pits, your following punishments will be escalated--most likely to a temporary or permanent ban.", 'inline': False},
+			{'name': 'Strikes', 'value': f"You currently have {len(user_strikes)} active strikes in {context.guild.name} (including this one).\r\n"+
+				f"If you receive a few more pits, your following punishments will be escalated, most likely to a temporary or permanent ban.", 'inline': False},
 			{'name': 'Info', 'value': f"You can message me `pithistory` or `strikes` \
-				to get a summary of your disciplinary history on Mooncord.", 'inline': False}
+				to get a summary of your disciplinary history on {context.guild.name}.", 'inline': False}
 		]
 
-		await self._bot.send_embed_dm(mention, "User Timeout", fields=fields)
-		
+		await self._bot.send_embed_dm(user['id'], "User Timeout", info_message, fields=fields)
 
 	async def send_help(self, context: CommandContext) -> None:
 		"""
@@ -218,14 +235,34 @@ class Timeout(Command):
 			{'name': '<time>', 'value': f"Time allows the following format: <1-2 digit number><one of: s, m, h, d> where \
 				s is second, m is minute, h is hour, d is day.", 'inline': False},
 			{'name': 'Example', 'value': f"{context.command_character}timeout <@{self._bot.user.id}> 24h Being a bad bot", 'inline': False},
-			{'name': 'Note:', 'value': f"if the user has an active timeout already it will extend the duration instead.", 'inline': False}
+			{'name': 'Note:', 'value': f"Instead of @ing a user you can just provide their ID instead.", 'inline': False},
+			{'name': 'Note2:', 'value': f"if the user has an active timeout already it will extend the duration instead.", 'inline': False}
 		]
 
-		await self._bot.send_embed_message(context.channel_id, "Timeout User", fields=fields)
+		await self._bot.send_embed_message(context.channel_id, "User Timeout", fields=fields)
 
-	async def send_no_permission_message(self, context):
+	def _send_timeout_info(self, user: dict, context: CommandContext) -> None:
+		timeout = self._pitbot.get_user_timeout(user)
+
+		if not timeout or timeout is None:
+			await self._bot.send_embed_message(context.channel_id, "Timeout Info", "You don't have an active timeout right now.")
+			return
+
+		guild = await self._bot.get_guild(guild_id=timeout['guild_id'])
+		if not guild:
+			guild = self._bot.default_guild
+
+		issued_date = iso_to_datetime(timeout['created_date'])
+		expire_date = issued_date + datetime.timedelta(seconds=timeout['time'])
+		delta = expire_date - datetime.datetime.now()
+		expires_in = seconds_to_string(int(delta.total_seconds()))
+
+		reason = timeout['reason'] if timeout['reason'] else ''
+
+		description = f"<@{user['id']}> is currently timed out by <@{timeout['issuer_id']}> and it will expire in {expires_in}."
+
 		fields = [
-			{'name': 'Permission Error', 'value': f"You need to be {self.permission} to execute this command.", 'inline': False}
+			{'name': 'Reason', 'value': reason, 'inline': False}
 		]
 
-		await self._bot.send_embed_message(context.channel, "User Timeout", fields=fields)
+		await self._bot.send_embed_message(context.channel_id, "Timeout Info", description, fields=fields)

@@ -5,10 +5,9 @@
 import logging
 from datetime import datetime
 from pymongo import MongoClient
-import bson
 from bson.objectid import ObjectId
 
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Tuple
 
 log: logging.Logger = logging.getLogger("database")
 
@@ -21,7 +20,7 @@ class PitBotDatabase:
 		self._db.close()
 
 	# Timeouts
-	def get_timeout(self, query: dict) -> Optional[dict]:
+	def get_timeout(self, query: dict, partial: Optional[bool] = True) -> Optional[dict]:
 		"""
 		Return information about a single timeout.
 
@@ -30,48 +29,55 @@ class PitBotDatabase:
 
 		col = self._db['users_timeouts']
 
-		for key in query:
-			if key == '_id':
-				query[key] = ObjectId(query[key])
-
-			elif '_id' in key:
-				query[key] = bson.Int64(query[key])
+		if query.get("_id"): query['_id'] = ObjectId(query['_id'])
 
 		result = col.find_one(query)
 
+		if not partial:
+			col = self._db['users']
+			result['issuer'] = col.find_one({'discord_id': result['issuer_id']})
+
 		return result
 
-	def get_timeouts(self, query: dict) -> List[dict]:
+	def get_timeouts(self, query: dict, sort: Optional[Tuple[str, int]] = None, partial: Optional[bool] = True) -> List[dict]:
 		"""
 		Return information about timeout(s)
 		"""
 
 		col = self._db['users_timeouts']
 
-		for key in query:
-			if key == '_id':
-				query[key] = ObjectId(query[key])
-
-			elif '_id' in key:
-				query[key] = bson.Int64(query[key])
+		if query.get("_id"): query['_id'] = ObjectId(query['_id'])
 
 		results = col.find(query)
 
+		if sort:
+			results = results.sort(sort[0], sort[1])
+
+		results = list(results)
+
+		if not partial:
+			col = self._db['users']
+
+			for timeout in results:
+				# Include issuer in information
+				# Potentiall also add user and guild
+				timeout['issuer'] = col.find_one({'user_id': timeout['issuer_id']})
+
 		return results
 
-	def create_timeout(self, user: dict, guild_id: int, time: int, 
-		issuer_id: int = None, reason: Optional[str] = None) -> dict:
+	def create_timeout(self, user: dict, guild_id: str, time: int, 
+		issuer_id: str = None, reason: Optional[str] = None) -> dict:
 		"""
 		Create a new timeout in the database.
 		"""
 
 		col = self._db['users']
 
-		db_user = col.find_one({'discord_id': bson.Int64(user['id'])})
+		db_user = col.find_one({'discord_id': user['id']})
 
 		if db_user is None:
 			db_user = {
-				'discord_id': bson.Int64(user['id']),
+				'discord_id': user['id'],
 				'username': user['username'],
 				'username_handle': user['discriminator'],
 				'avatar': user['avatar'],
@@ -85,8 +91,8 @@ class PitBotDatabase:
 		col = self._db['users_timeouts']
 		timeout_info = {
 			'user_db_id': db_user['_id'],
-			'user_id': bson.Int64(db_user['discord_id']),
-			'guild_id': bson.Int64(guild_id),
+			'user_id': db_user['discord_id'],
+			'guild_id': guild_id,
 			'issuer_id': None,
 			'reason': 'No reason specified',
 			'time': int(time),
@@ -96,7 +102,7 @@ class PitBotDatabase:
 		}
 
 		if issuer_id is not None:
-			timeout_info['issuer_id'] = bson.Int64(issuer_id)
+			timeout_info['issuer_id'] = issuer_id
 
 		if reason is not None:
 			timeout_info['reason'] = reason
@@ -106,7 +112,7 @@ class PitBotDatabase:
 
 		return timeout_info
 
-	def update_timeout(self, *, params: dict, query: dict = None, user_id: dict = None) -> Optional[dict]:
+	def update_timeout(self, *, params: dict, query: dict = None, user_id: str = None) -> Optional[dict]:
 		"""
 		Update a timeout from database.
 		"""
@@ -122,25 +128,14 @@ class PitBotDatabase:
 		if user_id is not None:
 			query['user_id'] = user_id
 
-		for key in query:
-			if key == '_id':
-				query[key] = ObjectId(query[key])
-
-			elif '_id' in key:
-				query[key] = bson.Int64(query[key])
-
-		for key in params:
-			if key == '_id':
-				params[key] = ObjectId(params[key])
-
-			elif '_id' in key:
-				params[key] = bson.Int64(params[key])
+		if query.get("_id"): query['_id'] = ObjectId(query['_id'])
+		if params.get("_id"): params['_id'] = ObjectId(params['_id'])
 
 		result = col.find_one_and_update(query, {"$set" : params })
 
 		return result
 
-	def delete_timeout(self, *, query: dict = None, user_id: dict = None) -> Optional[dict]:
+	def delete_timeout(self, *, query: dict = None, user_id: str = None) -> Optional[dict]:
 		"""
 		Delete a timeout from database.
 		"""
@@ -156,37 +151,40 @@ class PitBotDatabase:
 		if user_id is not None:
 			query['user_id'] = user_id
 
-		for key in query:
-			if key == '_id':
-				query[key] = ObjectId(query[key])
-
-			elif '_id' in key:
-				query[key] = bson.Int64(query[key])
+		if query.get("_id"): query['_id'] = ObjectId(query['_id'])
 
 		result = col.find_one_and_delete(query, sort=[('_id', -1)])
 
 		return result
 
 	# Strikes
-	def get_strikes(self, query: dict) -> List[dict]:
+	def get_strikes(self, query: dict, sort: Optional[Tuple[str, int]] = None, partial: Optional[bool] = True) -> List[dict]:
 		"""
 		Return information about timeout(s)
 		"""
 
 		col = self._db['users_strikes']
 
-		for key in query:
-			if key == '_id':
-				query[key] = ObjectId(query[key])
-
-			elif '_id' in key:
-				query[key] = bson.Int64(query[key])
+		if query.get("_id"): query['_id'] = ObjectId(query['_id'])
 
 		results = col.find(query)
 
+		if sort:
+			results = results.sort(sort[0], sort[1])
+
+		results = list(results)
+
+		if not partial:
+			col = self._db['users']
+
+			for strike in results:
+				# Include issuer in information
+				# Potentially also add user and guild
+				strike['issuer'] = col.find_one({'discord_id': strike['issuer_id']})
+
 		return results
 
-	def create_strike(self, user: dict, guild_id: int, issuer_id: int,
+	def create_strike(self, user: dict, guild_id: str, issuer_id: str,
 		reason: Optional[str] = 'No reason specified') -> dict:
 		"""
 		Given a member, add a strike to them.
@@ -194,11 +192,11 @@ class PitBotDatabase:
 
 		col = self._db['users']
 
-		db_user = col.find_one({'discord_id': bson.Int64(user['id'])})
+		db_user = col.find_one({'discord_id': user['id']})
 
 		if db_user is None:
 			db_user = {
-				'discord_id': bson.Int64(user['id']),
+				'discord_id':user['id'],
 				'username': user['username'],
 				'username_handle': user['discriminator'],
 				'avatar': user['avatar'],
@@ -213,9 +211,9 @@ class PitBotDatabase:
 
 		strike_info = {
 			'user_db_id': db_user['_id'],
-			'user_id': bson.Int64(db_user['discord_id']),
-			'guild_id': bson.Int64(guild_id),
-			'issuer_id': bson.Int64(issuer_id),
+			'user_id': db_user['discord_id'],
+			'guild_id': guild_id,
+			'issuer_id': issuer_id,
 			'reason': reason,
 			'status': 'active',
 			'created_date': datetime.now().isoformat(),
@@ -227,7 +225,7 @@ class PitBotDatabase:
 
 		return strike_info
 
-	def update_strike(self, *, params: dict, query: dict = None, user_id: dict = None) -> Optional[dict]:
+	def update_strike(self, *, params: dict, query: dict = None, user_id: str = None) -> Optional[dict]:
 		"""
 		Update a strike from database
 		"""
@@ -243,25 +241,14 @@ class PitBotDatabase:
 		if user_id is not None:
 			query['user_id'] = user_id
 
-		for key in query:
-			if key == '_id':
-				query[key] = ObjectId(query[key])
-
-			elif '_id' in key:
-				query[key] = bson.Int64(query[key])
-
-		for key in params:
-			if key == '_id':
-				params[key] = ObjectId(params[key])
-
-			elif '_id' in key:
-				params[key] = bson.Int64(params[key])
+		if query.get("_id"): query['_id'] = ObjectId(query['_id'])
+		if params.get("_id"): params['_id'] = ObjectId(params['_id'])
 
 		result = col.find_one_and_update(query, {"$set" : params })
 
 		return result
 
-	def delete_strike(self, *, query: dict = None, user_id: dict = None) -> Optional[dict]:
+	def delete_strike(self, *, query: dict = None, user_id: str = None) -> Optional[dict]:
 		"""
 		Delete a strike from database.
 		"""
@@ -277,13 +264,20 @@ class PitBotDatabase:
 		if user_id is not None:
 			query['user_id'] = user_id
 
-		for key in query:
-			if key == '_id':
-				query[key] = ObjectId(query[key])
-
-			elif '_id' in key:
-				query[key] = bson.Int64(query[key])
+		if query.get("_id"): query['_id'] = ObjectId(query['_id'])
 
 		result = col.find_one_and_delete(query, sort=[('_id', -1)])
 
 		return result
+
+	# Users
+	def get_user(self, query: dict) -> Optional[dict]:
+		"""
+		Get a user from database.
+		"""
+
+		col = self._db['users']
+
+		user = col.find_one(query)
+
+		return user

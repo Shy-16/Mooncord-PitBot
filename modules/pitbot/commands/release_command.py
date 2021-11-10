@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-## Timeout ##
-# A command to timeout people. #
+## Release ##
+# A command to release people. #
 
+from .context import CommandContext, DMContext
 from .command import Command, verify_permission
 from utils import iso_to_datetime, date_string_to_timedelta, seconds_to_string
 from log_utils import do_log
@@ -17,7 +18,7 @@ class Release(Command):
 		super().__init__(bot, permission)
 
 	@verify_permission
-	async def execute(self, context):
+	async def execute(self, context: CommandContext) -> None:
 		if len(context.params) == 0:
 			await self.send_help(context)
 			return

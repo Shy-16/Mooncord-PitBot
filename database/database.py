@@ -6,7 +6,6 @@
 import logging
 from datetime import datetime
 from pymongo import MongoClient
-import bson
 from bson.objectid import ObjectId
 
 log = logging.getLogger(__name__)
@@ -51,18 +50,14 @@ class Database:
 		self._conn.close()
 
 	# Server Configuration Related
-	def load_server_configuration(self, guild, bot):
+	def load_server_configuration(self, guild, bot) -> list:
 		"""
 		Given a guild, load its configuration
-
-		@guild: typeof Discord.Guild
-
-		returns: guild_config
 		"""
 
 		col = self._db['discord_config']
 
-		guild_info = col.find_one({'guild_id': bson.Int64(guild.id)})
+		guild_info = col.find_one({'guild_id': guild.id})
 
 		if guild_info is None:
 
@@ -71,10 +66,10 @@ class Database:
 
 			for role in guild.roles:
 				if role.permissions.administrator:
-					admin_roles.append(bson.Int64(role.id))
+					admin_roles.append(role.id)
 
 			guild_info = {
-				'guild_id': bson.Int64(guild.id),
+				'guild_id': guild.id,
 				'name': guild.name,
 				'command_character': bot.config['discord']['default_command_character'],
 				'modmail_character': bot.config['modmail']['default_command_character'],
@@ -107,7 +102,7 @@ class Database:
 
 		col = self._db['discord_config']
 
-		guild_info = col.find_one_and_update({'guild_id': bson.Int64(guild.id)}, {"$set": parameters })
+		guild_info = col.find_one_and_update({'guild_id': guild.id}, {"$set": parameters })
 
 		return guild_info
 
@@ -124,7 +119,7 @@ class Database:
 
 		col = self._db['discord_config']
 
-		guild_info = col.find_one_and_update({'guild_id': bson.Int64(guild.id)}, {"$push": {list_name: parameter} })
+		guild_info = col.find_one_and_update({'guild_id': guild.id}, {"$push": {list_name: parameter} })
 
 		return guild_info
 
@@ -141,7 +136,7 @@ class Database:
 
 		col = self._db['discord_config']
 
-		guild_info = col.find_one_and_update({'guild_id': bson.Int64(guild.id)}, {"$pull": {list_name: parameter} })
+		guild_info = col.find_one_and_update({'guild_id': guild.id}, {"$pull": {list_name: parameter} })
 
 		return guild_info
 
@@ -194,7 +189,7 @@ if __name__ == '__main__':
 	pprint.pprint(result)
 
 	col = db['users_bans']
-	results = col.find({'user_id': 539881999926689829})
+	results = col.find({'user_id': "539881999926689829"})
 
 	for res in results:
 		pprint.pprint(res)

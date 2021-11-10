@@ -5,7 +5,7 @@
 
 import logging
 import datetime
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Tuple
 
 import discord
 from discord.ext import tasks
@@ -81,7 +81,7 @@ class PitBot:
 		for dm_command in self.dm_commands:
 			for keyword in self.dm_commands[dm_command].dm_keywords:
 				if keyword in message.content:
-					await self.dm_commands[dm_command].dm(DMContext(self, message))
+					await self.dm_commands[dm_command].dm(DMContext(self._bot, message))
 					return
 		return
 
@@ -98,7 +98,7 @@ class PitBot:
 			# we dont care about people just pinging the bot
 			return
 		
-		if params[0] != f'<@!{self.user.id}>':
+		if params[0] != f'<@!{self._bot.user.id}>':
 			# we dont care about people pinging the bot as part of the message
 			return
 
@@ -106,7 +106,7 @@ class PitBot:
 		params = params[2:]
 
 		if command in self.ping_commands:
-			await self.ping_commands[command].ping(CommandContext(self, command, params, message))
+			await self.ping_commands[command].ping(CommandContext(self._bot, command, params, message))
 		return
 
 	# Task scheduler
@@ -159,18 +159,18 @@ class PitBot:
 	# Functionality
 
 	# Timeouts related
-	def get_user_timeout(self, user: dict) -> Optional[dict]:
+	def get_user_timeout(self, user: dict, partial: Optional[bool] = True) -> Optional[dict]:
 		"""
 		Gets a timeout for a user. If no active timeouts are found returns None
 		"""
 
 		query = {'user_id': user['id'], 'status': 'active'}
 
-		timeout = self._db.get_timeout(query)
+		timeout = self._db.get_timeout(query, partial)
 
-		return timeout
+		return dict(timeout) if timeout else None
 
-	def get_user_timeouts(self, user: dict, status: str = 'active') -> List[dict]:
+	def get_user_timeouts(self, user: dict, sort: Optional[Tuple[str, int]] = None, status: str = 'active', partial: Optional[bool] = True) -> List[dict]:
 		"""
 		Gets a list of timeouts for a user.
 
@@ -179,16 +179,16 @@ class PitBot:
 
 		query = {'user_id': user['id'], 'status': status}
 
-		timeout = self._db.get_timeout({'user_id': user['id'], 'status': 'active'})
+		timeouts = self._db.get_timeouts(query, sort, partial)
 
-		return timeout
+		return list(timeouts) if timeouts else list()
 
 	def add_timeout(self, *, user: dict, guild_id: int, time: int, issuer_id: int,
 		reason: Optional[str] = 'No reason specified.') -> Optional[dict]:
 		
 		timeout = self._db.create_timeout(user, guild_id, time, issuer_id, reason)
 
-		return timeout
+		return dict(timeout) if timeout else None
 
 	def extend_timeout(self, *, user: dict, time: int) -> Optional[dict]:
 		"""
@@ -200,19 +200,22 @@ class PitBot:
 
 		timeout = self._db.update_timeout(params=params, query=query)
 
-		return timeout
+		return dict(timeout) if timeout else None
 
 	# Strikes related
-	def get_user_strikes(self, user: dict) -> List[dict]:
+	def get_user_strikes(self, user: dict, sort: Optional[Tuple[str, int]] = None, partial: Optional[bool] = True) -> List[dict]:
 		"""
-		Gets all strikes of a user
+		Gets all strikes of a user.
+
+		If partial is false full information of strike will be sent.
+		Including information about users.
 		"""
 
 		query = {'user_id': user['id'], 'status': 'active'}
 
-		strikes = self._db.get_strikes(query)
+		strikes = self._db.get_strikes(query, sort, partial)
 
-		return strikes
+		return list(strikes) if strikes else list()
 
 	def add_strike(self, *, user: dict, guild_id: int, issuer_id: int,
 		reason: Optional[str] = 'No reason specified.') -> Optional[dict]:
@@ -224,5 +227,22 @@ class PitBot:
 
 		strike = self._db.create_strike(user, guild_id, issuer_id, reason)
 
-		return strike
+		return dict(strike) if strike else None
 
+	# Users related
+	def get_user(self, *, user_id: Optional[int] = None, username: Optional[str] = None,
+		discriminator: Optional[str] = None) -> Optional[dict]:
+		"""
+		Get a user from database.
+		"""
+
+		if user_id is not None:
+			query = {'user_id': user_id}
+		elif username is not None and discriminator is not None:
+			query = {'username': username, 'discriminator': discriminator}
+		else:
+			raise Exception("user_id or username and discriminator cannot be None.")
+
+		user = self._db.get_user(query)
+
+		return dict(user) if user else None

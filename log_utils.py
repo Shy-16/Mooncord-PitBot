@@ -35,11 +35,11 @@ def init_log():
     hand_fh_info.setFormatter(logging.Formatter("%(message)s"))
     logger.addHandler(hand_fh_info)
 
-async def do_log(place="guild", data_dict="", message=None, member=None, level=logging.INFO, exception=False):
+async def do_log(place="guild", data_dict="", context=None, member=None, level=logging.INFO, exception=False):
     """
     place		- where is logging: "dm", "guild", "ping"...
     data_dict	- contains a dict of the data to log. Can also be a plain string.
-    message		- message context of the query
+    context		- message context of the query
     level		- is one of logging.ERROR, etc.
     exception	- will dump a stack trace if True
 
@@ -62,29 +62,29 @@ async def do_log(place="guild", data_dict="", message=None, member=None, level=l
         data_dict['date'] = datetime.datetime.now().isoformat()
         data_dict['date_pt'] = datetime.datetime.now(pytz.timezone('US/Pacific')).isoformat()
 
-        # add info related to message
-        if message is not None:
-        	data_dict['content'] = message.content
-        	data_dict['author_id'] = message.author.id
-        	data_dict['author_handle'] = message.author.name + "#" + message.author.discriminator
+        # add info related to context
+        if context is not None:
+        	data_dict['content'] = context.content
+        	data_dict['author_id'] = context.author['id']
+        	data_dict['author_handle'] = context.author['username'] + "#" + context.author['discriminator']
 
-        	if message.guild is not None:
-        		data_dict['guild_id'] = message.guild.id
+        	if context.guild is not None:
+        		data_dict['guild_id'] = context.guild.id
 
-        	if len(message.mentions) > 0:
-        		if len(message.mentions) == 1:
-        			data_dict['user_id'] = message.mentions[0].id
-        			data_dict['user_handle'] = f'{message.mentions[0].name}#{message.mentions[0].discriminator}'
+        	if len(context.mentions) > 0:
+        		if len(context.mentions) == 1:
+        			data_dict['user_id'] = context.mentions[0]['id']
+        			data_dict['user_handle'] = f'{context.mentions[0]["username"]}#{context.mentions[0]["discriminator"]}'
 
         		else:
-	        		for i in range(len(message.mentions)):
-	        			data_dict[f'mention_{i}'] = message.mentions[i].id
-	        			data_dict[f'mention_{i}_handle'] = f'{message.mentions[i].name}#{message.mentions[i].discriminator}'
+	        		for i in range(len(context.mentions)):
+	        			data_dict[f'mention_{i}'] = context.mentions[i]['id']
+	        			data_dict[f'mention_{i}_handle'] = f'{context.mentions[i]["username"]}#{context.mentions[i]["discriminator"]}'
 
         elif member is not None:
         	data_dict['guild_id'] = member.guild.id
-        	data_dict['user_id'] = member.id
-        	data_dict['user_handle'] = f'{member.name}#{member.discriminator}'
+        	data_dict['user_id'] = member['id']
+        	data_dict['user_handle'] = f'{member["username"]}#{member["discriminator"]}'
 
 
         # if it is an exception, get some traceback info
@@ -96,7 +96,6 @@ async def do_log(place="guild", data_dict="", message=None, member=None, level=l
             exc_tb = exc_tb.replace("\\n", "\n")
 
             data_dict['exception'] = exc_err + exc_tb
-            print(exc_err + exc_tb)
 
         rlogger = logging.getLogger("bot_log")
         rlogger.log(level, json.dumps(data_dict, cls=MyJsonEncoder))
