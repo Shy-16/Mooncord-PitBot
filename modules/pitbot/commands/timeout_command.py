@@ -38,12 +38,12 @@ class Timeout(Command):
 		else:
 			user = context.mentions[0]
 
-		amount = context.params[1]
-		delta = date_string_to_timedelta(amount)
-		
-		if not delta:
+		if len(context.params) == 1:
 			await self._send_timeout_info(user, context)
 			return
+
+		amount = context.params[1]
+		delta = date_string_to_timedelta(amount)
 
 		reason = ''
 		if len(context.params) >= 2:

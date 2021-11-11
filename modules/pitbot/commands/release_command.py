@@ -82,7 +82,7 @@ class Release(Command):
 				{'name': '\u200B', 'value': strike_text, 'inline': False}
 			]
 
-			await self._bot.send_embed_message(context.log_channel, "User Timeout", info_message, fields=fields)
+			await self._bot.send_embed_message(context.log_channel, "Release user", info_message, fields=fields)
 
 		# Send a DM to the user
 		info_message = f"You've been released from the pit by {context.guild.name} mod staff."

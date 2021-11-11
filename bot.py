@@ -12,6 +12,13 @@ from typing import Optional
 from database import Database
 from log_utils import init_log, do_log
 from modules import PitBot, Banwords
+from application_commands import (
+    set_help_slash,
+    set_selfpit_slash,
+    set_timeout_slash,
+    set_timeoutns_slash,
+    set_release_slash
+)
 
 log: logging.Logger = logging.getLogger("bot")
 
@@ -32,6 +39,9 @@ class Bot(discord.Client):
 
         init_log()
 
+        set_help_slash(self)
+        set_selfpit_slash(self)
+
     def run(self, *, token: str) -> None:
         self.pitbot_module.init_tasks()
         self.banword_module.init_tasks()
@@ -43,6 +53,28 @@ class Bot(discord.Client):
         log.error("Bot handled an error on event: {} with error:\r\n{}".format(event, exc_err))
 
     ### Client Events
+    async def on_ready(self, _) -> None:
+        log.info(f"New bot instance created: {self.user.name} ID: {self.user.id}.")
+
+        log.info('Loading configuration for guilds:')
+        # Load server configuration from database
+        for guild in self.guilds:
+            guild_config = self.db.load_server_configuration(guild, self)
+            self.guild_config[guild.id] = guild_config
+            if self.default_guild is None: self.default_guild = guild_config
+            log.info(f"Loaded configuration for guild: {guild.id}.")
+
+        log.info('Finished loading all guild info.')
+        log.info("All configuration finished.")
+
+        # Setup role-based commands
+        set_timeout_slash(self)
+        set_timeoutns_slash(self)
+        set_release_slash(self)
+
+        #activity = discord.Game("DM to contact staff | DM help for more info.")
+        #await super().change_presence(activity=activity)
+
     async def on_message_create(self, message: discord.Context) -> None:
         # <Context type=0 tts=False timestamp=2021-11-09T15:32:26.784000+00:00 referenced_message=None pinned=False nonce=907653874028904448 
         # mentions=[] mention_roles=[] mention_everyone=False 
@@ -77,27 +109,6 @@ class Bot(discord.Client):
         # If none of the above was checked, its a regular message.
         # We pass the message through our banword filter for automatic timeouts.
         await self.banword_module.handle_message(message)
-
-    async def on_ready(self, _) -> None:
-        log.info(f"New bot instance created: {self.user.name} ID: {self.user.id}.")
-
-        log.info('Loading configuration for guilds:')
-        # Load server configuration from database
-        for guild in self.guilds:
-            guild_config = self.db.load_server_configuration(guild, self)
-            self.guild_config[guild.id] = guild_config
-            if self.default_guild is None: self.default_guild = guild_config
-            log.info(f"Loaded configuration for guild: {guild.id}.")
-
-        log.info('Finished loading all guild info.')
-        log.info("All configuration finished.")
-
-        #activity = discord.Game("DM to contact staff | DM help for more info.")
-        #await super().change_presence(activity=activity)
-
-    async def update_guild_configuration(self, guild):
-        guild_config = self.db.load_server_configuration(guild, self)
-        self.guild_config[guild.id] = guild_config
 
     # Main 2 events to detect people joining and leaving.
     # These require Intents.Member to be enabled.
@@ -247,3 +258,7 @@ class Bot(discord.Client):
                 return False
 
         return True
+
+    async def update_guild_configuration(self, guild):
+        guild_config = self.db.load_server_configuration(guild, self)
+        self.guild_config[guild.id] = guild_config

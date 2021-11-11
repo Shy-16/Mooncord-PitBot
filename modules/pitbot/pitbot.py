@@ -280,7 +280,7 @@ class PitBot:
 
 		return strike
 
-	def delete_strike(self, *, user: dict, strike_id: int) -> Optional[dict]:
+	def delete_strike(self, *, user: dict, strike_id: int = 'newest') -> Optional[dict]:
 		"""
 		Deletes a strike from database
 		"""
