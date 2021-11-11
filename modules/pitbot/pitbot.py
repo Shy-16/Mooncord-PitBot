@@ -300,14 +300,14 @@ class PitBot:
 		return strike
 
 	# Users related
-	def get_user(self, *, user_id: Optional[int] = None, username: Optional[str] = None,
+	def get_user(self, *, user_id: Optional[str] = None, username: Optional[str] = None,
 		discriminator: Optional[str] = None) -> Optional[dict]:
 		"""
 		Get a user from database.
 		"""
 
 		if user_id is not None:
-			query = {'user_id': user_id}
+			query = {'discord_id': user_id}
 		elif username is not None and discriminator is not None:
 			query = {'username': username, 'discriminator': discriminator}
 		else:

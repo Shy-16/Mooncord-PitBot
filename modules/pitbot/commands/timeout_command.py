@@ -74,7 +74,7 @@ class Timeout(Command):
 		if not context.is_silent and context.log_channel:
 			user_timeouts = self._pitbot.get_user_timeouts(user=user, status='expired')
 
-			strike_text = ""
+			strike_text = "```No Previous Strikes```"
 			if len(user_strikes) > 0:
 				strike_messages = list()
 
@@ -188,7 +188,7 @@ class Timeout(Command):
 
 			user_timeouts = self._pitbot.get_user_timeouts(user=user, status='expired')
 
-			strike_text = ""
+			strike_text = "```No Previous Strikes```"
 			if len(user_strikes) > 0:
 				strike_messages = list()
 

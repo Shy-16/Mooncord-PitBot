@@ -31,6 +31,10 @@ class Strike(Command):
 
 			user = self._pitbot.get_user(user_id=user_id)
 
+			if not user:
+				# there is a possibility user is not yet in our database
+				user = await self._bot.http.get_user(user_id)
+
 		else:
 			user = context.mentions[0]
 
@@ -164,7 +168,7 @@ class Strike(Command):
 
 		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
 
-		strike_text = ""
+		strike_text = "```No Previous Strikes```"
 		if len(user_strikes) > 0:
 			strike_messages = list()
 
@@ -217,7 +221,7 @@ class Strike(Command):
 
 		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
 
-		strike_text = ""
+		strike_text = "```No Previous Strikes```"
 		if len(user_strikes) > 0:
 			strike_messages = list()
 
@@ -269,7 +273,7 @@ class Strike(Command):
 
 		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
 
-		strike_text = ""
+		strike_text = "```No Previous Strikes```"
 		if len(user_strikes) > 0:
 			strike_messages = list()
 

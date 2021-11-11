@@ -58,7 +58,7 @@ class Release(Command):
 			user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), partial=False)
 			user_timeouts = self._pitbot.get_user_timeouts(user=user, status='expired')
 
-			strike_text = ""
+			strike_text = "```No Previous Strikes```"
 			if len(user_strikes) > 0:
 				strike_messages = list()
 
