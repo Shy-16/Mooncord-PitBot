@@ -4,7 +4,6 @@
 # A command to timeout people. #
 
 import datetime
-import discord
 
 from .context import CommandContext, DMContext
 from .command import Command, verify_permission
@@ -70,7 +69,7 @@ class Timeout(Command):
 		
 		await do_log(place="guild", data_dict={'event': 'command', 'command': 'timeout'}, context=context)
 
-		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), partial=False)
+		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
 
 		if not context.is_silent and context.log_channel:
 			user_timeouts = self._pitbot.get_user_timeouts(user=user, status='expired')
@@ -173,7 +172,7 @@ class Timeout(Command):
 
 		await do_log(place="guild", data_dict={'event': 'command', 'command': 'timeout'}, context=context)
 
-		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), partial=False)
+		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
 
 		if not context.is_silent and context.log_channel:
 			# Send a smug notification on the channel
@@ -241,7 +240,7 @@ class Timeout(Command):
 
 		await self._bot.send_embed_message(context.channel_id, "User Timeout", fields=fields)
 
-	def _send_timeout_info(self, user: dict, context: CommandContext) -> None:
+	async def _send_timeout_info(self, user: dict, context: CommandContext) -> None:
 		timeout = self._pitbot.get_user_timeout(user)
 
 		if not timeout or timeout is None:

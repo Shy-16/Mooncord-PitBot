@@ -10,12 +10,8 @@ from log_utils import do_log
 
 class Release(Command):
 
-	def __init__(self, bot, permission='mod'):
-		"""
-		@bot: Sayo
-		@permission: A minimum allowed permission to execute command.
-		"""
-		super().__init__(bot, permission)
+	def __init__(self, pitbot, permission: str ='mod', dm_keywords: list = list()) -> None:
+		super().__init__(pitbot, permission, dm_keywords)
 
 	@verify_permission
 	async def execute(self, context: CommandContext) -> None:
@@ -23,17 +19,24 @@ class Release(Command):
 			await self.send_help(context)
 			return
 
+		user = None
+
+		# We either need a mention or an ID as first parameter.
 		if not context.mentions:
-			# Mentions can be empty if the tagged user is not in the server anymore.
-			if not '<@' in context.params[0]:
+			user_id = context.params[0]
+
+			if user_id.startswith("<@"):
+				user_id = user_id[2:-1]
+
+			# review its a "valid" snowflake
+			if not len(user_id) > 16:
 				await self.send_help(context)
 				return
 
-			await self.execute_user_left_server(context)
-			return
+			user = self._pitbot.get_user(user_id=user_id)
 
 		else:
-			mention = context.mentions[0]
+			user = context.mentions[0]
 
 		amend = False
 		if len(context.params) > 1:
@@ -41,100 +44,64 @@ class Release(Command):
 				amend = True
 
 		for role in context.ban_roles:
-			await mention.remove_roles(context.guild.get_role(role), reason="Timeout released by a mod.")
-		timeout_info = self._bot.db.remove_user_timeout(mention)
-		if amend:
-			strike_info = self._bot.db.delete_strike(mention, context.guild)
+			await self._bot.http.remove_member_role(context.guild.id, user['id'], role, "User released by a mod.")
 
-		await do_log(place="guild", data_dict={'event': 'command', 'command': 'release'}, message=context.message)
+		timeout_info = self._pitbot.expire_timeout(user=user)
+		strike_info = None
+
+		if amend:
+			strike_info = self._pitbot.delete_strike(user=user)
+
+		await do_log(place="guild", data_dict={'event': 'command', 'command': 'release'}, context=context)
 
 		if not context.is_silent and context.log_channel:
-
-			user_timeouts = self._bot.db.get_user_timeouts(mention, {'status': 'expired'})
-			user_strikes = self._bot.db.get_user_strikes(mention)
+			user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), partial=False)
+			user_timeouts = self._pitbot.get_user_timeouts(user=user, status='expired')
 
 			strike_text = ""
-			if user_strikes.count() > 0:
+			if len(user_strikes) > 0:
 				strike_messages = list()
 
-				for strike in user_strikes.sort('_id', -1)[:5]:
+				for strike in user_strikes[:5]:
 					date = iso_to_datetime(strike['created_date']).strftime("%m/%d/%Y %H:%M")
-					issuer = context.guild.get_member(strike['issuer_id'])
-					strike_messages.append(f"{date} Strike by {issuer.display_name} for {strike['reason']} - {strike['_id']}")
+					issuer = strike['issuer'] if strike.get('issuer') else {'username': 'Unknown Issuer'}
+					strike_messages.append(f"{date} Strike by {issuer['username']} for {strike['reason'][0:90]} - {strike['_id']}")
 
 				strike_text = "```" + "\r\n".join(strike_messages) + "```"
 
-			if timeout_info is None:
-				timeout_message = f"<@{mention.id}> wasn't Timed out."
-			else:
-				timeout_message = f"<@{mention.id}> was released by <@{context.author.id}>."
+			info_message = f"<@{user['id']}> wasn't timed out."
+			if timeout_info:
+				info_message = f"<@{user['id']}> was released by <@{context.author['id']}>."
+
+			if strike_info:
+				info_message += f"\r\n\r\nUser's last strike was deleted."
 
 			fields = [
-				{'name': 'Issue', 'value': timeout_message, 'inline': False},
-				{'name': 'Strikes', 'value': f"<@{mention.id}> has {user_strikes.count()} active strikes:\r\n{strike_text}", 'inline': False}
+				{'name': 'Timeouts', 'value': f"{len(user_timeouts)} previous timeouts.", 'inline': True},
+				{'name': 'Strikes', 'value': f"{len(user_strikes)} active strikes", 'inline': True},
+				{'name': '\u200B', 'value': strike_text, 'inline': False}
 			]
 
-			await self._bot.send_embed_message(context.log_channel, "User Timeout", fields=fields)
+			await self._bot.send_embed_message(context.log_channel, "User Timeout", info_message, fields=fields)
 
-	async def execute_user_left_server(self, context):
-		class MockMember:
-			def __init__(self, _id):
-				self.id = _id
+		# Send a DM to the user
+		info_message = f"You've been released from the pit by {context.guild.name} mod staff."
+		if strike_info:
+				info_message += f"\r\n\r\nYour last strike was additionally deleted."
 
-		mention = MockMember(context.params[0][2:-1])
+		fields = [
+			{'name': 'Strikes', 'value': f"You currently have {len(user_strikes)} active strikes in {context.guild.name} (including this one).", 'inline': False},
+			{'name': 'Info', 'value': f"You can message me `pithistory` or `strikes` \
+				to get a summary of your disciplinary history on {context.guild.name}.", 'inline': False}
+		]
 
-		amend = False
-		if len(context.params) > 1:
-			if context.params[1].lower() == "amend":
-				amend = True
-
-		timeout_info = self._bot.db.remove_user_timeout(mention)
-		if amend:
-			strike_info = self._bot.db.delete_strike(mention, context.guild)
-
-		await do_log(place="guild", data_dict={'event': 'command', 'command': 'release'}, message=context.message)
-
-		if not context.is_silent and context.log_channel:
-
-			user_timeouts = self._bot.db.get_user_timeouts(mention, {'status': 'expired'})
-			user_strikes = self._bot.db.get_user_strikes(mention)
-
-			strike_text = ""
-			if user_strikes.count() > 0:
-				strike_messages = list()
-
-				for strike in user_strikes.sort('_id', -1)[:5]:
-					date = iso_to_datetime(strike['created_date']).strftime("%m/%d/%Y %H:%M")
-					issuer = context.guild.get_member(strike['issuer_id'])
-					strike_messages.append(f"{date} Strike by {issuer.display_name} for {strike['reason']} - {strike['_id']}")
-
-				strike_text = "```" + "\r\n".join(strike_messages) + "```"
-
-			if timeout_info is None:
-				timeout_message = f"<@{mention.id}> wasn't Timed out."
-			else:
-				timeout_message = f"<@{mention.id}> was released by <@{context.author.id}>."
-
-			fields = [
-				{'name': 'Issue', 'value': timeout_message, 'inline': False},
-				{'name': 'Strikes', 'value': f"<@{mention.id}> has {user_strikes.count()} active strikes:\r\n{strike_text}", 'inline': False}
-			]
-
-			await self._bot.send_embed_message(context.log_channel, "User Timeout", fields=fields)
-
+		await self._bot.send_embed_dm(user['id'], "User Timeout", info_message, fields=fields)
 
 	async def send_help(self, context):
 		fields = [
-			{'name': 'Help', 'value': f"Use {context.command_character}release @user <amend:optional> will release a user from an active timeout.", 'inline': False},
 			{'name': '<amend>', 'value': f"If `amend` is provided after user ping, it will delete the last strike issued from a Timeout.", 'inline': False},
 			{'name': 'Example', 'value': f"{context.command_character}release <@{self._bot.user.id}> amend", 'inline': False}
 		]
 
-		await self._bot.send_embed_message(context.channel, "Release User", fields=fields)
-
-	async def send_no_permission_message(self, context):
-		fields = [
-			{'name': 'Permission Error', 'value': f"You need to be {self.permission} to execute this command.", 'inline': False}
-		]
-
-		await self._bot.send_embed_message(context.channel, "Release User", fields=fields)
+		await self._bot.send_embed_message(context.channel, "Release User", 
+			f"Use {context.command_character}release @user <amend:optional> will release a user from an active timeout.", fields=fields)

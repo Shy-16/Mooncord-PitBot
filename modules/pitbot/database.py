@@ -60,8 +60,9 @@ class PitBotDatabase:
 
 			for timeout in results:
 				# Include issuer in information
-				# Potentiall also add user and guild
-				timeout['issuer'] = col.find_one({'user_id': timeout['issuer_id']})
+				# Potentially also add guild
+				timeout['user'] = col.find_one({'discord_id': timeout['user_id']})
+				timeout['issuer'] = col.find_one({'discord_id': timeout['issuer_id']})
 
 		return results
 
@@ -179,7 +180,8 @@ class PitBotDatabase:
 
 			for strike in results:
 				# Include issuer in information
-				# Potentially also add user and guild
+				# Potentially also add guild
+				strike['user'] = col.find_one({'discord_id': strike['user_id']})
 				strike['issuer'] = col.find_one({'discord_id': strike['issuer_id']})
 
 		return results

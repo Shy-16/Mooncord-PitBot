@@ -115,46 +115,46 @@ class PitBot:
 		if not self._bot.is_ready():
 			return
 
-		timeouts = self._bot.db.get_all_timeouts()
-		timeouts = list(timeouts)
+		timeouts = self._db.get_timeouts(query={'status': 'active'}, partial=False)
+		guild = self._bot.default_guild
+		guild['id'] = guild['guild_id'] # ease of use
 
 		for timeout in timeouts:
 			issued_date = iso_to_datetime(timeout['created_date'])
 			expire_date = issued_date + datetime.timedelta(seconds=timeout['time'])
 
-			user = await self._bot.http.get_user(timeout['user_id'])
-			guild = await self._bot.http.get_guild(timeout['guild_id'])
-			member = None
-			if user is not None:
-				member = await self._bot.http.get_member(guild['id'], user['id'])
+			user = timeout.get("user")
+			if not user:
+				# This is weird because we literally store users with the timeout, but just in case
+				user = await self._bot.http.get_user(timeout['user_id'])
+			else:
+				user['id'] = user['discord_id'] # ease of use
+
+			if timeout['guild_id'] != guild['id']:
+				# This should be weird too since its only in a single server
+				guild = await self._bot.http.get_guild(timeout['guild_id'])
 
 			if datetime.datetime.now() >= expire_date:
-				if user is not None:
-					timeout_info = self._db.remove_user_timeout(user)
-				else:
-					timeout_info = self._db.remove_user_timeout(timeout['user_id'])
+				timeout_info = self.expire_timeout(user=user)
 
-				if not member:
-					return
+				for role in self._bot.guild_config[guild['id']]['ban_roles']:
+					await self._bot.http.remove_member_role(guild['id'], user['id'], role, reason="Timeout expired.")
 
-				for role in self.guild_config[guild['id']]['ban_roles']:
-					await self.http.remove_member_role(guild['id'], user['id'], role, reason="Timeout expired.")
-
-				if not self.is_silent(timeout_info['guild_id']):
-					await self.send_embed_message(self.guild_config[guild.id]['log_channel'], "User Released",
-						fields=[{'name': 'Info', 'value': f"User: <@{user.id}> was just released from the pit.", 'inline': False}])
+				if not self._bot.is_silent(guild['id']):
+					await self._bot.send_embed_message(self._bot.guild_config[guild['id']]['log_channel'], "User Released",
+						f"User: <@{user['id']}> was just released from the pit.")
 
 				# Send a DM to the user
-				fields = [{'name': 'Timeout', 'value': f"Your timeout in {guild.name} has expired and you've been released from the pit.", 'inline': False},
-					{'name': 'Info', 'value': f"You can message me `pithistory` or `strikes` \
-						to get a summary of your disciplinary history on {guild.name}.", 'inline': False}
-				]
+				description = f"Your timeout in {guild['name']} has expired and you've been released from the pit."
 
-				await self.send_embed_dm(member, "User Timeout", fields=fields)
+				image = {
+					"url": "https://i.imgur.com/CraIFqD.gif",
+					"width": 0,
+					"height": 0
+				}
 
-				await do_log(place="auto_task",
-				   data_dict={'event': 'auto_release', 'author_id': self.user.id, 'author_handle': f'{self.user.name}#{self.user.discriminator}'},
-				   member=member)
+				await self._bot.send_embed_dm(user['id'], "User Timeout", description, image=image)
+
 
 	# Functionality
 
@@ -168,27 +168,33 @@ class PitBot:
 
 		timeout = self._db.get_timeout(query, partial)
 
-		return dict(timeout) if timeout else None
+		return timeout
 
-	def get_user_timeouts(self, user: dict, sort: Optional[Tuple[str, int]] = None, status: str = 'active', partial: Optional[bool] = True) -> List[dict]:
+	def get_user_timeouts(self, user: dict, sort: Optional[Tuple[str, int]] = None, status: Optional[str] = None, partial: Optional[bool] = True) -> List[dict]:
 		"""
 		Gets a list of timeouts for a user.
 
 		Status is used to filter.
 		"""
 
-		query = {'user_id': user['id'], 'status': status}
+		query = {'user_id': user['id']}
+
+		if status:
+			query['status'] = status
 
 		timeouts = self._db.get_timeouts(query, sort, partial)
 
-		return list(timeouts) if timeouts else list()
+		return timeouts
 
 	def add_timeout(self, *, user: dict, guild_id: int, time: int, issuer_id: int,
 		reason: Optional[str] = 'No reason specified.') -> Optional[dict]:
+		"""
+		Adds a timeout to a user
+		"""
 		
 		timeout = self._db.create_timeout(user, guild_id, time, issuer_id, reason)
 
-		return dict(timeout) if timeout else None
+		return timeout
 
 	def extend_timeout(self, *, user: dict, time: int) -> Optional[dict]:
 		"""
@@ -200,10 +206,33 @@ class PitBot:
 
 		timeout = self._db.update_timeout(params=params, query=query)
 
-		return dict(timeout) if timeout else None
+		return timeout
+
+	def expire_timeout(self, *, user: dict) -> Optional[dict]:
+		"""
+		Sets a timeout as expired
+		"""
+
+		params = {'status': 'expired', 'updated_date': datetime.datetime.now().isoformat()}
+		query = {'user_id': user['id'], 'status': 'active'}
+
+		timeout = self._db.update_timeout(params=params, query=query)
+
+		return timeout
+
+	def delete_timeout(self, *, user: dict) -> Optional[dict]:
+		"""
+		Deletes a timeout from database
+		"""
+
+		query = {'user_id': user['id'], 'status': 'active'}
+
+		timeout = self._db.delete_timeout(query=query)
+
+		return timeout
 
 	# Strikes related
-	def get_user_strikes(self, user: dict, sort: Optional[Tuple[str, int]] = None, partial: Optional[bool] = True) -> List[dict]:
+	def get_user_strikes(self, user: dict, sort: Optional[Tuple[str, int]] = None, status: Optional[str] = None, partial: Optional[bool] = True) -> List[dict]:
 		"""
 		Gets all strikes of a user.
 
@@ -211,11 +240,14 @@ class PitBot:
 		Including information about users.
 		"""
 
-		query = {'user_id': user['id'], 'status': 'active'}
+		query = {'user_id': user['id']}
+
+		if status:
+			query['status'] = status
 
 		strikes = self._db.get_strikes(query, sort, partial)
 
-		return list(strikes) if strikes else list()
+		return strikes
 
 	def add_strike(self, *, user: dict, guild_id: int, issuer_id: int,
 		reason: Optional[str] = 'No reason specified.') -> Optional[dict]:
@@ -227,7 +259,45 @@ class PitBot:
 
 		strike = self._db.create_strike(user, guild_id, issuer_id, reason)
 
-		return dict(strike) if strike else None
+		return strike
+
+	def expire_strike(self, *, user: dict, strike_id: int) -> Optional[dict]:
+		"""
+		Sets a strike as expired
+		"""
+
+		if strike_id == "oldest":
+			# Get all active strikes, sort them by ID, get the ID of the latest
+			strikes = self._db.get_strikes({'user_id': user['id'], 'status': 'active'})
+			if len(strikes) <= 0:
+				return None
+			strike_id = str(strikes[0]['_id'])
+
+		params = {'status': 'expired', 'updated_date': datetime.datetime.now().isoformat()}
+		query = {'_id': strike_id, 'user_id': user['id'], 'status': 'active'}
+
+		strike = self._db.update_strike(params=params, query=query)
+
+		return strike
+
+	def delete_strike(self, *, user: dict, strike_id: int) -> Optional[dict]:
+		"""
+		Deletes a strike from database
+		"""
+
+		if strike_id == "newest":
+			# Get all active strikes, sort them by ID, get the ID of the newest
+			strikes = self._db.get_strikes({'user_id': user['id'], 'status': 'active'}, ('_id', -1))
+			print(len(strikes))
+			if len(strikes) <= 0:
+				return None
+			strike_id = str(strikes[0]['_id'])
+
+		query = {'_id': strike_id, 'user_id': user['id'], 'status': 'active'}
+
+		strike = self._db.delete_strike(query=query)
+
+		return strike
 
 	# Users related
 	def get_user(self, *, user_id: Optional[int] = None, username: Optional[str] = None,
@@ -244,5 +314,7 @@ class PitBot:
 			raise Exception("user_id or username and discriminator cannot be None.")
 
 		user = self._db.get_user(query)
+		if user:
+			user['id'] = user['discord_id']
 
-		return dict(user) if user else None
+		return user

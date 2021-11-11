@@ -82,7 +82,6 @@ async def do_log(place="guild", data_dict="", context=None, member=None, level=l
 	        			data_dict[f'mention_{i}_handle'] = f'{context.mentions[i]["username"]}#{context.mentions[i]["discriminator"]}'
 
         elif member is not None:
-        	data_dict['guild_id'] = member.guild.id
         	data_dict['user_id'] = member['id']
         	data_dict['user_handle'] = f'{member["username"]}#{member["discriminator"]}'
 
