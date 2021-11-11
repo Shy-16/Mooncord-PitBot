@@ -3,20 +3,17 @@
 ## Roles ##
 # Roles related commands. #
 
+from .context import CommandContext
 from .command import Command, verify_permission
 from utils import iso_to_datetime, date_string_to_timedelta, seconds_to_string
 
 class Roles(Command):
 
-	def __init__(self, bot, permission='mod'):
-		"""
-		@bot: Sayo
-		@permission: A minimum allowed permission to execute command.
-		"""
-		super().__init__(bot, permission)
+	def __init__(self, pitbot, permission: str ='mod', dm_keywords: list = list()) -> None:
+		super().__init__(pitbot, permission, dm_keywords)
 
 	@verify_permission
-	async def execute(self, context):
+	async def execute(self, context: CommandContext) -> None:
 		if len(context.params) == 0:
 			await self.send_help(context)
 			return
@@ -46,7 +43,7 @@ class Roles(Command):
 		await self.send_help(context)
 		return
 
-	async def send_help(self, context):
+	async def send_help(self, context: CommandContext) -> None:
 		fields = [
 			{'name': 'Help', 'value': f"Use {context.command_character}roles add|rm [@role_1, ...] [@user_1,....] to add all roles to all users.", 'inline': False},
 			{'name': 'Additional Info', 'value': f"The list of roles and users must be provided without brackets, \
@@ -54,33 +51,26 @@ class Roles(Command):
 			{'name': 'Example', 'value': f"{context.command_character}roles add @GAMEJAM @GAMEDEV <@{self._bot.user.id}>.", 'inline': False}
 		]
 
-		await self._bot.send_embed_message(context.channel, "Role Updater", fields=fields)
+		await self._bot.send_embed_message(context.channel_id, "Role Updater", fields=fields)
 
-	async def send_no_permission_message(self, context):
-		fields = [
-			{'name': 'Permission Error', 'value': f"You need to be {self.permission} to execute this command.", 'inline': False}
-		]
+	async def _do_add_roles(self, context: CommandContext) -> None:
+		"""
+		Adds all specified roles to all specified users
+		"""
 
-		await self._bot.send_embed_message(context.channel, "User Timeout", fields=fields)
-
-	async def _do_add_roles(self, context):
 		for user in context.mentions:
 			for role in context.role_mentions:
-				await user.add_roles(role, reason="Requested by a mod.")
+				await self._bot.http.add_member_role(context.guild.id, user['id'], role, "Requested by a mod.")
 
-		fields= [
-			{'name': 'Info', 'value': f"{len(context.role_mentions)} roles were added to {len(context.mentions)} users", 'inline': False},
-		]
+		await self._bot.send_embed_message(context.channel_id, "Role Updater", f"{len(context.role_mentions)} roles were added to {len(context.mentions)} users")
 
-		await self._bot.send_embed_message(context.channel, "Role Updater", fields=fields)
+	async def _do_remove_roles(self, context: CommandContext) -> None:
+		"""
+		Removes all specified roles to all specified users
+		"""
 
-	async def _do_remove_roles(self, context):
 		for user in context.mentions:
 			for role in context.role_mentions:
-				await user.remove_roles(role, reason="Requested by a mod.")
+				await self._bot.http.remove_member_role(context.guild.id, user['id'], role, "Removed by a mod.")
 
-		fields= [
-			{'name': 'Info', 'value': f"{len(context.role_mentions)} roles were removed from {len(context.mentions)} users", 'inline': False},
-		]
-
-		await self._bot.send_embed_message(context.channel, "Role Updater", fields=fields)
+		await self._bot.send_embed_message(context.channel_id, "Role Updater", f"{len(context.role_mentions)} roles were removed from {len(context.mentions)} users")
