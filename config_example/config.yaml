@@ -1,0 +1,11 @@
+# YAML
+discord:
+  application_id: 559682864241967124
+  permissions: 268560454
+  default_command_character: 'm2!'
+  silent: false
+  default_ban_time: 86400
+
+database:
+  path: 'mongodb://<username>:<password>@localhost:27017/?authSource=admin&readPreference=primary&ssl=false'
+  db_name: 'moon2web'
