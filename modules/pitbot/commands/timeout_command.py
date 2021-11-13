@@ -35,6 +35,10 @@ class Timeout(Command):
 
 			user = self._pitbot.get_user(user_id=user_id)
 
+			if not user:
+				# there is a possibility user is not yet in our database
+				user = await self._bot.http.get_user(user_id)
+
 		else:
 			user = context.mentions[0]
 

@@ -112,38 +112,42 @@ class Bot(discord.Client):
 
     # Main 2 events to detect people joining and leaving.
     # These require Intents.Member to be enabled.
-    async def on_member_join(self, member):
+    async def on_guild_member_add(self, context: discord.Context) -> None:
+        # 'avatar', 'communication_disabled_until', 'deaf', 'event_name', 'guild_id', 'is_pending', 'joined_at', 'mute', 'nick', 'pending', 'premium_since', 'roles', 'use
+        # {'user': {'username': 'ConciseGrain063', 'public_flags': 0, 'id': '347958174864900096', 'discriminator': '0981', 'avatar': 'd9b2645a5cd4df04bf449d6739bbe182'}, 
+        # 'roles': [], 'premium_since': None, 'pending': False, 'nick': None, 'mute': False, 'joined_at': '2021-11-13T15:42:00.448307+00:00', 'is_pending': False, 
+        # 'guild_id': '553454168631934977', 'deaf': False, 'communication_disabled_until': None, 'avatar': None, 'event_name': 'GUILD_MEMBER_ADD'}
+        user = context.user
+
         # Get timeout info
-        timeout = self.db.get_user_timeout(member)
+        timeout = self.pitbot_module.get_user_timeout(user)
 
         if timeout:
             # Add a strike to this user.
-            self.db.add_strike(member, member.guild, self.user, reason="User rejoined server after leaving during timeout.")
-            await do_log(place="bot_events",
-                   data_dict={'event': 'member_join', 'author_id': self.user.id, 'author_handle': f'{self.user.name}#{self.user.discriminator}'},
-                   member=member)
+            strike_info = self.pitbot_module.add_strike(user=user, guild_id=context.guild_id,
+                issuer_id=self.user.id, reason="User rejoined server after leaving during timeout.")
 
-            if self.guild_config[member.guild.id]['log_channel']:
-                await self.send_embed_message(self.guild_config[member.guild.id]['log_channel'], "User Rejoined",
-                    fields=[{'name': 'User Rejoined after Timeout', 'value': f"User: <@{member.id}> was timed out, \
-                        left the server and joined back again.", 'inline': False}])
+            if self.guild_config[context.guild_id]['log_channel']:
+                await self.send_embed_message(self.guild_config[context.guild_id]['log_channel'], "User Rejoined after Timeout",
+                    f"User: <@{user['id']}> was timed out, left the server and joined back again.")
 
-            if self.guild_config[member.guild.id]['auto_timeout_on_reenter'] == True:
-                for role in self.guild_config[member.guild.id]['ban_roles']:
-                    await member.add_roles(member.guild.get_role(role), reason="User rejoined server after leaving during timeout.")
+            if self.guild_config[context.guild_id]['auto_timeout_on_reenter'] == True:
+                for role in self.guild_config[context.guild_id]['ban_roles']:
+                    await self.http.add_member_role(context.guild_id, user['id'], role, "User rejoined server after leaving during timeout.")
 
-    async def on_member_remove(self, member):
+    async def on_guild_member_remove(self, context: discord.Context) -> None:
+        # {'user': {'username': 'ConciseGrain063', 'public_flags': 0, 'id': '347958174864900096', 'discriminator': '0981', 
+        # 'avatar': 'd9b2645a5cd4df04bf449d6739bbe182'}, 'guild_id': '553454168631934977'}}
+
+        user = context.user
+
         # Get timeout info
-        timeout = self.db.get_user_timeout(member)
+        timeout = self.pitbot_module.get_user_timeout(user)
 
         if timeout:
-            if self.guild_config[member.guild.id]['log_channel']:
-                await self.send_embed_message(self.guild_config[member.guild.id]['log_channel'], "Timeout user left server",
-                    fields=[{'name': 'User Left after Timeout', 'value': f"User: <@{member.id}> was timed out and left the server.", 'inline': False}])
-
-            await do_log(place="bot_events",
-                   data_dict={'event': 'member_leave', 'author_id': self.user.id, 'author_handle': f'{self.user.name}#{self.user.discriminator}'},
-                   member=member)
+            if self.guild_config[context.guild_id]['log_channel']:
+                await self.send_embed_message(self.guild_config[context.guild_id]['log_channel'], "Timeout user left server",
+                    f"User: <@{user['id']}> was timed out and left the server.")
 
     # Event to detect changes on roles
     # This also requires Intents.Member

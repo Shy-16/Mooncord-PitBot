@@ -103,8 +103,8 @@ class Strike(Command):
 		fields = [
 			{'name': 'Help', 'value': f"Use {context.command_character}strikes @user <verbose:optional> to get all strikes a user has.", 'inline': False},
 			{'name': 'Add', 'value': f"Use {context.command_character}strikes @user add <reason:optional> to add a strike.", 'inline': False},
-			{'name': 'Add', 'value': f"Use {context.command_character}strikes @user exp|expire <strike_id>|oldest to set a strike as expired.", 'inline': False},
-			{'name': 'Remove', 'value': f"Use {context.command_character}strikes @user del|delete <strike_id>|newest to remove a strike from a user.", 'inline': False},
+			{'name': 'Expire', 'value': f"Use {context.command_character}strikes @user exp|expire <strike_id>|oldest to set a strike as expired.", 'inline': False},
+			{'name': 'Delete', 'value': f"Use {context.command_character}strikes @user del|delete <strike_id>|newest to remove a strike from a user.", 'inline': False},
 			{'name': 'Keywords', 'value': "<strike_id> is the UniqueID provided on the list of strikes of the user, which uniquely identify each strike.\r\n" \
 			"`oldest` will get the oldest strike by date. `newest` will get the newest strike by date.", 'inline': False},
 			{'name': 'Example', 'value': f"{context.command_character}strikes <@{self._bot.user.id}> add Too dumb.", 'inline': False}
