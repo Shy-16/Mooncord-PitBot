@@ -103,5 +103,5 @@ class Release(Command):
 			{'name': 'Example', 'value': f"{context.command_character}release <@{self._bot.user.id}> amend", 'inline': False}
 		]
 
-		await self._bot.send_embed_message(context.channel, "Release User", 
+		await self._bot.send_embed_message(context.log_channel, "Release User", 
 			f"Use {context.command_character}release @user <amend:optional> will release a user from an active timeout.", fields=fields)

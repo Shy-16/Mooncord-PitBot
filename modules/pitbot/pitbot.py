@@ -138,11 +138,15 @@ class PitBot:
 				timeout_info = self.expire_timeout(user=user)
 
 				for role in self._bot.guild_config[guild['id']]['ban_roles']:
-					await self._bot.http.remove_member_role(guild['id'], user['id'], role, reason="Timeout expired.")
+					try:
+						await self._bot.http.remove_member_role(guild['id'], user['id'], role, reason="Timeout expired.")
+					except:
+						# User left the server, handle it
+						pass
 
 				if not self._bot.is_silent(guild['id']):
-					await self._bot.send_embed_message(self._bot.guild_config[guild['id']]['log_channel'], "User Released",
-						f"User: <@{user['id']}> was just released from the pit.")
+						await self._bot.send_embed_message(self._bot.guild_config[guild['id']]['log_channel'], "User Released",
+							f"User: <@{user['id']}> was just released from the pit.")
 
 				# Send a DM to the user
 				description = f"Your timeout in {guild['name']} has expired and you've been released from the pit."
