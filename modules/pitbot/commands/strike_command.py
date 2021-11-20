@@ -41,7 +41,7 @@ class Strike(Command):
 		if len(context.params) > 1:
 
 			if context.params[1] == "add":
-				await self._do_add_strikes(user, context)
+				await self._do_add_strike(user, context)
 				return
 
 			elif context.params[1] == "exp" or context.params[1] == "expire":

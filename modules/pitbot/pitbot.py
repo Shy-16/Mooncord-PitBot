@@ -145,8 +145,8 @@ class PitBot:
 						pass
 
 				if not self._bot.is_silent(guild['id']):
-						await self._bot.send_embed_message(self._bot.guild_config[guild['id']]['log_channel'], "User Released",
-							f"User: <@{user['id']}> was just released from the pit.")
+					await self._bot.send_embed_message(self._bot.guild_config[guild['id']]['log_channel'], "User Released",
+						f"User: <@{user['id']}> was just released from the pit.")
 
 				# Send a DM to the user
 				description = f"Your timeout in {guild['name']} has expired and you've been released from the pit."
