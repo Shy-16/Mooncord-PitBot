@@ -24,16 +24,16 @@ class Release(Command):
 		# We either need a mention or an ID as first parameter.
 		if not context.mentions:
 			user_id = context.params[0]
-
-			if user_id.startswith("<@"):
-				user_id = user_id[2:-1]
-
 			# review its a "valid" snowflake
 			if not len(user_id) > 16:
 				await self.send_help(context)
 				return
 
 			user = self._pitbot.get_user(user_id=user_id)
+
+			if not user:
+				# there is a possibility user is not yet in our database
+				user = await self._bot.http.get_user(user_id)
 
 		else:
 			user = context.mentions[0]
