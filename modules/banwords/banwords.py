@@ -42,7 +42,7 @@ class Banwords:
 		context = CommandContext(self._bot, "", "", context)
 
 		# Get banwords from bot
-		matches = process.extract(context.content, self.banword_list, scorer=fuzz.partial_ratio)
+		matches = process.extract(context.content, self.banword_list, scorer=fuzz.ratio)
 
 		for match in matches:
 			for banword in self.banwords:
