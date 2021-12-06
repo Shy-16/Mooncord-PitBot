@@ -107,6 +107,10 @@ class Bot(discord.Client):
             return
 
         # If none of the above was checked, its a regular message.
+        # If message is empty it means someone just sent an attachment so ignore
+        if message.content == '':
+            return
+
         # We pass the message through our banword filter for automatic timeouts.
         await self.banword_module.handle_message(message)
 

@@ -29,7 +29,7 @@ class Banwords:
 
 	@tasks.loop(seconds=300)
 	async def refresh_banword_cache(self) -> None:
-		banwords = self._db.get_banwords()
+		banwords = self._db.get_banwords({'active': True})
 		self.banwords = list(banwords)
 		self.banword_list = [banword['word'] for banword in banwords]
 
@@ -49,10 +49,10 @@ class Banwords:
 				if banword['word'] == match[0]:
 					if match[1] >= banword['strength']:
 						# Timeout user based on selected configuration
-						await self.do_timeout(banword, context)
+						await self.do_timeout(banword, context, match)
 						return
 
-	async def do_timeout(self, banword: str, context: CommandContext) -> None:
+	async def do_timeout(self, banword: str, context: CommandContext, match = None) -> None:
 		# Check if its inside a link and if we allow links or not.
 		if context.content.startswith("http") and not banword['include_link']:
 			return
@@ -61,7 +61,7 @@ class Banwords:
 		user = context.author
 
 		# Get user information and user strikes
-		user_strikes = self._pitbot.get_user_strikes(user)
+		user_strikes = self._pitbot.get_user_strikes(user, status='active')
 
 		# First check base duration
 		duration = banword['duration'] # in seconds
@@ -81,7 +81,11 @@ class Banwords:
 
 		# Issue the timeout
 		timeout_info = self._pitbot.add_timeout(user=user, guild_id=context.guild.id,
-				time=int(duration+increment), issuer_id=self._bot.user.id, reason=reason)
+			time=int(duration+increment), issuer_id=self._bot.user.id, reason=reason)
+
+		# Issue the strike
+		strike_info = self._pitbot.add_strike(user=user, guild_id=context.guild.id,
+			issuer_id=self._bot.user.id, reason=reason)
 
 		# Add the roles
 		for role in context.ban_roles:
@@ -92,9 +96,20 @@ class Banwords:
 
 		# generate logs in proper channel
 		if context.log_channel:
+			# Send information of the message caught
+			info_message = f"<@{user['id']}> was found typing a banned word: {banword['word']} in the following sentence."
+
+			fields = [
+				{'name': 'Match', 'value': f"```{match}```"},
+				{'name': 'Message', 'value': f"```{context.content}```"}
+			]
+
+			await self._bot.send_embed_message(context.log_channel, "Banword Info", info_message, fields=fields)
+
+			# First send timeout info
 			user_timeouts = self._pitbot.get_user_timeouts(user=user, status='expired')
 
-			strike_text = ""
+			strike_text = "```No Previous Strikes```"
 			if len(user_strikes) > 0:
 				strike_messages = list()
 
@@ -129,3 +144,6 @@ class Banwords:
 		]
 
 		await self._bot.send_embed_dm(user['id'], "User Timeout", info_message, fields=fields)
+
+		# Delete message
+		# TODO:
