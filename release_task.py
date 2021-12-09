@@ -10,6 +10,8 @@ import datetime
 import yaml
 from typing import Optional
 import requests
+from pathlib import Path
+
 from urllib.parse import quote as _uriquote
 from utils import parse_args, iso_to_datetime
 
@@ -164,8 +166,11 @@ def free_users(token: str, config: dict) -> None:
 if __name__ == '__main__':
 	args = parse_args()
 
+	base_path = Path(__file__).parent
+	file_path = (base_path / 'config.yaml').resolve()
+
 	try:
-		config_file = open('config.yaml', 'r')
+		config_file = open(file_path, 'r')
 		config = yaml.load(config_file, Loader=yaml.FullLoader)
 
 	except FileNotFoundError:

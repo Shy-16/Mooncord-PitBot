@@ -5,7 +5,7 @@ bidict==0.21.2
 chardet==4.0.0
 colorama==0.4.4
 DateTime==4.3
-discord-continued==1.0.2
+discord-continued==1.0.3
 idna==3.2
 multidict==5.1.0
 pymongo==3.11.4
