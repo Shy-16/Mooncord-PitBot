@@ -50,7 +50,18 @@ class Database:
 		self._conn.close()
 
 	# Server Configuration Related
-	def load_server_configuration(self, guild, bot) -> list:
+	def get_default_guild(self) -> dict:
+		"""
+		Loads the first guild in the list from database
+		"""
+
+		col = self._db['discord_config']
+
+		guild_info = col.find_one()
+
+		return guild_info
+
+	def load_server_configuration(self, guild, bot) -> dict:
 		"""
 		Given a guild, load its configuration
 		"""

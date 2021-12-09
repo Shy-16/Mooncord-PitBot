@@ -54,7 +54,7 @@ class PitBot:
 		"""
 		Initialize the different asks that run in the background
 		"""
-		self.free_users.start()
+		pass
 
 	async def handle_commands(self, message: discord.Context) -> None:
 		"""
@@ -108,57 +108,6 @@ class PitBot:
 		if command in self.ping_commands:
 			await self.ping_commands[command].ping(CommandContext(self._bot, command, params, message))
 		return
-
-	# Task scheduler
-	@tasks.loop(seconds=60)
-	async def free_users(self) -> None:
-		if not self._bot.is_ready():
-			return
-
-		timeouts = self._db.get_timeouts(query={'status': 'active'}, partial=False)
-		guild = self._bot.default_guild
-		guild['id'] = guild['guild_id'] # ease of use
-
-		for timeout in timeouts:
-			issued_date = iso_to_datetime(timeout['created_date'])
-			expire_date = issued_date + datetime.timedelta(seconds=timeout['time'])
-
-			user = timeout.get("user")
-			if not user:
-				# This is weird because we literally store users with the timeout, but just in case
-				user = await self._bot.http.get_user(timeout['user_id'])
-			else:
-				user['id'] = user['discord_id'] # ease of use
-
-			if timeout['guild_id'] != guild['id']:
-				# This should be weird too since its only in a single server
-				guild = await self._bot.http.get_guild(timeout['guild_id'])
-
-			if datetime.datetime.now() >= expire_date:
-				timeout_info = self.expire_timeout(user=user)
-
-				for role in self._bot.guild_config[guild['id']]['ban_roles']:
-					try:
-						await self._bot.http.remove_member_role(guild['id'], user['id'], role, reason="Timeout expired.")
-					except:
-						# User left the server, handle it
-						pass
-
-				if not self._bot.is_silent(guild['id']):
-					await self._bot.send_embed_message(self._bot.guild_config[guild['id']]['log_channel'], "User Released",
-						f"User: <@{user['id']}> was just released from the pit.")
-
-				# Send a DM to the user
-				description = f"Your timeout in {guild['name']} has expired and you've been released from the pit."
-
-				image = {
-					"url": "https://i.imgur.com/CraIFqD.gif",
-					"width": 0,
-					"height": 0
-				}
-
-				await self._bot.send_embed_dm(user['id'], "User Timeout", description, image=image)
-
 
 	# Functionality
 

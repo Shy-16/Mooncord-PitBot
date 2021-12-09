@@ -33,16 +33,26 @@ class Banwords:
 		self.banwords = list(banwords)
 		self.banword_list = [banword['word'] for banword in banwords]
 
-	async def handle_message(self, context: discord.Context) -> None:
+	async def handle_message(self, ctx: discord.Context) -> None:
 		"""
 		Handles a new message caught to the bot that didnt fall into any command category
 		and was written in a public channel, not in DMs
 		"""
 
-		context = CommandContext(self._bot, "", "", context)
+		context = CommandContext(self._bot, "", "", ctx)
+
+		# replace l33t and assign it to a new variable
+		message = context.content.replace('0', 'o').replace('1', 'i').replace('3', 'e').replace('4', 'a').replace('5', 's')
+		rmessage = message[::-1]
+
+		# First check if the word is IN the sentence, that way we avoid doing the whole fuzz extract.
+		for banword in self.banword_list:
+			if banword in message or banword in rmessage:
+				await self.do_timeout(banword, context, [(banword, 'exact match')])
+				return
 
 		# Get banwords from bot
-		matches = process.extract(context.content, self.banword_list, scorer=fuzz.ratio)
+		matches = process.extract(message, self.banword_list, scorer=fuzz.ratio)
 
 		for match in matches:
 			for banword in self.banwords:
@@ -61,7 +71,7 @@ class Banwords:
 		user = context.author
 
 		# Get user information and user strikes
-		user_strikes = self._pitbot.get_user_strikes(user, status='active')
+		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
 
 		# First check base duration
 		duration = banword['duration'] # in seconds
