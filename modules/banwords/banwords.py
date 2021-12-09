@@ -45,13 +45,13 @@ class Banwords:
 		rmessage = message[::-1]
 
 		# First check if the word is IN the sentence, that way we avoid doing the whole fuzz extract.
-		for banword in self.banwords:
-			if banword['word'] in message or banword['word'] in rmessage:
-				await self.do_timeout(banword, context, [(banword, 'exact match')])
-				return
+		#for banword in self.banwords:
+		#	if banword['word'] in message or banword['word'] in rmessage:
+		#		await self.do_timeout(banword, context, [(banword, 'exact match')])
+		#		return
 
 		# Get banwords from bot
-		matches = process.extract(message, self.banword_list, scorer=fuzz.ratio)
+		matches = process.extract(message, self.banword_list, scorer=fuzz.token_sort_ratio)
 
 		for match in matches:
 			for banword in self.banwords:
