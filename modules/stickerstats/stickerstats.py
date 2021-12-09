@@ -9,6 +9,7 @@ from typing import Optional, List, Union, Tuple
 
 import discord
 
+from modules.pitbot.commands.context import CommandContext
 from .database import StickerDatabase
 from .commands import StickerCommand
 
@@ -52,6 +53,23 @@ class StickerStats:
 		return
 
 	# Functionality
+	def get_sticker(self, *, sticker_id: str = None, name: str = None) -> dict:
+		"""
+		Gets a sticker from database given either id or name
+		"""
+
+		query = dict()
+
+		if sticker_id is not None:
+			query['id'] = sticker_id
+
+		if name is not None:
+			query['name'] = name
+
+		sticker = self._db.get_sticker(query)
+
+		return sticker
+
 	def update_sticker(self, *, message:discord.Context) -> None:
 		"""
 		Updates info about sticker(s)

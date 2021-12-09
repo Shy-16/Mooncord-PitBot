@@ -30,6 +30,11 @@ class CommandContext:
 		self.role_mentions = context.mention_roles # list of IDs
 		self.channel_mentions = re.findall(self.CHANNEL_MENTION_PATTERN, context.content) # list of IDs
 
+
+		self.sticker_items = list()
+		if hasattr(context, 'sticker_items'):
+			self.sticker_items = context.sticker_items
+
 		self.is_admin = self._is_admin()
 		self.is_mod = self._is_mod()
 
