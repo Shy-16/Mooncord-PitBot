@@ -1,0 +1,1 @@
+from .sticker_command import StickerCommand

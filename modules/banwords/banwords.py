@@ -3,7 +3,6 @@
 ## Modmail Module ##
 # Interacts with Modmail functionality through API #
 
-import asyncio
 import math
 from thefuzz import fuzz, process
 

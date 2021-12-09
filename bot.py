@@ -11,7 +11,7 @@ from typing import Optional
 
 from database import Database
 from log_utils import init_log, do_log
-from modules import PitBot, Banwords
+from modules import PitBot, Banwords, StickerStats
 from application_commands import (
     set_help_slash,
     set_selfpit_slash,
@@ -36,6 +36,7 @@ class Bot(discord.Client):
 
         self.pitbot_module = PitBot(bot=self)
         self.banword_module = Banwords(bot=self)
+        self.sticker_module = StickerStats(bot=self)
 
         init_log()
 
@@ -82,16 +83,17 @@ class Bot(discord.Client):
         # 'hoisted_role': '553454347795824650', 'deaf': False} id=907653873282469888 flags=0 embeds=[] edited_timestamp=None content=test again 
         # components=[] channel_id=593048383405555725 author={'username': 'yuigahamayui', 'public_flags': 128, 'id': '539881999926689829', 
         # 'discriminator': '7441', 'avatar': 'f493550c33cd55aaa0819be4e9a988a6'} attachments=[] guild_id=553454168631934977 event_name=MESSAGE_CREATE>
+        # sticker_items=[{'name': 'GAGAGAGA', 'id': '915657255309942836', 'format_type': 2}]
         #
         # 'attachments', 'author', 'channel_id', 'components', 'content', 'edited_timestamp', 'embeds', 'event_name', 'flags', 'guild_id', 'id', 'member', 
-        # 'mention_everyone', 'mention_roles', 'mentions', 'nonce', 'pinned', 'referenced_message', 'timestamp', 'tts', 'type'
+        # 'mention_everyone', 'mention_roles', 'mentions', 'nonce', 'pinned', 'referenced_message', 'sticker_items', timestamp', 'tts', 'type'
 
         # we do not want the bot to reply to itself
         if int(message.author['id']) == self.user.id or message.author.get('bot', False):
             return
 
+        # Someone sent a DM to the bot.
         if not hasattr(message, 'guild_id'):
-            # Someone sent a DM to the bot.
             await self.pitbot_module.handle_dm_commands(message)
             return
 
@@ -101,10 +103,15 @@ class Bot(discord.Client):
             await self.pitbot_module.handle_ping_commands(message)
             return
 
+        # Someone used a command.
         if message.content.startswith(self.guild_config[message.guild_id]['command_character']):
-            # Someone used a command.
             await self.pitbot_module.handle_commands(message)
+            await self.sticker_module.handle_commands(message)
             return
+
+        # Check for stickers
+        if hasattr(message, 'sticker_items'):
+            self.sticker_module.update_sticker(message=message)
 
         # If none of the above was checked, its a regular message.
         # If message is empty it means someone just sent an attachment so ignore
