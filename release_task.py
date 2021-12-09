@@ -3,6 +3,7 @@
 ## Release Task ##
 # Run every minute to free user from the pit #
 
+import sys
 import logging
 import json
 import datetime
