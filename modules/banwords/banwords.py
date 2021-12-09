@@ -45,8 +45,8 @@ class Banwords:
 		rmessage = message[::-1]
 
 		# First check if the word is IN the sentence, that way we avoid doing the whole fuzz extract.
-		for banword in self.banword_list:
-			if banword in message or banword in rmessage:
+		for banword in self.banwords:
+			if banword['word'] in message or banword['word'] in rmessage:
 				await self.do_timeout(banword, context, [(banword, 'exact match')])
 				return
 
