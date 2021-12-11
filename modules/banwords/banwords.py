@@ -44,22 +44,25 @@ class Banwords:
 		message = context.content.replace('0', 'o').replace('1', 'i').replace('3', 'e').replace('4', 'a').replace('5', 's')
 		rmessage = message[::-1]
 
-		# First check if the word is IN the sentence, that way we avoid doing the whole fuzz extract.
-		#for banword in self.banwords:
-		#	if banword['word'] in message or banword['word'] in rmessage:
-		#		await self.do_timeout(banword, context, [(banword, 'exact match')])
-		#		return
+		split = message.split()
 
-		# Get banwords from bot
-		matches = process.extract(message, self.banword_list, scorer=fuzz.token_sort_ratio)
-
-		for match in matches:
+		for word in split:
 			for banword in self.banwords:
-				if banword['word'] == match[0]:
-					if match[1] >= banword['strength']:
-						# Timeout user based on selected configuration
-						await self.do_timeout(banword, context, match)
-						return
+				# first look for exact match
+				if word == banword['word'] or word[::-1] == banword['word']:
+					await self.do_timeout(banword, context, ('exact', 100))
+					return
+
+				# next check for strength based on strict ratio
+				ratio = fuzz.ratio(word, banword['word'])
+				if ratio >= banword['strength']:
+					await self.do_timeout(banword, context, ('ratio', ratio))
+					return
+
+				ratio = fuzz.ratio(word[::-1], banword['word'])
+				if ratio >= banword['strength']:
+					await self.do_timeout(banword, context, ('ratio', ratio))
+					return
 
 	async def do_timeout(self, banword: str, context: CommandContext, match = None) -> None:
 		# Check if its inside a link and if we allow links or not.
