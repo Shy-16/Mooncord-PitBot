@@ -42,7 +42,7 @@ class Banwords:
 		context = CommandContext(self._bot, "", "", ctx)
 
 		# replace l33t and assign it to a new variable
-		message = context.content.replace('0', 'o').replace('1', 'i').replace('3', 'e').replace('4', 'a').replace('5', 's')
+		message = context.content.lower().replace('0', 'o').replace('1', 'i').replace('3', 'e').replace('4', 'a').replace('5', 's')
 		for c in string.punctuation:
 			message = message.replace(c, '')
 		rmessage = message[::-1]
