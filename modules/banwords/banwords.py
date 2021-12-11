@@ -4,6 +4,7 @@
 # Interacts with Modmail functionality through API #
 
 import math
+import string
 from thefuzz import fuzz, process
 
 import discord
@@ -42,6 +43,8 @@ class Banwords:
 
 		# replace l33t and assign it to a new variable
 		message = context.content.replace('0', 'o').replace('1', 'i').replace('3', 'e').replace('4', 'a').replace('5', 's')
+		for c in string.punctuation:
+			message = message.replace(c, '')
 		rmessage = message[::-1]
 
 		split = message.split()
@@ -119,6 +122,7 @@ class Banwords:
 			await self._bot.send_embed_message(context.log_channel, "Banword Info", info_message, fields=fields)
 
 			# First send timeout info
+			user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
 			user_timeouts = self._pitbot.get_user_timeouts(user=user, status='expired')
 
 			strike_text = "```No Previous Strikes```"
@@ -158,4 +162,5 @@ class Banwords:
 		await self._bot.send_embed_dm(user['id'], "User Timeout", info_message, fields=fields)
 
 		# Delete message
-		# TODO:
+		if banword['delete_message']:
+			await self._bot.http.delete_message(context.channel_id, context.id, 'Removed due to containing a banword.')

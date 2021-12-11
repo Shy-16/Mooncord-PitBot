@@ -18,6 +18,7 @@ class CommandContext:
 		self.content = context.content
 		self.context = context
 
+		self.id = context.id
 		self.author = context.author
 		self.member = context.member
 		self.guild = next((g for g in bot.guilds if g.id == context.guild_id), None)
