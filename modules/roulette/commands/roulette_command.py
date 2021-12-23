@@ -34,24 +34,24 @@ class RouletteCommand(Command):
 				info_message = 'Roulette command may only be used once every 24h'
 				await self._bot.send_embed_message(context.channel_id, 'Roulette', info_message)
 
-			if times >= 4:
-				# The user is just spamming the bot so add a strike to their account along with a warning
-				reason = 'User spamming the roulette command after being notified that can only be used every 12 hours.'
-				strike_info = self._bot.pitbot_module.add_strike(user=context.author, guild_id=context.guild.id,
-					issuer_id=self._bot.user.id, reason=reason)
+			#if times >= 4:
+			#	# The user is just spamming the bot so add a strike to their account along with a warning
+			#	reason = 'User spamming the roulette command after being notified that can only be used every 12 hours.'
+			#	strike_info = self._bot.pitbot_module.add_strike(user=context.author, guild_id=context.guild.id,
+			#		issuer_id=self._bot.user.id, reason=reason)
 
-				# Send a DM to the user
-				info_message = f"A strike has been added to your {context.guild.name} account for spamming the roulette command\
-					even after being notified that it can only be used once every 12 hours.\r\n\r\n\
-					Please be warned that this strike has been issued because you've used the command at least 4 times which is\
-					already considered enough to abuse a command."
-				await self._bot.send_embed_dm(user['id'], "User Timeout", info_message)
+			#	# Send a DM to the user
+			#	info_message = f"A strike has been added to your {context.guild.name} account for spamming the roulette command\
+			#		even after being notified that it can only be used once every 12 hours.\r\n\r\n\
+			#		Please be warned that this strike has been issued because you've used the command at least 4 times which is\
+			#		already considered enough to abuse a command."
+			#	await self._bot.send_embed_dm(user['id'], "User Timeout", info_message)
 
 			self._pitbot.add_user_to_cache(context.author['id'])
 			return
 
 		# Add the cooldown asap
-		self._pitbot._cooldown = 120 #600 # 10 minutes
+		self._pitbot._cooldown = 60 # 1 minute
 
 		# Lets begin the story
 		stories = list()
