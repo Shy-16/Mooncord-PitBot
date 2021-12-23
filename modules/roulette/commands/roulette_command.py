@@ -22,7 +22,7 @@ class RouletteCommand(Command):
 		await do_log(place="guild", data_dict={'event': 'command', 'command': 'roulette'}, context=context)
 
 		if self._pitbot._cooldown > 0:
-			info_message = f'Roulette command is on coolddown: {self._pitbot._cooldown} seconds left.'
+			info_message = f'Roulette command is on cooldown: {self._pitbot._cooldown} seconds left.'
 			await self._bot.send_embed_message(context.channel_id, 'Roulette', info_message)
 			return
 
