@@ -11,7 +11,7 @@ from typing import Optional
 
 from database import Database
 from log_utils import init_log, do_log
-from modules import PitBot, Banwords, StickerStats
+from modules import PitBot, Banwords, StickerStats, Roulette
 from application_commands import (
     set_help_slash,
     set_selfpit_slash,
@@ -37,6 +37,7 @@ class Bot(discord.Client):
         self.pitbot_module = PitBot(bot=self)
         self.banword_module = Banwords(bot=self)
         self.sticker_module = StickerStats(bot=self)
+        self.roulette_module = Roulette(bot=self)
 
         init_log()
 
@@ -46,6 +47,7 @@ class Bot(discord.Client):
     def run(self, *, token: str) -> None:
         self.pitbot_module.init_tasks()
         self.banword_module.init_tasks()
+        self.roulette_module.init_tasks()
         super().run(token)
 
     ## On error handler
@@ -107,6 +109,7 @@ class Bot(discord.Client):
         if message.content.startswith(self.guild_config[message.guild_id]['command_character']):
             await self.pitbot_module.handle_commands(message)
             await self.sticker_module.handle_commands(message)
+            await self.roulette_module.handle_commands(message)
             return
 
         # Check for stickers

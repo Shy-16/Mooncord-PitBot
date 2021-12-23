@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-## Pitbot Module ##
-# Takes care of timing out and releasing people #
+## Stickers Module ##
+# Shows different stats for sticker usage #
 
 import logging
 import datetime
