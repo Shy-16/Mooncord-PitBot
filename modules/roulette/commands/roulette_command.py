@@ -117,6 +117,7 @@ class RouletteCommand(Command):
 					index = step['win']
 
 		self._pitbot._executing = False
+		self._pitbot.add_user_to_cache(context.author['id'])
 
 	async def send_help(self, context: CommandContext) -> None:
 		"""
