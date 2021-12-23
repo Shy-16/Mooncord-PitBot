@@ -24,29 +24,34 @@ class Roulette:
 
 		self._bot = bot
 		self._cache = dict()
-		self._executing = False
+		self._cooldown = 0
 
 		self.commands = {
 			"roulette": RouletteCommand(self, 'any'),
 		}
 
-	@tasks.loop(hours=12)
+	@tasks.loop(hours=24)
 	async def refresh_cache(self) -> None:
 		self._cache = dict()
+
+	@tasks.loop(seconds=30)
+	async def refresh_cooldown(self) -> None:
+		if self._cooldown > 0:
+			self._cooldown -= 30
+			if self._cooldown < 0:
+				self._cooldown = 0
 
 	def init_tasks(self) -> None:
 		"""
 		Initialize the different asks that run in the background
 		"""
 		self.refresh_cache.start()
+		self.refresh_cooldown.start()
 
 	async def handle_commands(self, message: discord.Context) -> None:
 		"""
 		Handles any commands given through the designed character
 		"""
-
-		if self._executing:
-			return
 		
 		command = message.content.replace(self._bot.guild_config[message.guild_id]['command_character'], '')
 		params = list()

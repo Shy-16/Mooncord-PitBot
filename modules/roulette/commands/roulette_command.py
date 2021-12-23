@@ -20,21 +20,25 @@ class RouletteCommand(Command):
 	async def execute(self, context: CommandContext) -> None:
 
 		await do_log(place="guild", data_dict={'event': 'command', 'command': 'roulette'}, context=context)
-		self._pitbot._executing = True
+		print(self._pitbot._cooldown)
+		if self._pitbot._cooldown > 0:
+			info_message = f'Roulette command is on coolddown: {self._pitbot._cooldown} seconds left.'
+			await self._bot.send_embed_message(context.channel_id, 'Roulette', info_message)
+			return
 
 		times = self._pitbot.user_in_cache(context.author['id'])
 
 		if times:
 			if times == 1:
 				# Let the user know in the channel about the cooldown
-				info_message = 'Roulette command may only be used once every 12h'
+				info_message = 'Roulette command may only be used once every 24h'
 				await self._bot.send_embed_message(context.channel_id, 'Roulette', info_message)
 
 			if times >= 4:
 				# The user is just spamming the bot so add a strike to their account along with a warning
 				reason = 'User spamming the roulette command after being notified that can only be used every 12 hours.'
 				strike_info = self._bot.pitbot_module.add_strike(user=context.author, guild_id=context.guild.id,
-					issuer_id=self._bot.id, reason=reason)
+					issuer_id=self._bot.user.id, reason=reason)
 
 				# Send a DM to the user
 				info_message = f"A strike has been added to your {context.guild.name} account for spamming the roulette command\
@@ -45,6 +49,9 @@ class RouletteCommand(Command):
 
 			self._pitbot.add_user_to_cache(context.author['id'])
 			return
+
+		# Add the cooldown asap
+		self._pitbot._cooldown = 120 #600 # 10 minutes
 
 		# Lets begin the story
 		stories = list()
@@ -116,7 +123,6 @@ class RouletteCommand(Command):
 					# User won
 					index = step['win']
 
-		self._pitbot._executing = False
 		self._pitbot.add_user_to_cache(context.author['id'])
 
 	async def send_help(self, context: CommandContext) -> None:
