@@ -20,7 +20,7 @@ class RouletteCommand(Command):
 	async def execute(self, context: CommandContext) -> None:
 
 		await do_log(place="guild", data_dict={'event': 'command', 'command': 'roulette'}, context=context)
-		print(self._pitbot._cooldown)
+
 		if self._pitbot._cooldown > 0:
 			info_message = f'Roulette command is on coolddown: {self._pitbot._cooldown} seconds left.'
 			await self._bot.send_embed_message(context.channel_id, 'Roulette', info_message)
