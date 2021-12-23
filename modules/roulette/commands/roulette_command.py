@@ -114,7 +114,7 @@ class RouletteCommand(Command):
 						await self._bot.send_embed_message(context.log_channel, "Roulette losers", info_message)
 
 					# Send a DM to the user
-					info_message = f"You've been pitted by {context.guild.name} mod staff for 2h for losing the roulette. \r\n\
+					info_message = f"You've been pitted by {context.guild.name} mod staff for 1h for losing the roulette. \r\n\
 						This timeout doesn't add any strikes to your acount.\r\n\r\n... loser."
 
 					await self._bot.send_embed_dm(context.author['id'], "User Timeout", info_message)
