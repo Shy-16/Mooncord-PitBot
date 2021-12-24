@@ -60,6 +60,8 @@ class RouletteCommand(Command):
 				elif triggers <= 0:
 					triggers = 1
 
+			if triggers == 0: triggers = 1
+
 		chamber = [0, 0, 0, 0, 0, 0]
 		for i in range(bullets): chamber[i] = 1
 		random.shuffle(chamber) 
