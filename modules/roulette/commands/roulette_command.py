@@ -89,7 +89,7 @@ class RouletteCommand(Command):
 					"width": 0
 				}
 
-				await self._bot.send_embed_message(context.channel_id, "Roulette Loser", description, image=image)
+				await self._bot.send_embed_message(context.channel_id, "Roulette Loser", description)
 
 				# Default reason
 				reason = 'Automatic timeout issued for losing the roulette'
