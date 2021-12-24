@@ -13,6 +13,9 @@ from modules.pitbot.commands.command import Command
 from log_utils import do_log
 
 class RouletteCommand(Command):
+	"""
+	!roulette <bullets|optional> <triggers|optional>
+	"""
 
 	def __init__(self, roulette, permission: str ='mod', dm_keywords: list = list()) -> None:
 		super().__init__(roulette, permission, dm_keywords)
@@ -21,109 +24,101 @@ class RouletteCommand(Command):
 
 		await do_log(place="guild", data_dict={'event': 'command', 'command': 'roulette'}, context=context)
 
-		#if self._pitbot._cooldown > 0:
-		#	info_message = f'Roulette command is on cooldown: {self._pitbot._cooldown} seconds left.'
-		#	await self._bot.send_embed_message(context.channel_id, 'Roulette', info_message)
-		#	return
-
+		# Check cache and add to cache
 		times = self._pitbot.user_in_cache(context.author['id'])
+		self._pitbot.add_user_to_cache(context.author['id'])
 
 		if times:
 			if times == 1:
 				# Let the user know in the channel about the cooldown
 				info_message = 'Roulette command may only be used once every 24h'
 				await self._bot.send_embed_message(context.channel_id, 'Roulette', info_message)
-
-			#if times >= 4:
-			#	# The user is just spamming the bot so add a strike to their account along with a warning
-			#	reason = 'User spamming the roulette command after being notified that can only be used every 12 hours.'
-			#	strike_info = self._bot.pitbot_module.add_strike(user=context.author, guild_id=context.guild.id,
-			#		issuer_id=self._bot.user.id, reason=reason)
-
-			#	# Send a DM to the user
-			#	info_message = f"A strike has been added to your {context.guild.name} account for spamming the roulette command\
-			#		even after being notified that it can only be used once every 12 hours.\r\n\r\n\
-			#		Please be warned that this strike has been issued because you've used the command at least 4 times which is\
-			#		already considered enough to abuse a command."
-			#	await self._bot.send_embed_dm(user['id'], "User Timeout", info_message)
-
-			self._pitbot.add_user_to_cache(context.author['id'])
 			return
 
-		# Add the cooldown asap
-		#self._pitbot._cooldown = 60 # 1 minute
+		# vars
+		bullets = 1
+		triggers = 1
 
-		# Lets begin the story
-		stories = list()
-		base_path = Path(__file__).parent
-		file_path = (base_path / 'stories.json').resolve()
+		# Get params if any
+		if len(context.params) >= 1:
+			# bullets
+			vb = context.params[0]
+			if vb.isdigit():
+				bullets = int(vb)
+				if bullets > 5:
+					bullets = 5
+				elif bullets <= 0:
+					bullets = 1
 
-		with open(file_path, 'r+') as f:
-			stories = json.load(f)
+		if len(context.params) >= 2:
+			# triggers
+			vr = context.params[1]
+			if vr.isdigit():
+				triggers = int(vr)
+				if triggers >= bullets:
+					triggers = bullets -1
+				elif triggers <= 0:
+					triggers = 1
 
-		story = stories[random.randint(0, len(stories)-1)]
-		index = 0
+		chamber = [0, 0, 0, 0, 0, 0]
+		for i in range(bullets): chamber[i] = 1
+		random.shuffle(chamber) 
 
-		while(index < len(story)):
-			step = story[index]
+		shots = list()
 
-			if step['type'] == 'text':
-				if step['typing']:
-					await self._bot.http.trigger_typing(context.channel_id)
+		for i in range(triggers):
+			if chamber[i] == 0:
+				shots.append("**CLICK**")
 
-				if step['interval']:
-					await asyncio.sleep(step['interval'])
+			else:
+				# Got shot.
+				shots.append("**BANG**")
 
-				# Send message in channel
-				await self._bot.send_message(context.channel_id, step['value'].format(name=context.author['username']))
+				shots_string = ", ".join(shots)
 
-				index += 1
+				# Send a smug notification on the channel
+				description = f"<@{context.author['id']}> loads {bullets} bullets and pulls the trigger {triggers} time{'s' if triggers > 1 else ''}...\r\n \
+					{shots_string}\r\n\r\nBACK TO THE PIT"
 
-				if step.get('end'):
-					index = 10000
+				image = {
+					"url": self._bot.get_timeout_image(),
+					"height": 0,
+					"width": 0
+				}
 
-			elif step['type'] == 'wait':
-				await asyncio.sleep(step['interval'])
+				await self._bot.send_embed_message(context.channel_id, "Roulette Loser", description, image=image)
 
-				index += 1
+				# Default reason
+				reason = 'Automatic timeout issued for losing the roulette'
 
-			elif step['type'] == 'roll':
-				# Roll to see if the user dies or not.
-				roll = random.randint(0, step['chances']-1)
+				# Issue the timeout
+				timeout_info = self._bot.pitbot_module.add_timeout(user=context.author, guild_id=context.guild.id,
+					time=3600*bullets, issuer_id=self._bot.user.id, reason=reason)
 
-				if roll == 0:
-					# User lost
-					index = step['lose']
+				# Add the roles
+				for role in context.ban_roles:
+					await self._bot.http.add_member_role(context.guild.id, context.author['id'], role, reason)
 
-					# Time them out
-					# Default reason is
-					reason = 'Automatic timeout issued for losing the roulette'
+				# generate logs in proper channel
+				if context.log_channel:
+					# Send information of the message caught
+					info_message = f"<@{context.author['id']}> was timed out for {bullets}h for losing the roulette."
+					await self._bot.send_embed_message(context.log_channel, "Roulette losers", info_message)
 
-					# Issue the timeout
-					timeout_info = self._bot.pitbot_module.add_timeout(user=context.author, guild_id=context.guild.id,
-						time=3600, issuer_id=self._bot.user.id, reason=reason)
+				# Send a DM to the user
+				info_message = f"You've been pitted by {context.guild.name} mod staff for {bullets}h for losing the roulette. \r\n\
+					This timeout doesn't add any strikes to your acount.\r\n\r\n... loser."
 
-					# Add the roles
-					for role in context.ban_roles:
-						await self._bot.http.add_member_role(context.guild.id, context.author['id'], role, reason)
+				await self._bot.send_embed_dm(context.author['id'], "User Timeout", info_message)
+				return
 
-					# generate logs in proper channel
-					if context.log_channel:
-						# Send information of the message caught
-						info_message = f"<@{context.author['id']}> was timed out for 1h losing the roulette."
-						await self._bot.send_embed_message(context.log_channel, "Roulette losers", info_message)
+		shots_string = ", ".join(shots)
 
-					# Send a DM to the user
-					info_message = f"You've been pitted by {context.guild.name} mod staff for 1h for losing the roulette. \r\n\
-						This timeout doesn't add any strikes to your acount.\r\n\r\n... loser."
+		# Send a notification on the channel
+		description = f"<@{context.author['id']}> loads {bullets} bullets and pulls the trigger {triggers} time{'s' if triggers > 1 else ''}...\r\n \
+			{shots_string}"
 
-					await self._bot.send_embed_dm(context.author['id'], "User Timeout", info_message)
-
-				else:
-					# User won
-					index = step['win']
-
-		self._pitbot.add_user_to_cache(context.author['id'])
+		await self._bot.send_embed_message(context.channel_id, "Roulette Winner", description)
 
 	async def send_help(self, context: CommandContext) -> None:
 		"""

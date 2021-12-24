@@ -24,7 +24,6 @@ class Roulette:
 
 		self._bot = bot
 		self._cache = dict()
-		self._cooldown = 0
 
 		self.commands = {
 			"roulette": RouletteCommand(self, 'any'),
@@ -34,19 +33,11 @@ class Roulette:
 	async def refresh_cache(self) -> None:
 		self._cache = dict()
 
-	@tasks.loop(seconds=30)
-	async def refresh_cooldown(self) -> None:
-		if self._cooldown > 0:
-			self._cooldown -= 30
-			if self._cooldown < 0:
-				self._cooldown = 0
-
 	def init_tasks(self) -> None:
 		"""
 		Initialize the different asks that run in the background
 		"""
 		self.refresh_cache.start()
-		self.refresh_cooldown.start()
 
 	async def handle_commands(self, message: discord.Context) -> None:
 		"""
