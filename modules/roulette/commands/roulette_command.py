@@ -31,8 +31,8 @@ class RouletteCommand(Command):
 		if times:
 			if times == 1:
 				# Let the user know in the channel about the cooldown
-				info_message = 'Roulette command may only be used once every 24h'
-				await self._bot.send_embed_message(context.channel_id, 'Roulette', info_message)
+				info_message = 'You may use Roulette command only once a day'
+				await self._bot.send_embed_dm(context.author['id'], 'Roulette Info', info_message)
 			return
 
 		# vars
@@ -77,8 +77,9 @@ class RouletteCommand(Command):
 				shots_string = "\r\n ".join(shots)
 
 				# Send a smug notification on the channel
-				description = f"<@{context.author['id']}> loads {bullets} bullets and pulls the trigger {triggers} time{'s' if triggers > 1 else ''}...\r\n \
-					{shots_string}\r\n\r\nBACK TO THE PIT"
+				description = f"<@{context.author['id']}> loads {bullets} bullet{'s' if bullets > 1 else ''} \
+					and pulls the trigger {triggers} time{'s' if triggers > 1 else ''}...\r\n \
+					{shots_string}\r\n\r\nBACK TO THE PIT for {bullets} hour{'s' if bullets > 1 else ''}"
 
 				image = {
 					"url": self._bot.get_timeout_image(),
@@ -115,7 +116,8 @@ class RouletteCommand(Command):
 		shots_string = "\r\n ".join(shots)
 
 		# Send a notification on the channel
-		description = f"<@{context.author['id']}> loads {bullets} bullets and pulls the trigger {triggers} time{'s' if triggers > 1 else ''}...\r\n \
+		description = f"<@{context.author['id']}> loads {bullets} bullet{'s' if bullets > 1 else ''} \
+			and pulls the trigger {triggers} time{'s' if triggers > 1 else ''}...\r\n \
 			{shots_string}"
 
 		await self._bot.send_embed_message(context.channel_id, "Roulette Winner", description)
