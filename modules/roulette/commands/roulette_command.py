@@ -55,13 +55,10 @@ class RouletteCommand(Command):
 			vr = context.params[1]
 			if vr.isdigit():
 				triggers = int(vr)
-				if triggers >= bullets:
-					triggers = bullets -1
+				if triggers > 5:
+					triggers = 5
 				elif triggers <= 0:
 					triggers = 1
-
-
-		if triggers <= 0: triggers = 1
 
 		chamber = [0, 0, 0, 0, 0, 0]
 		for i in range(bullets): chamber[i] = 1
