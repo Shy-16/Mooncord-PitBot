@@ -68,13 +68,13 @@ class RouletteCommand(Command):
 
 		for i in range(triggers):
 			if chamber[i] == 0:
-				shots.append("**CLICK**")
+				shots.append("**Click...**")
 
 			else:
 				# Got shot.
-				shots.append("**BANG**")
+				shots.append("**BANG!**")
 
-				shots_string = ", ".join(shots)
+				shots_string = "\r\n ".join(shots)
 
 				# Send a smug notification on the channel
 				description = f"<@{context.author['id']}> loads {bullets} bullets and pulls the trigger {triggers} time{'s' if triggers > 1 else ''}...\r\n \
@@ -112,7 +112,7 @@ class RouletteCommand(Command):
 				await self._bot.send_embed_dm(context.author['id'], "User Timeout", info_message)
 				return
 
-		shots_string = ", ".join(shots)
+		shots_string = "\r\n ".join(shots)
 
 		# Send a notification on the channel
 		description = f"<@{context.author['id']}> loads {bullets} bullets and pulls the trigger {triggers} time{'s' if triggers > 1 else ''}...\r\n \
