@@ -111,7 +111,7 @@ class BulletHellCommand(Command):
 					*thud* *thunk* All the bullets miss the mark hitting the wall behind <@{context.author['id']}>\r\n\r\n \
 					Looks like they will live another day."
 
-		await self._bot.send_embed_message(context.channel_id, "Roulette Winner", description)
+		await self._bot.send_embed_message(context.channel_id, "Bullet Hell Winner", description)
 
 	async def send_help(self, context: CommandContext) -> None:
 		"""
