@@ -87,4 +87,4 @@ class Roulette:
 		Returns a time formatted reset time
 		"""
 
-		return self._reset_time.strftime("%c %Z")
+		return self._reset_time.strftime("%X %Z")
