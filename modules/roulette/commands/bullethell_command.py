@@ -90,7 +90,7 @@ class BulletHellCommand(Command):
 
 				# Issue the timeout
 				timeout_info = self._bot.pitbot_module.add_timeout(user=context.author, guild_id=context.guild.id,
-					time=timeout, issuer_id=self._bot.user.id, reason=reason)
+					time=bullet['timeout'], issuer_id=self._bot.user.id, reason=reason)
 
 				# Add the roles
 				for role in context.ban_roles:
