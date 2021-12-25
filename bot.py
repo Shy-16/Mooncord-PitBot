@@ -217,7 +217,10 @@ class Bot(discord.Client):
         return self.default_guild['timeout_images'][index]
 
     async def send_message(self, channel_id: int, content: str = "") -> dict:
-        message = await self.http.send_message(channel_id, content)
+        try:
+            message = await self.http.send_message(channel_id, content)
+        except:
+            message = dict()
         return message
 
     async def send_embed_message(self, channel_id: int, title: str = "", description: str = "", color: int = 0x0aeb06, fields: list = list(),
@@ -236,13 +239,19 @@ class Bot(discord.Client):
         if image is not None:
             embed['image'] = image
 
-        message = await self.http.send_message(channel_id, '', embed=embed)
+        try:
+            message = await self.http.send_message(channel_id, '', embed=embed)
+        except:
+            message = dict()
 
         return message
 
     async def send_dm(self, user_id: int, content: str = "") -> dict:
-        dm_channel = await self.http.create_dm(user_id)
-        message = await self.http.send_message(dm_channel['id'], content)
+        try:
+            dm_channel = await self.http.create_dm(user_id)
+            message = await self.http.send_message(dm_channel['id'], content)
+        except:
+            message = dict()
 
         return message
 
@@ -263,8 +272,11 @@ class Bot(discord.Client):
         if image is not None:
             embed['image'] = image
 
-        dm_channel = await self.http.create_dm(user_id)
-        message = await self.http.send_message(dm_channel['id'], '', embed=embed)
+        try:
+            dm_channel = await self.http.create_dm(user_id)
+            message = await self.http.send_message(dm_channel['id'], '', embed=embed)
+        except:
+            message = dict()
 
         return message
 
