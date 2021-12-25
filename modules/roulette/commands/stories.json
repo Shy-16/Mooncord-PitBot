@@ -1,7 +1,0 @@
-[
-	[
-		{"type": "roll", "chances": 6, "win": 1, "lose": 2},
-		{"type": "text", "typing": true, "end": true, "interval": 3, "value": "**CLICK**"},
-		{"type": "text", "typing": true, "end": true, "interval": 3, "value": "**BANG**"}
-	]
-]

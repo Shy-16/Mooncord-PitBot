@@ -6,7 +6,6 @@
 import asyncio
 import random
 import json
-from pathlib import Path
 
 from modules.pitbot.commands.context import CommandContext
 from modules.pitbot.commands.command import Command
@@ -80,12 +79,6 @@ class RouletteCommand(Command):
 				description = f"<@{context.author['id']}> loads {bullets} bullet{'s' if bullets > 1 else ''} \
 					and pulls the trigger {triggers} time{'s' if triggers > 1 else ''}...\r\n \
 					{shots_string}\r\n\r\nBACK TO THE PIT for {bullets} hour{'s' if bullets > 1 else ''}"
-
-				image = {
-					"url": self._bot.get_timeout_image(),
-					"height": 0,
-					"width": 0
-				}
 
 				await self._bot.send_embed_message(context.channel_id, "Roulette Loser", description)
 

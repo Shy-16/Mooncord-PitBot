@@ -11,7 +11,7 @@ import discord
 from discord.ext import tasks
 
 from modules.pitbot.commands.context import CommandContext
-from .commands import RouletteCommand
+from .commands import RouletteCommand, BulletHellCommand
 
 log: logging.Logger = logging.getLogger("roulette")
 
@@ -24,10 +24,14 @@ class Roulette:
 
 		self._bot = bot
 		self._cache = dict()
+		self._reset_time = datetime.datetime.now(datetime.timezone.utc)
 
 		self.commands = {
 			"roulette": RouletteCommand(self, 'any'),
+			"bullethell": BulletHellCommand(self, 'any')
 		}
+
+		self.commands['bh'] = self.commands['bullethell']
 
 	@tasks.loop(hours=24)
 	async def refresh_cache(self) -> None:
@@ -77,3 +81,10 @@ class Roulette:
 
 		else:
 			self._cache[user_id] += 1
+
+	def get_reset_time(self):
+		"""
+		Returns a time formatted reset time
+		"""
+
+		return self._reset_time.strftime("%c %Z")
