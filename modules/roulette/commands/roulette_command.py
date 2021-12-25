@@ -28,10 +28,15 @@ class RouletteCommand(Command):
 		self._pitbot.add_user_to_cache(context.author['id'])
 
 		if times:
-			if times == 1:
-				# Let the user know in the channel about the cooldown
-				info_message = 'You may use Roulette command only once a day'
-				await self._bot.send_embed_dm(context.author['id'], 'Roulette Info', info_message)
+			# Let the user know in the channel about the cooldown
+			info_message = f'You may use Roulette command only once a day. \r\n\
+				Next reset cooldown is {self._pitbot.get_reset_time()}'
+			await self._bot.send_embed_dm(context.author['id'], 'Roulette Info', info_message)
+			try:
+				await self._bot.http.delete_message(context.channel_id, context.id, 'Command was on Cooldown')
+			except:
+				# We can just ignore it, who cares.
+				pass
 			return
 
 		# vars

@@ -28,13 +28,18 @@ class BulletHellCommand(Command):
 
 		# Check cache and add to cache
 		times = self._pitbot.user_in_cache(context.author['id'])
-		#self._pitbot.add_user_to_cache(context.author['id'])
+		self._pitbot.add_user_to_cache(context.author['id'])
 
 		if times:
 			# Let the user know in the channel about the cooldown
 			info_message = f'You may use Roulette command only once a day. \r\n\
 				Next reset cooldown is {self._pitbot.get_reset_time()}'
-			await self._bot.send_embed_dm(context.author['id'], 'Roulette Info', info_message)
+			await self._bot.send_embed_dm(context.author['id'], 'Bullet Hell Info', info_message)
+			try:
+				await self._bot.http.delete_message(context.channel_id, context.id, 'Command was on Cooldown')
+			except:
+				# We can just ignore it, who cares.
+				pass
 			return
 
 		# vars
