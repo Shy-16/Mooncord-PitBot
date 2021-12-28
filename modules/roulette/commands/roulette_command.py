@@ -87,6 +87,8 @@ class RouletteCommand(Command):
 
 				await self._bot.send_embed_message(context.channel_id, "Roulette Loser", description)
 
+				asyncio.sleep(10)
+
 				# Default reason
 				reason = 'Automatic timeout issued for losing the roulette'
 
