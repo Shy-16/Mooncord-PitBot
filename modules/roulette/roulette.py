@@ -31,6 +31,7 @@ class Roulette:
 			"bullethell": BulletHellCommand(self, 'any')
 		}
 
+		self.commands['rouiette'] = self.commands['roulette']
 		self.commands['bh'] = self.commands['bullethell']
 
 	@tasks.loop(hours=24)
