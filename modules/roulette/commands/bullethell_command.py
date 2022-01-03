@@ -108,7 +108,7 @@ class BulletHellCommand(Command):
 				return
 
 		# Send a notification on the channel
-		description = f"<@{context.author['id']}> stands tall in front of the Stormtropper Mod team, ready to face their destiny.\r\n \
+		description = f"<@{context.author['id']}> stands tall in front of the Stormtrooper Mod team, ready to face their destiny.\r\n \
 					*thud* *thunk* All the bullets miss the mark hitting the wall behind <@{context.author['id']}>\r\n"
 
 		await self._bot.send_embed_message(context.channel_id, "Bullet Hell Winner", description)
