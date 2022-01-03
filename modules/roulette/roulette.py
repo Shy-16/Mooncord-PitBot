@@ -24,6 +24,7 @@ class Roulette:
 
 		self._bot = bot
 		self._cache = dict()
+		self._timeouts = list()
 		self._reset_time = datetime.datetime.now(datetime.timezone.utc)
 
 		self.commands = {
@@ -38,11 +39,19 @@ class Roulette:
 	async def refresh_cache(self) -> None:
 		self._cache = dict()
 
+	@tasks.loop(minutes=5)
+	async def report_timeouts(self) -> None:
+		losers = ", ".join(self._timeouts)
+		if losers and len(losers) > 1:
+			await self._bot.send_embed_message(self._bot.default_guild['log_channel'], "Roulette losers", losers)
+		self._timeouts.clear()
+
 	def init_tasks(self) -> None:
 		"""
 		Initialize the different asks that run in the background
 		"""
 		self.refresh_cache.start()
+		self.report_timeouts.start()
 
 	async def handle_commands(self, message: discord.Context) -> None:
 		"""

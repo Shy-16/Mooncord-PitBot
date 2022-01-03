@@ -77,10 +77,8 @@ class BulletHellCommand(Command):
 				timeout = int(bullet['timeout']/3600)
 
 				# Send a smug notification on the channel
-				description = f"<@{context.author['id']}> stands tall in front of the mod team, ready to face their destiny.\r\n \
-					The mod team prepares their set of 7 bullets and take aim, breathe in and...\r\n \
-					**BANG!** A {bullet['name']} bullet shot by <@{mod}> went straight through <@{context.author['id']}>'s skull\
-					obliterating their body and throwing their existence into dust.\r\n\r\n\
+				description = f"<@{context.author['id']}> stands tall in front of the Stormtropper Mod team, ready to face their destiny.\r\n \
+					**BANG!** A {bullet['name']} bullet shot by <@{mod}> went straight through <@{context.author['id']}>'s skull.\r\n\
 					BACK TO THE PIT for {timeout} hour{'s' if timeout > 1 else ''}"
 
 				await self._bot.send_embed_message(context.channel_id, "Bullet Hell Loser", description)
@@ -100,9 +98,7 @@ class BulletHellCommand(Command):
 
 				# generate logs in proper channel
 				if context.log_channel:
-					# Send information of the message caught
-					info_message = f"<@{context.author['id']}> was timed out for {timeout}h for losing the bullet hell."
-					await self._bot.send_embed_message(context.log_channel, "Bullet Hell Loser", info_message)
+					self._pitbot._timeouts.append(f"<@{context.author['id']}> bh {timeout}h")
 
 				# Send a DM to the user
 				info_message = f"You've been pitted by {context.guild.name} mod staff for {timeout}h for losing the Bullet Hell. \r\n\
@@ -112,11 +108,8 @@ class BulletHellCommand(Command):
 				return
 
 		# Send a notification on the channel
-		description = f" "
-		description = f"<@{context.author['id']}> stands tall in front of the mod team, ready to face their destiny.\r\n \
-					The mod team prepares their set of 7 bullets and take aim, breathe in and...\r\n \
-					*thud* *thunk* All the bullets miss the mark hitting the wall behind <@{context.author['id']}>\r\n\r\n \
-					Looks like they will live another day."
+		description = f"<@{context.author['id']}> stands tall in front of the Stormtropper Mod team, ready to face their destiny.\r\n \
+					*thud* *thunk* All the bullets miss the mark hitting the wall behind <@{context.author['id']}>\r\n"
 
 		await self._bot.send_embed_message(context.channel_id, "Bullet Hell Winner", description)
 

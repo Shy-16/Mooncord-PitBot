@@ -78,12 +78,12 @@ class RouletteCommand(Command):
 				# Got shot.
 				shots.append("**BANG!**")
 
-				shots_string = "\r\n ".join(shots)
+				shots_string = ", ".join(shots)
 
 				# Send a smug notification on the channel
 				description = f"<@{context.author['id']}> loads {bullets} bullet{'s' if bullets > 1 else ''} \
 					and pulls the trigger {triggers} time{'s' if triggers > 1 else ''}...\r\n \
-					{shots_string}\r\n\r\nBACK TO THE PIT for {bullets} hour{'s' if bullets > 1 else ''}"
+					{shots_string}\r\nBACK TO THE PIT for {bullets} hour{'s' if bullets > 1 else ''}"
 
 				await self._bot.send_embed_message(context.channel_id, "Roulette Loser", description)
 
@@ -100,11 +100,9 @@ class RouletteCommand(Command):
 				for role in context.ban_roles:
 					await self._bot.http.add_member_role(context.guild.id, context.author['id'], role, reason)
 
-				# generate logs in proper channel
+				# add to log cache
 				if context.log_channel:
-					# Send information of the message caught
-					info_message = f"<@{context.author['id']}> was timed out for {bullets}h for losing the roulette."
-					await self._bot.send_embed_message(context.log_channel, "Roulette losers", info_message)
+					self._pitbot._timeouts.append(f"<@{context.author['id']}> roulette {bullets}h")
 
 				# Send a DM to the user
 				info_message = f"You've been pitted by {context.guild.name} mod staff for {bullets}h for losing the roulette. \r\n\
@@ -113,7 +111,7 @@ class RouletteCommand(Command):
 				await self._bot.send_embed_dm(context.author['id'], "User Timeout", info_message)
 				return
 
-		shots_string = "\r\n ".join(shots)
+		shots_string = ", ".join(shots)
 
 		# Send a notification on the channel
 		description = f"<@{context.author['id']}> loads {bullets} bullet{'s' if bullets > 1 else ''} \
