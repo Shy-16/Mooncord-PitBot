@@ -77,7 +77,7 @@ class BulletHellCommand(Command):
 				timeout = int(bullet['timeout']/3600)
 
 				# Send a smug notification on the channel
-				description = f"<@{context.author['id']}> stands tall in front of the Stormtropper Mod team, ready to face their destiny.\r\n \
+				description = f"<@{context.author['id']}> stands tall in front of the Stormtrooper Mod team, ready to face their destiny.\r\n \
 					**BANG!** A {bullet['name']} bullet shot by <@{mod}> went straight through <@{context.author['id']}>'s skull.\r\n\
 					BACK TO THE PIT for {timeout} hour{'s' if timeout > 1 else ''}"
 
