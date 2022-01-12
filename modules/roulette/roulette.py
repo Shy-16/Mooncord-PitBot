@@ -38,6 +38,7 @@ class Roulette:
 	@tasks.loop(hours=24)
 	async def refresh_cache(self) -> None:
 		self._cache = dict()
+		self._reset_time = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=1)
 
 	@tasks.loop(minutes=5)
 	async def report_timeouts(self) -> None:
@@ -94,7 +95,7 @@ class Roulette:
 
 	def get_reset_time(self):
 		"""
-		Returns a time formatted reset time
+		Returns a timestamp reset time
 		"""
 
-		return self._reset_time.strftime("%X %Z")
+		return int(self._reset_time.timestamp())
