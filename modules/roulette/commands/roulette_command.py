@@ -69,8 +69,8 @@ class RouletteCommand(Command):
 			# so avoid it with a special message
 			description = f"<@{context.author['id']}> loads the bullets but as soon as the trigger is pulled the \
 				revolver breaks. Apparently there is a failsafe for stupid people who try to guarantee their shot."
-				await self._bot.send_embed_message(context.channel_id, "Roulette Kindergarten", description)
-				return
+			await self._bot.send_embed_message(context.channel_id, "Roulette Kindergarten", description)
+			return
 
 		chamber = [0, 0, 0, 0, 0, 0]
 		for i in range(bullets): chamber[i] = 1
