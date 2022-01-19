@@ -67,7 +67,7 @@ class PitBotDatabase:
 		return results
 
 	def create_timeout(self, user: dict, guild_id: str, time: int, 
-		issuer_id: str = None, reason: Optional[str] = None) -> dict:
+		issuer_id: str = None, reason: Optional[str] = None, source: Optional[str] = 'command') -> dict:
 		"""
 		Create a new timeout in the database.
 		"""
@@ -99,7 +99,8 @@ class PitBotDatabase:
 			'time': int(time),
 			'status': 'active',
 			'created_date': datetime.now().isoformat(),
-			'updated_date': datetime.now().isoformat()
+			'updated_date': datetime.now().isoformat(),
+			'source': source
 		}
 
 		if issuer_id is not None:

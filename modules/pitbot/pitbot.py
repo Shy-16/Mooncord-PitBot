@@ -140,12 +140,12 @@ class PitBot:
 		return timeouts
 
 	def add_timeout(self, *, user: dict, guild_id: int, time: int, issuer_id: int,
-		reason: Optional[str] = 'No reason specified.') -> Optional[dict]:
+		reason: Optional[str] = 'No reason specified.', source: Optional[str] = 'command') -> Optional[dict]:
 		"""
 		Adds a timeout to a user
 		"""
 		
-		timeout = self._db.create_timeout(user, guild_id, time, issuer_id, reason)
+		timeout = self._db.create_timeout(user, guild_id, time, issuer_id, reason, source)
 
 		return timeout
 

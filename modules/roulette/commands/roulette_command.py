@@ -64,6 +64,14 @@ class RouletteCommand(Command):
 				elif triggers <= 0:
 					triggers = 1
 
+		if bullets + triggers > 6:
+			# user has chosen a guaranteed pit
+			# so avoid it with a special message
+			description = f"<@{context.author['id']}> loads the bullets but as soon as the trigger is pulled the \
+				revolver breaks. Apparently there is a failsafe for stupid people who try to guarantee their shot."
+				await self._bot.send_embed_message(context.channel_id, "Roulette Kindergarten", description)
+				return
+
 		chamber = [0, 0, 0, 0, 0, 0]
 		for i in range(bullets): chamber[i] = 1
 		random.shuffle(chamber) 
@@ -94,7 +102,7 @@ class RouletteCommand(Command):
 
 				# Issue the timeout
 				timeout_info = self._bot.pitbot_module.add_timeout(user=context.author, guild_id=context.guild.id,
-					time=3600*bullets, issuer_id=self._bot.user.id, reason=reason)
+					time=3600*bullets, issuer_id=self._bot.user.id, reason=reason, source='roulette')
 
 				# Add the roles
 				for role in context.ban_roles:

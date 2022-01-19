@@ -147,7 +147,8 @@ def free_users(token: str, config: dict) -> None:
 					# User left the server, handle it
 					pass
 
-			send_embed_message(guild['log_channel'], "User Released", f"User: <@{user['id']}> was just released from the pit.", token=token)
+			if not timeout_info.get('source') or timeout_info['source'] == 'command':
+				send_embed_message(guild['log_channel'], "User Released", f"User: <@{user['id']}> was just released from the pit.", token=token)
 
 			# Send a DM to the user
 			description = f"Your timeout in {guild['name']} has expired and you've been released from the pit."
