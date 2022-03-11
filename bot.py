@@ -62,7 +62,7 @@ class Bot(discord.Client):
         log.info('Loading configuration for guilds:')
         # Load server configuration from database
         for guild in self.guilds:
-            guild_config = self.db.load_server_configuration(guild, self)
+            guild_config = await self.db.load_server_configuration(guild, self)
             self.guild_config[guild.id] = guild_config
             if self.default_guild is None: self.default_guild = guild_config
             log.info(f"Loaded configuration for guild: {guild.id}.")
@@ -290,5 +290,5 @@ class Bot(discord.Client):
         return True
 
     async def update_guild_configuration(self, guild):
-        guild_config = self.db.load_server_configuration(guild, self)
+        guild_config = await self.db.load_server_configuration(guild, self)
         self.guild_config[guild.id] = guild_config

@@ -53,8 +53,9 @@ class Banwords:
 			for banword in self.banwords:
 				# first look for exact match
 				if word == banword['word'] or word[::-1] == banword['word']:
-					await self.do_timeout(banword, context, ('exact', 100))
-					return
+					if word not in ['gaf', 'dgaf']:
+						await self.do_timeout(banword, context, ('exact', 100))
+						return
 
 				# next check for strength based on strict ratio
 				ratio = fuzz.ratio(word, banword['word'])

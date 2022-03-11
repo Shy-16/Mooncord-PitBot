@@ -61,7 +61,7 @@ class Database:
 
 		return guild_info
 
-	def load_server_configuration(self, guild, bot) -> dict:
+	async def load_server_configuration(self, guild, bot) -> dict:
 		"""
 		Given a guild, load its configuration
 		"""
@@ -71,19 +71,29 @@ class Database:
 		guild_info = col.find_one({'guild_id': guild.id})
 
 		if guild_info is None:
+			# guild info has the following attrs
+			# 'features', 'icon', 'id', 'name', 'owner', 'permissions'
+
+			# Get guild info from discord
+			dc_guild = await bot.http.get_guild(guild.id)
 
 			# Get default admin roles
 			admin_roles = []
 
-			for role in guild.roles:
-				if role.permissions.administrator:
-					admin_roles.append(role.id)
+			# roles
+			# {'id': '553455586709078024', 'name': 'Bots', 'permissions': '6546775617', 'position': 2, 'color': 0, 
+			# 'hoist': True, 'managed': False, 'mentionable': False, 'icon': None, 'unicode_emoji': None}
+
+			for role in dc_guild['roles']:
+				# 1 << 3 == 0x8 == administrator
+				if (int(role['permissions']) & 1 << 3) == 0x8 and not "tags" in role:
+					admin_roles.append(role['id'])
 
 			guild_info = {
 				'guild_id': guild.id,
 				'name': guild.name,
 				'command_character': bot.config['discord']['default_command_character'],
-				'modmail_character': bot.config['modmail']['default_command_character'],
+				'modmail_character': bot.config['discord']['default_command_character'],
 				'allowed_channels': list(),
 				'denied_channels': list(),
 				'admin_roles': admin_roles,
