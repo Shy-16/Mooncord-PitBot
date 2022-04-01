@@ -3,8 +3,8 @@
 ## Help ##
 # Help command. #
 
-from .context import CommandContext, DMContext
-from .command import Command, verify_permission
+from modules.context import CommandContext, DMContext
+from modules.command import Command, verify_permission
 from log_utils import do_log
 
 class Help(Command):

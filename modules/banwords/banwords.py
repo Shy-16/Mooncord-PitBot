@@ -10,7 +10,7 @@ from thefuzz import fuzz, process
 import discord
 from discord.ext import tasks
 
-from ..pitbot.commands import CommandContext
+from modules.context import CommandContext
 from utils import iso_to_datetime, seconds_to_string
 from log_utils import do_log
 

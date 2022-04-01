@@ -7,8 +7,8 @@ import asyncio
 import random
 import json
 
-from modules.pitbot.commands.context import CommandContext
-from modules.pitbot.commands.command import Command
+from modules.context import CommandContext
+from modules.command import Command
 from log_utils import do_log
 
 class BulletHellCommand(Command):
@@ -27,13 +27,13 @@ class BulletHellCommand(Command):
 		await do_log(place="guild", data_dict={'event': 'command', 'command': 'bullethell'}, context=context)
 
 		# Check cache and add to cache
-		times = self._pitbot.user_in_cache(context.author['id'])
-		self._pitbot.add_user_to_cache(context.author['id'])
+		times = self._module.user_in_cache(context.author['id'])
+		self._module.add_user_to_cache(context.author['id'])
 
 		if times:
 			# Let the user know in the channel about the cooldown
 			info_message = f'You may use Roulette command only once a day. \r\n\
-				Next reset cooldown is at <t:{self._pitbot.get_reset_time()}:f>'
+				Next reset cooldown is at <t:{self._module.get_reset_time()}:f>'
 			await self._bot.send_embed_dm(context.author['id'], 'Bullet Hell Info', info_message)
 			try:
 				await self._bot.http.delete_message(context.channel_id, context.id, 'Command was on Cooldown')
@@ -98,7 +98,7 @@ class BulletHellCommand(Command):
 
 				# generate logs in proper channel
 				if context.log_channel:
-					self._pitbot._timeouts.append(f"<@{context.author['id']}> bh {timeout}h")
+					self._module._timeouts.append(f"<@{context.author['id']}> bh {timeout}h")
 
 				# Send a DM to the user
 				info_message = f"You've been pitted by {context.guild.name} mod staff for {timeout}h for losing the Bullet Hell. \r\n\

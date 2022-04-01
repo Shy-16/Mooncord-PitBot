@@ -1,0 +1,1 @@
+from .battleroyale import BattleRoyale

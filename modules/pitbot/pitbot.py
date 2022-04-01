@@ -11,7 +11,8 @@ import discord
 from discord.ext import tasks
 
 from .database import PitBotDatabase
-from .commands import CommandContext, DMContext, Timeout, BotConfig, Release, Strike, Roles, Help, Shutdown
+from modules.context import CommandContext, DMContext
+from .commands import Timeout, BotConfig, Release, Strike, Roles, Help, Shutdown
 from utils import iso_to_datetime, datetime_to_iso, date_string_to_timedelta
 
 log: logging.Logger = logging.getLogger("pitbot")

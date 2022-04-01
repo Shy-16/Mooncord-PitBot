@@ -3,8 +3,8 @@
 ## Shutdown ##
 # Turn off the bot. #
 
-from .context import CommandContext
-from .command import Command, verify_permission
+from modules.context import CommandContext
+from modules.command import Command, verify_permission
 from utils import iso_to_datetime, date_string_to_timedelta, seconds_to_string
 from log_utils import do_log
 

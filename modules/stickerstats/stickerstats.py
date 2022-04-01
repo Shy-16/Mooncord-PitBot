@@ -9,7 +9,7 @@ from typing import Optional, List, Union, Tuple
 
 import discord
 
-from modules.pitbot.commands.context import CommandContext
+from modules.context import CommandContext
 from .database import StickerDatabase
 from .commands import StickerCommand
 

@@ -5,8 +5,8 @@
 
 import datetime
 
-from .context import CommandContext, DMContext
-from .command import Command, verify_permission
+from modules.context import CommandContext, DMContext
+from modules.command import Command, verify_permission
 from utils import iso_to_datetime, date_string_to_timedelta, seconds_to_string
 from log_utils import do_log
 
@@ -33,7 +33,7 @@ class Timeout(Command):
 				await self.send_help(context)
 				return
 
-			user = self._pitbot.get_user(user_id=user_id)
+			user = self._module.get_user(user_id=user_id)
 
 			if not user:
 				# there is a possibility user is not yet in our database
@@ -54,18 +54,18 @@ class Timeout(Command):
 			reason = ' '.join(context.params[2:])
 
 		if not self.skip_strike:
-			strike_info = self._pitbot.add_strike(user=user, guild_id=context.guild.id,
+			strike_info = self._module.add_strike(user=user, guild_id=context.guild.id,
 				issuer_id=context.author['id'], reason=reason)
 
-		timeout_info = self._pitbot.get_user_timeout(user)
+		timeout_info = self._module.get_user_timeout(user)
 		extended = False
 
 		if not timeout_info:
-			timeout_info = self._pitbot.add_timeout(user=user, guild_id=context.guild.id,
+			timeout_info = self._module.add_timeout(user=user, guild_id=context.guild.id,
 				time=int(delta.total_seconds()), issuer_id=context.author['id'], reason=reason)
 		else:
 			new_time = int(delta.total_seconds() + timeout_info['time'])
-			timeout_info = self._pitbot.extend_timeout(user=user, time=new_time)
+			timeout_info = self._module.extend_timeout(user=user, time=new_time)
 			extended = True
 
 		for role in context.ban_roles:
@@ -73,10 +73,10 @@ class Timeout(Command):
 		
 		await do_log(place="guild", data_dict={'event': 'command', 'command': 'timeout'}, context=context)
 
-		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
+		user_strikes = self._module.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
 
 		if not context.is_silent and context.log_channel:
-			user_timeouts = self._pitbot.get_user_timeouts(user=user, status='expired')
+			user_timeouts = self._module.get_user_timeouts(user=user, status='expired')
 
 			strike_text = "```No Previous Strikes```"
 			if len(user_strikes) > 0:
@@ -117,7 +117,7 @@ class Timeout(Command):
 
 	async def dm(self, context: DMContext) -> None:
 
-		timeout = self._pitbot.get_user_timeout(context.author)
+		timeout = self._module.get_user_timeout(context.author)
 
 		if not timeout or timeout is None:
 			await self._bot.send_embed_dm(context.author['id'], "Timeout Info", "You don't have an active timeout right now.")
@@ -169,14 +169,14 @@ class Timeout(Command):
 		for role in context.ban_roles:
 			await self._bot.http.add_member_role(context.guild.id, user['id'], role, "Timeout issued by a mod.")
 
-		timeout_info = self._pitbot.add_timeout(user=user, guild_id=context.guild.id,
+		timeout_info = self._module.add_timeout(user=user, guild_id=context.guild.id,
 				time=int(delta.total_seconds()), issuer_id=context.author['id'], reason=reason)
-		strike_info = self._pitbot.add_strike(user=user, guild_id=context.guild.id,
+		strike_info = self._module.add_strike(user=user, guild_id=context.guild.id,
 				issuer_id=context.author['id'], reason=reason)
 
 		await do_log(place="guild", data_dict={'event': 'command', 'command': 'timeout'}, context=context)
 
-		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
+		user_strikes = self._module.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
 
 		if not context.is_silent and context.log_channel:
 			# Send a smug notification on the channel
@@ -190,7 +190,7 @@ class Timeout(Command):
 
 			await self._bot.send_embed_message(context.channel_id, "User Timeout", description, image=image)
 
-			user_timeouts = self._pitbot.get_user_timeouts(user=user, status='expired')
+			user_timeouts = self._module.get_user_timeouts(user=user, status='expired')
 
 			strike_text = "```No Previous Strikes```"
 			if len(user_strikes) > 0:
@@ -245,7 +245,7 @@ class Timeout(Command):
 		await self._bot.send_embed_message(context.channel_id, "User Timeout", fields=fields)
 
 	async def _send_timeout_info(self, user: dict, context: CommandContext) -> None:
-		timeout = self._pitbot.get_user_timeout(user)
+		timeout = self._module.get_user_timeout(user)
 
 		if not timeout or timeout is None:
 			await self._bot.send_embed_message(context.channel_id, "Timeout Info", "You don't have an active timeout right now.")

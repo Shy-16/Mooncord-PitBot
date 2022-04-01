@@ -10,7 +10,7 @@ from typing import Optional, List, Union, Tuple
 import discord
 from discord.ext import tasks
 
-from modules.pitbot.commands.context import CommandContext
+from modules.context import CommandContext
 from .commands import RouletteCommand, BulletHellCommand
 
 log: logging.Logger = logging.getLogger("roulette")

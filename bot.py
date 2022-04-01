@@ -11,7 +11,7 @@ from typing import Optional
 
 from database import Database
 from log_utils import init_log, do_log
-from modules import PitBot, Banwords, StickerStats, Roulette
+from modules import PitBot, Banwords, StickerStats, Roulette, BattleRoyale
 from application_commands import (
     set_help_slash,
     set_selfpit_slash,
@@ -38,6 +38,7 @@ class Bot(discord.Client):
         self.banword_module = Banwords(bot=self)
         self.sticker_module = StickerStats(bot=self)
         self.roulette_module = Roulette(bot=self)
+        self.br_module = BattleRoyale(bot=self)
 
         init_log()
 
@@ -45,9 +46,6 @@ class Bot(discord.Client):
         set_selfpit_slash(self)
 
     def run(self, *, token: str) -> None:
-        self.pitbot_module.init_tasks()
-        self.banword_module.init_tasks()
-        self.roulette_module.init_tasks()
         super().run(token)
 
     ## On error handler
@@ -74,6 +72,12 @@ class Bot(discord.Client):
         set_timeout_slash(self)
         set_timeoutns_slash(self)
         set_release_slash(self)
+
+        # Init all tasks
+        self.pitbot_module.init_tasks()
+        self.banword_module.init_tasks()
+        self.roulette_module.init_tasks()
+        self.br_module.init_tasks()
 
         #activity = discord.Game("DM to contact staff | DM help for more info.")
         #await super().change_presence(activity=activity)
@@ -110,6 +114,7 @@ class Bot(discord.Client):
             await self.pitbot_module.handle_commands(message)
             await self.sticker_module.handle_commands(message)
             await self.roulette_module.handle_commands(message)
+            await self.br_module.handle_commands(message)
             return
 
         # Check for stickers
@@ -224,7 +229,7 @@ class Bot(discord.Client):
         return message
 
     async def send_embed_message(self, channel_id: int, title: str = "", description: str = "", color: int = 0x0aeb06, fields: list = list(),
-        footer: dict = None, image: dict= None) -> dict:
+        footer: dict = None, image: dict= None, components: Optional[list] = None) -> dict:
         embed = {
             "type": "rich",
             "title": title,
@@ -240,7 +245,7 @@ class Bot(discord.Client):
             embed['image'] = image
 
         try:
-            message = await self.http.send_message(channel_id, '', embed=embed)
+            message = await self.http.send_message(channel_id, '', embed=embed, components=components)
         except:
             message = dict()
 

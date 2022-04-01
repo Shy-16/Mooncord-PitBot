@@ -3,8 +3,8 @@
 ## Strike ##
 # Strike related commands. #
 
-from .context import CommandContext, DMContext
-from .command import Command, verify_permission
+from modules.context import CommandContext, DMContext
+from modules.command import Command, verify_permission
 from utils import iso_to_datetime, date_string_to_timedelta, seconds_to_string
 from log_utils import do_log
 
@@ -29,7 +29,7 @@ class Strike(Command):
 				await self.send_help(context)
 				return
 
-			user = self._pitbot.get_user(user_id=user_id)
+			user = self._module.get_user(user_id=user_id)
 
 			if not user:
 				# there is a possibility user is not yet in our database
@@ -68,7 +68,7 @@ class Strike(Command):
 		Reply to user dm
 		"""
 
-		user_strikes = self._pitbot.get_user_strikes(context.author, sort=('_id', -1))
+		user_strikes = self._module.get_user_strikes(context.author, sort=('_id', -1))
 
 		active_strike_text = '```No active strikes```'
 		expired_strike_text = '```No previous strikes```'
@@ -118,7 +118,7 @@ class Strike(Command):
 		"""
 
 		if not verbose:
-			user_strikes = self._pitbot.get_user_strikes(user, status='active')
+			user_strikes = self._module.get_user_strikes(user, status='active')
 
 			description = f"<@{user['id']}> has {len(user_strikes)} active strikes."
 
@@ -127,7 +127,7 @@ class Strike(Command):
 			await do_log(place="guild", data_dict={'event': 'command', 'command': 'show_strikes'}, context=context)
 			return
 
-		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), partial=False)
+		user_strikes = self._module.get_user_strikes(user, sort=('_id', -1), partial=False)
 
 		active_strike_text = '```No active strikes```'
 		expired_strike_text = '```No previous strikes```'
@@ -163,10 +163,10 @@ class Strike(Command):
 		if len(context.params) >= 2:
 			reason = ' '.join(context.params[2:])
 
-		strike_info = self._pitbot.add_strike(user=user, guild_id=context.guild.id,
+		strike_info = self._module.add_strike(user=user, guild_id=context.guild.id,
 				issuer_id=context.author['id'], reason=reason)
 
-		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
+		user_strikes = self._module.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
 
 		strike_text = "```No Previous Strikes```"
 		if len(user_strikes) > 0:
@@ -213,13 +213,13 @@ class Strike(Command):
 
 		strike_id = context.params[2]
 
-		strike_info = self._pitbot.expire_strike(user=user, strike_id=strike_id)
+		strike_info = self._module.expire_strike(user=user, strike_id=strike_id)
 
 		if strike_info is None:
 			await self._bot.send_embed_message(context.channel_id, "User Strikes", "The strike wasn't found or couldn't be removed.")
 			return
 
-		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
+		user_strikes = self._module.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
 
 		strike_text = "```No Previous Strikes```"
 		if len(user_strikes) > 0:
@@ -265,13 +265,13 @@ class Strike(Command):
 
 		strike_id = context.params[2]
 
-		strike_info = self._pitbot.delete_strike(user=user, strike_id=strike_id)
+		strike_info = self._module.delete_strike(user=user, strike_id=strike_id)
 
 		if strike_info is None:
 			await self._bot.send_embed_message(context.channel_id, "User Strikes", "The strike wasn't found or couldn't be removed.")
 			return
 
-		user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
+		user_strikes = self._module.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
 
 		strike_text = "```No Previous Strikes```"
 		if len(user_strikes) > 0:

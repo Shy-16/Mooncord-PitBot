@@ -3,8 +3,8 @@
 ## StickerCommand ##
 # A command to show sticker stats. #
 
-from modules.pitbot.commands.context import CommandContext
-from modules.pitbot.commands.command import Command, verify_permission
+from modules.context import CommandContext
+from modules.command import Command, verify_permission
 from utils import iso_to_datetime, date_string_to_timedelta, seconds_to_string
 from log_utils import do_log
 
@@ -23,13 +23,13 @@ class StickerCommand(Command):
 			return
 
 		if len(context.sticker_items) > 0:
-			sticker = self._pitbot.get_sticker(sticker_id=context.sticker_items[0]['id'])
+			sticker = self._module.get_sticker(sticker_id=context.sticker_items[0]['id'])
 
 		else:
 			if context.params[0].isdigit():
-				sticker = self._pitbot.get_sticker(sticker_id=context.params[0])
+				sticker = self._module.get_sticker(sticker_id=context.params[0])
 			else:
-				sticker = self._pitbot.get_sticker(name=context.params[0])
+				sticker = self._module.get_sticker(name=context.params[0])
 
 		await do_log(place="guild", data_dict={'event': 'command', 'command': 'stickers'}, context=context)
 

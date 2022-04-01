@@ -1,4 +1,3 @@
-from .context import CommandContext, DMContext
 from .timeout_command import Timeout
 from .config_command import BotConfig
 from .release_command import Release

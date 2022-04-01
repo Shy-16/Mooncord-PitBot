@@ -3,8 +3,8 @@
 ## Config ##
 # Manage Guild Configuration. #
 
-from .context import CommandContext
-from .command import Command, verify_permission
+from modules.context import CommandContext
+from modules.command import Command, verify_permission
 
 class BotConfig(Command):
 

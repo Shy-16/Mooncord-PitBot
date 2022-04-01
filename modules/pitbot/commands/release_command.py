@@ -3,8 +3,8 @@
 ## Release ##
 # A command to release people. #
 
-from .context import CommandContext, DMContext
-from .command import Command, verify_permission
+from modules.context import CommandContext, DMContext
+from modules.command import Command, verify_permission
 from utils import iso_to_datetime, date_string_to_timedelta, seconds_to_string
 from log_utils import do_log
 
@@ -29,7 +29,7 @@ class Release(Command):
 				await self.send_help(context)
 				return
 
-			user = self._pitbot.get_user(user_id=user_id)
+			user = self._module.get_user(user_id=user_id)
 
 			if not user:
 				# there is a possibility user is not yet in our database
@@ -46,17 +46,17 @@ class Release(Command):
 		for role in context.ban_roles:
 			await self._bot.http.remove_member_role(context.guild.id, user['id'], role, "User released by a mod.")
 
-		timeout_info = self._pitbot.expire_timeout(user=user)
+		timeout_info = self._module.expire_timeout(user=user)
 		strike_info = None
 
 		if amend:
-			strike_info = self._pitbot.delete_strike(user=user)
+			strike_info = self._module.delete_strike(user=user)
 
 		await do_log(place="guild", data_dict={'event': 'command', 'command': 'release'}, context=context)
 
 		if not context.is_silent and context.log_channel:
-			user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), partial=False)
-			user_timeouts = self._pitbot.get_user_timeouts(user=user, status='expired')
+			user_strikes = self._module.get_user_strikes(user, sort=('_id', -1), partial=False)
+			user_timeouts = self._module.get_user_timeouts(user=user, status='expired')
 
 			strike_text = "```No Previous Strikes```"
 			if len(user_strikes) > 0:
