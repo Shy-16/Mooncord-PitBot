@@ -101,8 +101,6 @@ class BattleRoyale:
 		data = {'communication_disabled_until': timeout}
 
 		response = await self._bot.http.modify_member(user_id, guild_id, data)
-		print(f"Timing out {user_id} with response {response.status_code} {response.content}")
-
 
 	def draw_event(self) -> Event:
 		"""
@@ -146,7 +144,7 @@ class BattleRoyale:
 		return {'name': _event.name, 'value': _template, 'inline': False}
 
 	# Functionality
-	@tasks.loop(seconds=40)
+	@tasks.loop(seconds=30)
 	async def generate_event(self) -> None:
 		fields = []
 		all_losers = []

@@ -41,6 +41,7 @@ class SetupBRCommand(Command):
 		- Click the 👑 to join. Once you join you can't leave.
 		- The amount of time you get pitted for increases depending on how long you survive.
 		-- Early rounds will get 1h and it will gradually increase up to 24h.
+		-- Pit is handled through discord Timeout feature and not PitBot pit.
 		- All the events and the people participating in them are **random**.
 
 		If you win the #1 Victory Royale you get to live, and to brag about it until nobody cares anymore.
