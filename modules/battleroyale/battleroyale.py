@@ -94,7 +94,8 @@ class BattleRoyale:
 		Times the given user through discord feature and not a pit
 		"""
 
-		guild_id = self._setup_message['guild_id']
+		# don't hate me for hardcoding this
+		guild_id = '193277318494420992'
 
 		timeout = (datetime.datetime.utcnow() + datetime.timedelta(hours=self._round)).isoformat()
 		data = {'communication_disabled_until': timeout}
@@ -176,8 +177,6 @@ class BattleRoyale:
 				# sleep for 10 seconds then pit all losers
 				await asyncio.sleep(10)
 
-				print("Timing out losers")
-				print(all_losers)
 				for loser in all_losers:
 					# Issue the timeout
 					await self.timeout_user(loser)
