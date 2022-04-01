@@ -29,7 +29,7 @@ class Duel2(Event):
 
 		# choose 2 players
 		if players:
-			_players = self._players
+			_players = players
 		else:
 			_players = random.sample(br_module.participants, self.players)
 
@@ -51,7 +51,7 @@ class Duel4(Event):
 
 		# choose 4 players
 		if players:
-			_players = self._players
+			_players = players
 		else:
 			_players = random.sample(br_module.participants, self.players)
 

@@ -45,7 +45,7 @@ class BattleRoyale:
 			"test_br": TestBRCommand(self, 'mod')
 		}
 
-	@tasks.loop(minutes=2)
+	@tasks.loop(minutes=1)
 	async def edit_entries(self) -> None:
 		if self._edit_cd:
 			self._edit_cd = False
@@ -190,12 +190,12 @@ class BattleRoyale:
 			# 4 or less = do 2 events of duel.
 			if len(self.participants) in [3, 4]:
 				if len(self.participants) == 4:
-					field = self.run_event(all_losers, events[0], [_self.participants[0], _self.participants[1]])
+					field = self.run_event(all_losers, events[0], [self.participants[0], _self.participants[1]])
 					fields.append(field)
-					field = self.run_event(all_losers, events[0], [_self.participants[2], _self.participants[3]])
+					field = self.run_event(all_losers, events[0], [self.participants[2], _self.participants[3]])
 					fields.append(field)
 				else:
-					field = self.run_event(all_losers, events[0], [_self.participants[0], _self.participants[1]])
+					field = self.run_event(all_losers, events[0], [self.participants[0], _self.participants[1]])
 					fields.append(field)
 
 				# increase round by 1
