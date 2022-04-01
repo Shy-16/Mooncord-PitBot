@@ -31,7 +31,7 @@ class Duel2(Event):
 		if players:
 			_players = self._players
 		else:
-			_players = random.choices(br_module.participants, k=self.players)
+			_players = random.sample(br_module.participants, self.players)
 
 		# choose a loser
 		_loser = random.choice(_players)
@@ -53,13 +53,13 @@ class Duel4(Event):
 		if players:
 			_players = self._players
 		else:
-			_players = random.choices(br_module.participants, k=self.players)
+			_players = random.sample(br_module.participants, self.players)
 
 		# choose how many losers there are
 		total_losers = random.randint(1, self.players-1)
 
 		# get losers
-		_losers = random.choices(_players, k=total_losers)
+		_losers = random.sample(_players, total_losers)
 		_winners = [x for x in _players if x not in _losers]
 
 		# generate template
@@ -89,7 +89,7 @@ class Friendship(Event):
 
 		# choose 2 players
 		all_friendships = [user for friendship in br_module._friendships for user in friendship]
-		_players = random.choices([user for user in br_module.participants if user not in all_friendships], k=self.players)
+		_players = random.sample([user for user in br_module.participants if user not in all_friendships], self.players)
 
 		# generate friendship
 		br_module._friendships.append(_players)
@@ -107,6 +107,10 @@ class Betrayal(Event):
 	def execute(self, br_module):
 
 		# choose 2 players
+		if len(br_module._friendships) <= 0:
+			_template = "There are no betrayals today."
+			return ([], _template)
+
 		_players = random.choice(br_module._friendships)
 
 		# choose a loser
