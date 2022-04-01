@@ -27,6 +27,10 @@ class SetupBRCommand(Command):
 		if len(context.params) > 0 and context.params[0].isnumeric():
 			self._module._max_participants = context.params[0]
 
+		# restart event
+		self._module.participants = []
+		self._module._friendships = []
+
 		# First send rules message
 		content = f'''
 		**Mooncord Battle Royale**

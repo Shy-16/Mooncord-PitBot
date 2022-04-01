@@ -98,7 +98,8 @@ class BattleRoyale:
 		timeout = (datetime.datetime.utcnow() + datetime.timedelta(hours=self._round)).isoformat()
 		data = {'communication_disabled_until': timeout}
 
-		await self._bot.http.modify_member(user_id, guild_id, data)
+		response = await self._bot.http.modify_member(user_id, guild_id, data)
+		print(f"Timing out {user_id} with response {response.status_code} {response.content}")
 
 
 	def draw_event(self) -> Event:
@@ -174,10 +175,9 @@ class BattleRoyale:
 				# sleep for 10 seconds then pit all losers
 				await asyncio.sleep(10)
 
+				print("Timing out losers")
+				print(all_losers)
 				for loser in all_losers:
-					# Default reason
-					reason = 'Automatic timeout issued for losing the bullet hell'
-
 					# Issue the timeout
 					self.timeout_user(loser)
 
@@ -204,6 +204,8 @@ class BattleRoyale:
 			# 2 or less = do a duel and announce winner
 			if len(self.participants) <= 2:
 				field = self.run_event(all_losers, events[0], [self.participants[0], self.participants[1]])
+				fields.append(field)
+				await self._bot.send_embed_message(self._setup_message['channel_id'], f"Round {self._round}", fields=fields)
 
 				# announce winner
 				description= f'''
@@ -212,4 +214,5 @@ class BattleRoyale:
 				<@{self.participants[0]}>
 
 				'''
-				await self._bot.send_embed_message(self._setup_message['channel_id'], f"Battle Royale Winner", description, fields=fields)
+				await self._bot.send_embed_message(self._setup_message['channel_id'], f"Battle Royale Winner", description)
+				self.generate_event.stop()

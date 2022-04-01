@@ -23,9 +23,31 @@ class StartBRCommand(Command):
 	@verify_permission
 	async def execute(self, context: CommandContext) -> None:
 
-		# check if there is a number as parameter
-		if len(context.params) > 0 and context.params[0].isnumeric():
-			self._module._max_participants = context.params[0]
+		# disable button so players can't join after it starts
+		button_component = {
+			"type": 2, # button
+			"style": 2, # secondary or gray
+			"label": "Join BR",
+			"emoji": {
+				"id": None,
+				"name": "👑",
+				"animated": False
+			},
+			"custom_id": "join_br_button",
+			"disabled": True
+		}
+
+		action_row = {
+			"type": 1,
+			"components": [button_component]
+		}
+
+		payload = {
+			'components': [action_row]
+		}
+
+		await self._bot.http.edit_message(self._module._setup_message['channel_id'], self._module._setup_message['id'], payload)
+		return
 
 		# First send rules message
 		content = '''

@@ -102,7 +102,7 @@ class Friendship(Event):
 class Betrayal(Event):
 
 	def __init__(self):
-		super().__init__("Friendship", 2)
+		super().__init__("Betrayal", 2)
 
 	def execute(self, br_module):
 

@@ -66,7 +66,6 @@ def setup(bot: discord.Client):
 			await bot.http.edit_interaction_response(data, ctx.token, ctx.application_id)
 
 			# then edit message to disable button
-			# Setup the button
 			button_component = {
 				"type": 2, # button
 				"style": 2, # secondary or gray
