@@ -181,6 +181,9 @@ class BattleRoyale:
 					# Issue the timeout
 					await self.timeout_user(loser)
 
+					# check and remove friendships with this user
+					self._friendships = [friends for friends in self._friendships if friends[0] != loser and friends[1] != loser]
+
 					# sleep for 2 seconds so we don't get rate limited
 					await asyncio.sleep(2)
 
@@ -190,9 +193,11 @@ class BattleRoyale:
 			# 4 or less = do 2 events of duel.
 			if len(self.participants) in [3, 4]:
 				if len(self.participants) == 4:
-					field = self.run_event(all_losers, events[0], [self.participants[0], self.participants[1]])
+					split_1 = [self.participants[0], self.participants[1]]
+					split_2 = [self.participants[2], self.participants[3]]
+					field = self.run_event(all_losers, events[0], split_1)
 					fields.append(field)
-					field = self.run_event(all_losers, events[0], [self.participants[2], self.participants[3]])
+					field = self.run_event(all_losers, events[0], split_2)
 					fields.append(field)
 				else:
 					field = self.run_event(all_losers, events[0], [self.participants[0], self.participants[1]])
