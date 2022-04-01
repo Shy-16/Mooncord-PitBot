@@ -47,7 +47,6 @@ class StartBRCommand(Command):
 		}
 
 		await self._bot.http.edit_message(self._module._setup_message['channel_id'], self._module._setup_message['id'], payload)
-		return
 
 		# First send rules message
 		content = '''
