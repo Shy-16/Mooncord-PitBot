@@ -97,7 +97,7 @@ class BattleRoyale:
 		# don't hate me for hardcoding this
 		guild_id = '193277318494420992'
 
-		timeout = (datetime.datetime.utcnow() + datetime.timedelta(hours=self._round)).isoformat()
+		timeout = (datetime.datetime.utcnow() + datetime.timedelta(hours=min(self._round, 24))).isoformat()
 		data = {'communication_disabled_until': timeout}
 
 		response = await self._bot.http.modify_member(user_id, guild_id, data)
@@ -189,7 +189,7 @@ class BattleRoyale:
 				self._round += 1
 
 			# 4 or less = do 2 events of duel.
-			if len(self.participants) in [3, 4]:
+			elif len(self.participants) in [3, 4]:
 				if len(self.participants) == 4:
 					split_1 = [self.participants[0], self.participants[1]]
 					split_2 = [self.participants[2], self.participants[3]]
@@ -205,7 +205,7 @@ class BattleRoyale:
 				self._round += 1
 
 			# 2 or less = do a duel and announce winner
-			if len(self.participants) <= 2:
+			elif len(self.participants) <= 2:
 				field = self.run_event(all_losers, events[0], [self.participants[0], self.participants[1]])
 				fields.append(field)
 				await self._bot.send_embed_message(self._setup_message['channel_id'], f"Round {self._round}", fields=fields)
