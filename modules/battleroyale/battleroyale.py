@@ -6,6 +6,7 @@
 import logging
 import datetime
 import random
+from numpy.random import choice
 import asyncio
 from typing import Optional, List, Union, Tuple
 
@@ -15,7 +16,7 @@ from discord.ext import tasks
 from modules.context import CommandContext
 from .commands import SetupBRCommand, StartBRCommand, TestBRCommand
 from .components import handle_join_br_button
-from .event import Event, events
+from .event import Event, events, weights
 
 log: logging.Logger = logging.getLogger("br")
 
@@ -112,7 +113,7 @@ class BattleRoyale:
 		_valid = False
 
 		while not _valid:
-			event = random.choice(events)
+			event = choice(events, size=1, replace=False, p=weights)[0]
 			if event.players <= len(self.participants):
 				_valid = True
 
@@ -179,7 +180,7 @@ class BattleRoyale:
 				print(all_losers)
 				for loser in all_losers:
 					# Issue the timeout
-					self.timeout_user(loser)
+					await self.timeout_user(loser)
 
 					# sleep for 2 seconds so we don't get rate limited
 					await asyncio.sleep(2)

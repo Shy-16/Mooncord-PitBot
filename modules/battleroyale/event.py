@@ -129,3 +129,9 @@ events = [
 	Betrayal()
 ]
 
+weights = [
+	0.4,
+	0.4,
+	0.1,
+	0.1
+]
