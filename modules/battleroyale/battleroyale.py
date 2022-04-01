@@ -190,12 +190,12 @@ class BattleRoyale:
 			# 4 or less = do 2 events of duel.
 			if len(self.participants) in [3, 4]:
 				if len(self.participants) == 4:
-					field = self.run_event(all_losers, events[0], [self.participants[0], _self.participants[1]])
+					field = self.run_event(all_losers, events[0], [self.participants[0], self.participants[1]])
 					fields.append(field)
-					field = self.run_event(all_losers, events[0], [self.participants[2], _self.participants[3]])
+					field = self.run_event(all_losers, events[0], [self.participants[2], self.participants[3]])
 					fields.append(field)
 				else:
-					field = self.run_event(all_losers, events[0], [self.participants[0], _self.participants[1]])
+					field = self.run_event(all_losers, events[0], [self.participants[0], self.participants[1]])
 					fields.append(field)
 
 				# increase round by 1
@@ -203,7 +203,7 @@ class BattleRoyale:
 
 			# 2 or less = do a duel and announce winner
 			if len(self.participants) <= 2:
-				field = self.run_event(all_losers, events[0], [_self.participants[0], _self.participants[1]])
+				field = self.run_event(all_losers, events[0], [self.participants[0], self.participants[1]])
 
 				# announce winner
 				description= f'''
