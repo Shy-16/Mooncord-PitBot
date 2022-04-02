@@ -65,8 +65,9 @@ class Banwords:
 
 				ratio = fuzz.ratio(word[::-1], banword['word'])
 				if ratio >= banword['strength']:
-					await self.do_timeout(banword, context, ('ratio', ratio))
-					return
+					if word not in ['gaf', 'dgaf']:
+						await self.do_timeout(banword, context, ('ratio', ratio))
+						return
 
 	async def do_timeout(self, banword: str, context: CommandContext, match = None) -> None:
 		# Check if its inside a link and if we allow links or not.

@@ -201,6 +201,9 @@ class BattleRoyale:
 					field = self.run_event(all_losers, events[0], [self.participants[0], self.participants[1]])
 					fields.append(field)
 
+				fields.append({'name': 'Players', 'value': f'{len(self.participants)} players remaining.', 'inline': False})
+				await self._bot.send_embed_message(self._setup_message['channel_id'], f"Round {self._round}", fields=fields)
+
 				# increase round by 1
 				self._round += 1
 
