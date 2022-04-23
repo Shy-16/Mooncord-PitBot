@@ -39,7 +39,7 @@ class StickerCommand(Command):
 			if len(sticker['channels']) > 0:
 				sticker_messages = list()
 
-				for channel, count in take(5, sticker['channels']):
+				for channel, count in take(5, sticker['channels'].items()):
 					sticker_messages.append(f"<#{channel}>: {count} times")
 
 				sticker_text = "\r\n".join(sticker_messages)
