@@ -5,7 +5,7 @@
 
 from modules.context import CommandContext
 from modules.command import Command, verify_permission
-from utils import iso_to_datetime, date_string_to_timedelta, seconds_to_string
+from utils import iso_to_datetime, date_string_to_timedelta, seconds_to_string, take
 from log_utils import do_log
 
 class StickerCommand(Command):
@@ -39,7 +39,7 @@ class StickerCommand(Command):
 			if len(sticker['channels']) > 0:
 				sticker_messages = list()
 
-				for channel, count in sticker['channels'][:5].items():
+				for channel, count in take(5, sticker['channels']):
 					sticker_messages.append(f"<#{channel}>: {count} times")
 
 				sticker_text = "\r\n".join(sticker_messages)
