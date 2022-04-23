@@ -33,7 +33,7 @@ class BulletHellCommand(Command):
 		if times:
 			# Let the user know in the channel about the cooldown
 			info_message = f'You may use Roulette command only once a day. \r\n\
-				Next reset cooldown is at <t:{self._module.get_reset_time()}:f>'
+				Next reset cooldown is at <t:{self._module.get_reset_time()}:f> or <t:{self._module.get_reset_time()}:R>'
 			await self._bot.send_embed_dm(context.author['id'], 'Bullet Hell Info', info_message)
 			try:
 				await self._bot.http.delete_message(context.channel_id, context.id, 'Command was on Cooldown')

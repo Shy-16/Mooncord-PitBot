@@ -39,18 +39,18 @@ class StickerCommand(Command):
 			if len(sticker['channels']) > 0:
 				sticker_messages = list()
 
-				for channel, count in sticker['channels'].items():
-					sticker_messages.append(f"{channel}: {count} times")
+				for channel, count in sticker['channels'].items()[:5]:
+					sticker_messages.append(f"<#{channel}>: {count} times")
 
-				sticker_text = "```" + "\r\n".join(sticker_messages) + "```"
+				sticker_text = "\r\n".join(sticker_messages)
 
-			info_message = 'Sticker has been used a total of {} times'.format(sum([sticker['channels'][channel] for channel in sticker['channels']]))
+			info_message = 'Sticker has been used a total of {} times\r\n'.format(sum([sticker['channels'][channel] for channel in sticker['channels']]))
 
 			fields = [
 				{'name': '\u200B', 'value': sticker_text, 'inline': False}
 			]
 
-			await self._bot.send_embed_message(context.log_channel, sticker['name'], info_message, fields=fields)
+			await self._bot.send_embed_message(context.channel_id, sticker['name'], info_message, fields=fields)
 
 	async def send_help(self, context: CommandContext) -> None:
 		"""

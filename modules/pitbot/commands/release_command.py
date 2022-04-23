@@ -54,8 +54,9 @@ class Release(Command):
 
 		await do_log(place="guild", data_dict={'event': 'command', 'command': 'release'}, context=context)
 
+		user_strikes = self._module.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
+
 		if not context.is_silent and context.log_channel:
-			user_strikes = self._module.get_user_strikes(user, sort=('_id', -1), partial=False)
 			user_timeouts = self._module.get_user_timeouts(user=user, status='expired')
 
 			strike_text = "```No Previous Strikes```"

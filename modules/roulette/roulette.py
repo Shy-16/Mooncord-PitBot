@@ -25,7 +25,7 @@ class Roulette:
 		self._bot = bot
 		self._cache = dict()
 		self._timeouts = list()
-		self._reset_time = datetime.datetime.now(datetime.timezone.utc)
+		self._reset_time = datetime.time(20, tzinfo=datetime.timezone.utc)
 
 		self.commands = {
 			"roulette": RouletteCommand(self, 'any'),
@@ -35,12 +35,12 @@ class Roulette:
 		self.commands['rouiette'] = self.commands['roulette']
 		self.commands['bh'] = self.commands['bullethell']
 
-	@tasks.loop(hours=24)
+	@tasks.loop(hours=1)
 	async def refresh_cache(self) -> None:
-		self._cache = dict()
-		self._reset_time = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=1)
+		if datetime.datetime.now(datetime.timezone.utc).hour == self._reset_time.hour:
+			self._cache = dict()
 
-	@tasks.loop(minutes=5)
+	@tasks.loop(minutes=20)
 	async def report_timeouts(self) -> None:
 		losers = ", ".join(self._timeouts)
 		if losers and len(losers) > 1:
@@ -98,4 +98,10 @@ class Roulette:
 		Returns a timestamp reset time
 		"""
 
-		return int(self._reset_time.timestamp())
+		# calculate reset time of next day
+		now = datetime.datetime.now(datetime.timezone.utc)
+		reset = datetime.datetime.now(datetime.timezone.utc).replace(hour=self._reset_time.hour, minute=0, second=0, microsecond=0)
+		if now.hour > self._reset_time.hour:
+			reset = reset + datetime.timedelta(days=1)
+
+		return int(reset.timestamp())
