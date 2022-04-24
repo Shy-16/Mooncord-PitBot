@@ -11,7 +11,7 @@ import discord
 from discord.ext import tasks
 
 from modules.context import CommandContext
-from .commands import RouletteCommand, BulletHellCommand
+from .commands import RouletteCommand, BulletHellCommand, ResetRouletteCommand
 
 log: logging.Logger = logging.getLogger("roulette")
 
@@ -29,11 +29,13 @@ class Roulette:
 
 		self.commands = {
 			"roulette": RouletteCommand(self, 'any'),
-			"bullethell": BulletHellCommand(self, 'any')
+			"bullethell": BulletHellCommand(self, 'any'),
+			"resetroulette": ResetRouletteCommand(self, 'mod')
 		}
 
 		self.commands['rouiette'] = self.commands['roulette']
 		self.commands['bh'] = self.commands['bullethell']
+		self.commands['rr'] = self.commands['resetroulette']
 
 	@tasks.loop(hours=1)
 	async def refresh_cache(self) -> None:
@@ -92,6 +94,14 @@ class Roulette:
 
 		else:
 			self._cache[user_id] += 1
+
+	def remove_user_from_cache(self, user_id: str) -> None:
+		"""
+		Removes user from cache
+		"""
+
+		if user_id in self._cache:
+			self._cache.pop(user_id)
 
 	def get_reset_time(self):
 		"""

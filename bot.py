@@ -11,7 +11,7 @@ from typing import Optional
 
 from database import Database
 from log_utils import init_log, do_log
-from modules import PitBot, Banwords, StickerStats, Roulette, BattleRoyale
+from modules import PitBot, Banwords, StickerStats, Roulette, BattleRoyale, Fluff
 from application_commands import (
     set_help_slash,
     set_selfpit_slash,
@@ -39,6 +39,7 @@ class Bot(discord.Client):
         self.sticker_module = StickerStats(bot=self)
         self.roulette_module = Roulette(bot=self)
         self.br_module = BattleRoyale(bot=self)
+        self.fluff_module = Fluff(bot=self)
 
         init_log()
 
@@ -107,6 +108,7 @@ class Bot(discord.Client):
         if len(message.mentions) > 0 and int(message.mentions[0]['id']) == self.user.id:
             # Someone pinged the bot.
             await self.pitbot_module.handle_ping_commands(message)
+            await self.fluff_module.handle_ping_commands(message)
             return
 
         # Someone used a command.

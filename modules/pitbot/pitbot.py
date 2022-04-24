@@ -99,7 +99,7 @@ class PitBot:
 			# we dont care about people just pinging the bot
 			return
 		
-		if params[0] != f'<@!{self._bot.user.id}>':
+		if params[0] != f'<@{self._bot.user.id}>':
 			# we dont care about people pinging the bot as part of the message
 			return
 

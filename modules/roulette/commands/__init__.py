@@ -1,2 +1,3 @@
 from .roulette_command import RouletteCommand
 from .bullethell_command import BulletHellCommand
+from .resetroulette_command import ResetRouletteCommand
