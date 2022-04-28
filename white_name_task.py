@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
-## Release Task ##
-# Run every minute to free user from the pit #
+## Purge Task ##
+# Run every night to check for white names and remind them to resub #
 
 import sys
 import logging
 import json
 import datetime
 import yaml
+import time
 from typing import Optional
 import requests
 from pathlib import Path
@@ -101,69 +102,73 @@ def send_embed_dm(user_id: int, title: str = "", description: str = "", color: i
 
 	return message
 
-def expire_timeout(pit_db: PitBotDatabase, user: dict) -> Optional[dict]:
-	"""
-	Sets a timeout as expired
-	"""
+def get_user_batch(limit: int = 1000, last_id: Optional[str] = None, token: str = '') -> list:
 
-	params = {'status': 'expired', 'updated_date': datetime.datetime.now().isoformat()}
-	query = {'user_id': user['id'], 'status': 'active'}
+	params = {
+		limit=limit,
+		after=last_id
+	}
 
-	timeout = pit_db.update_timeout(params=params, query=query)
+	users = do_api_call('GET', GET_GUILD_MEMBERS_PATH.format(guild_id=timeout['guild_id']), token)
 
-	return timeout
+	return users
 
 def remove_unsub_roles(token: str, config: dict) -> None:
 
 	db = Database(config['database'])
 	pit_db = PitBotDatabase(database=db)
 
-	timeouts = pit_db.get_timeouts(query={'status': 'active'}, partial=False)
 	guild = db.get_default_guild()
 	guild['id'] = guild['guild_id'] # ease of use
 
-	for timeout in timeouts:
-		issued_date = iso_to_datetime(timeout['created_date'])
-		expire_date = issued_date + datetime.timedelta(seconds=timeout['time'])
+	# roles are both SPENDIES and GOODWILL
+	roles_to_check = [
+		'901714190673252393', # SPENDIES
+		'251479266875670528', # Goodwill
+		'193277912236032001', # Moderator
+		'441310174385405963', # Community Organizer
+		'194376397215629312', # Administrator
+		'193278247646134272', # Cosmic gamer
+	]
 
-		user = timeout.get("user")
-		if not user:
-			# This is weird because we literally store users with the timeout, but just in case
-			user = do_api_call('GET', GET_USER_PATH.format(user_id=timeout['user_id']), token)
-		else:
-			user['id'] = user['discord_id'] # ease of use
+	last_length = 1000
+	last_id = None
 
-		if timeout['guild_id'] != guild['id']:
-			# This should be weird too since its only in a single server
-			guild = do_api_call('GET', GET_GUILD_PATH.format(guild_id=timeout['guild_id']), token)
+	while last_length >= 1000:
+		# users is a list of X discord users sorted by user['id']
+		users = get_user_batch(limit=1000, last_id=last_id, token=token)
 
-		if datetime.datetime.now() >= expire_date:
-			timeout_info = expire_timeout(pit_db, user)
+		# update last length to know if we continue the loop
+		last_length = len(users)
 
-			for role in guild['ban_roles']:
+		for user in users:
+			# first check if they have at least one of the roles
+			needs_purge = len([role for role in user['roles'] if role in roles_to_check]) > 0
+
+			if needs_purge:
+				# store the roles in database
+				pit_db.store_roles(user, guild['id'])
+
+				# remove all roles
+				for role in user['roles']:
+					try:
+						do_api_call('DELETE', REMOVE_ROLE_PATH.format(guild_id=guild['id'], user_id=user['user']['id'], role_id=role), 
+							token, reason="Sub to moon expired.")
+					except:
+						# User left the server, handle it
+						pass
+
+				# Send a DM to the user
+				description = f"Your subscription to Moonmoon has expired.\r\n\r\n Please resubscribe to avoid being kicked in the next Twitch subscriber sync by Discord."
+
 				try:
-					do_api_call('DELETE', REMOVE_ROLE_PATH.format(guild_id=guild['id'], user_id=user['id'], role_id=role), 
-						token, reason="Timeout expired.")
+					send_embed_dm(user['id'], "User Timeout", description, token=token)
 				except:
-					# User left the server, handle it
 					pass
 
-			if not timeout_info.get('source') or timeout_info['source'] == 'command':
-				send_embed_message(guild['log_channel'], "User Released", f"User: <@{user['id']}> was just released from the pit.", token=token)
-
-			# Send a DM to the user
-			description = f"Your timeout in {guild['name']} has expired and you've been released from the pit."
-
-			image = {
-				"url": "https://i.imgur.com/CraIFqD.gif",
-				"width": 0,
-				"height": 0
-			}
-
-			try:
-				send_embed_dm(user['id'], "User Timeout", description, image=image, token=token)
-			except:
-				pass
+			# rate limit is 50 per second, sleep here for 0.1s
+			# remove 4 roles + dm = 6 queries. limit would be 9 users per second so ratelimit to 8.
+			time.sleep(0.125)
 
 if __name__ == '__main__':
 	args = parse_args()
@@ -184,3 +189,29 @@ if __name__ == '__main__':
 		sys.exit(0)
 
 	remove_unsub_roles(args.token, config)
+
+# example_of_user = {
+#     "roles": [
+#       "901714190673252393",
+#       "901714190673252394",
+#       "892913927665618965"
+#     ],
+#     "nick": null,
+#     "avatar": null,
+#     "premium_since": null,
+#     "joined_at": "2020-03-12T23:40:08.609000+00:00",
+#     "is_pending": false,
+#     "pending": false,
+#     "communication_disabled_until": null,
+#     "flags": 0,
+#     "user": {
+#       "id": "98928803555852288",
+#       "username": "SolidlySnake",
+#       "avatar": "f180f65df65ac151520645c6bc3728f4",
+#       "avatar_decoration": null,
+#       "discriminator": "3486",
+#       "public_flags": 0
+#     },
+#     "mute": false,
+#     "deaf": false
+# }
