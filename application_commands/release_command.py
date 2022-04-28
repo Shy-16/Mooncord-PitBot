@@ -24,7 +24,8 @@ def release(bot: discord.Client) -> None:
 	]
 
 	# Type 1 = ROLE, Type 2 = USER
-	permissions = [{"id": role, "type": 1, "permission": True} for role in bot.default_guild['admin_roles']+bot.default_guild['mod_roles']]
+	# permissions = [{"id": role, "type": 1, "permission": True} for role in bot.default_guild['admin_roles']+bot.default_guild['mod_roles']]
+	default_member_permissions=str(1 << 11)
 
 	@bot.command(
 		type=1,
@@ -32,7 +33,7 @@ def release(bot: discord.Client) -> None:
 		description="Send a user to the pit without a strike.",
 		scope=int(bot.config['discord']['default_server_id']),
 		options=options,
-		permissions=permissions
+		default_member_permissions=default_member_permissions
 	)
 	async def handle_timeout_slash(ctx: discord.Context) -> None:
 		# ctx: 'application_id', 'channel_id', 'data', 'guild_id', 'id', 'member', 'send', 'token', 'type', 'version'
