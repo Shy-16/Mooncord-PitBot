@@ -7,6 +7,7 @@ import logging
 import discord
 import traceback
 import random
+import time
 from typing import Optional
 
 from database import Database
@@ -172,36 +173,41 @@ class Bot(discord.Client):
 
     # Event to detect changes on roles
     # This also requires Intents.Member
-    async def on_member_update(self, before, after):
-        '''Before is user previously to change.
-        After is user after the change happened.
+    async def on_guild_member_update(self, context: discord.Context) -> None:
+        '''Check if a member was updated.'''
 
-        Both are Member, not User.'''
+        #   {'user': {'username': 'MEE6', 'public_flags': 65536, 'id': '159985870458322944', 'discriminator': '4876', 'bot': True, 
+        #           'avatar_decoration': None, 'avatar': 'b50adff099924dd5e6b72d13f77eb9d7'}, 
+        #   'roles': ['553455586709078024', '561164821953904660', '553455365233311765'], 
+        #   'premium_since': None, 'pending': False, 'nick': None, 'joined_at': '2019-03-08T05:54:01.336000+00:00', 'is_pending': False, 
+        #   'guild_id': '553454168631934977', 'flags': 0, 'communication_disabled_until': None, 'avatar': None}}
 
-        pit_roles = self.guild_config[before.guild.id]['ban_roles']
-        timeout = self.db.get_user_timeout(after)
+        # This is related to resubbing and restoring permissions
+        sub_roles = self.guild_config[context.guild_id]['sub_roles']
+        resubbed = False
 
-        before_roles = [role.id for role in before.roles]
-        after_roles = [role.id for role in after.roles]
+        for role in sub_roles:
+            # If role is in context.roles they could've resubbed so quickly check.
+            if role in context.roles:
+                resubbed = True
+                break
 
-        was_pitted = False
-        was_released = False
+        if resubbed:
+            user_roles = self.db.get_stored_roles(context.user['id'], context.guild_id)
 
-        DEFAULT_TIMEOUT_DURATION = 259200 # 3 days
+            if user_roles:
+                user_roles = dict(user_roles)
 
-        for role in pit_roles:
-            if role in before_roles and role not in after_roles:
-                was_released = True
+                for role in user_roles['roles']:
+                    try:
+                        await self.http.add_member_role(user_roles['guild_id'], user_roles['user_id'], role, "Role restored after resubbing.")
+                        time.sleep(0.5) # stall hard to avoid ratelimiting, there is no rush to restore roles
+                    except:
+                        # probably ran out of permissions, just skip
+                        pass
 
-            elif role in after_roles and role not in before_roles:
-                was_pitted = True
-
-        if timeout and was_released:
-            timeout_info = self.db.remove_user_timeout(after)
-
-        if not timeout and was_pitted:
-            timeout_info = self.db.add_user_timeout(after, after.guild, DEFAULT_TIMEOUT_DURATION, self.user, 'A moderator manually sent this user to the pit.')
-            strike_info = self.db.add_strike(after, after.guild, self.user, 'A moderator manually sent this user to the pit.')
+                # delete roles from database
+                self.db.delete_stored_roles(context.user['id'], context.guild_id)
 
     ### Utils
     async def get_guild(self, *, guild_id: int) -> Optional[discord.Guild]:

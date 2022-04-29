@@ -284,22 +284,3 @@ class PitBotDatabase:
 		user = col.find_one(query)
 
 		return user
-
-	def store_roles(self, user: dict, guild_id: str) -> Optional[dict]:
-		"""
-		Store roles for a user who is marked to be pruned
-		"""
-
-		col = self._db['prune_users']
-
-		user_info = {
-			'user_id': user['user']['id'],
-			'guild_id': guild_id,
-			'roles': user['roles'],
-			'created_date': datetime.now().isoformat()
-		}
-
-		result = col.insert_one(user_info)
-		user_info['_id'] = result.inserted_id
-
-		return user_info

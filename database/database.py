@@ -7,6 +7,7 @@ import logging
 from datetime import datetime
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+from typing import Optional
 
 log = logging.getLogger(__name__)
 
@@ -178,6 +179,57 @@ class Database:
 		results = col.find(params)
 
 		return list(results)
+
+	def store_roles(self, user: dict, guild_id: str) -> Optional[dict]:
+		"""
+		Store roles for a user who is marked to be pruned
+		"""
+
+		col = self._db['prune_users']
+
+		user_info = {
+			'user_id': user['user']['id'],
+			'guild_id': guild_id,
+			'roles': user['roles'],
+			'created_date': datetime.now().isoformat()
+		}
+
+		result = col.insert_one(user_info)
+		user_info['_id'] = result.inserted_id
+
+		return user_info
+
+	def get_stored_roles(self, user_id: str, guild_id: str) -> Optional[dict]:
+		"""
+		Given a user and a guild check if there are roles stored and return them
+		"""
+
+		col = self._db['prune_users']
+
+		params = {
+			'user_id': user_id,
+			'guild_id': guild_id
+		}
+
+		result = col.find_one(params)
+
+		return result
+
+	def delete_stored_roles(self, user_id: str, guild_id: str) -> Optional[dict]:
+		"""
+		Given a user and a guild check if there are roles stored and delete them
+		"""
+
+		col = self._db['prune_users']
+
+		params = {
+			'user_id': user_id,
+			'guild_id': guild_id
+		}
+
+		result = col.find_one_and_delete(params)
+
+		return result
 
 
 if __name__ == '__main__':

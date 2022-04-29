@@ -83,6 +83,12 @@ class BotConfig(Command):
 		ban_text = '\r\n'.join(ban_role_text)
 		if ban_text == '': ban_text = 'No ban roles specified.'
 
+		sub_role_text = []
+		for role in guild_config['sub_roles']:
+			sub_role_text.append(f"- <@&{role}>")
+		sub_text = '\r\n'.join(sub_role_text)
+		if sub_text == '': sub_text = 'No sub roles specified.'
+
 		log_channel = "No channel configured"
 		if guild_config['log_channel']:
 			log_channel = f"<#{guild_config['log_channel']}>"
@@ -91,11 +97,12 @@ class BotConfig(Command):
 			{'name': 'Help', 'value': f"Use {guild_config['command_character']}config set|add|rm <name> <value> \
 				to set a new value or add/remove a value from an array.", 'inline': False},
 			{'name': 'command_character', 'value': f"{guild_config['command_character']}", 'inline': False},
-			{'name': 'allowed_channels', 'value': f"{guild_config['allowed_channels']}", 'inline': False},
-			{'name': 'denied_channels', 'value': f"{guild_config['denied_channels']}", 'inline': False},
+			#{'name': 'allowed_channels', 'value': f"{guild_config['allowed_channels']}", 'inline': False},
+			#{'name': 'denied_channels', 'value': f"{guild_config['denied_channels']}", 'inline': False},
 			{'name': 'admin_roles', 'value': f"{admin_text}", 'inline': False},
 			{'name': 'mod_roles', 'value': f"{mod_text}", 'inline': False},
 			{'name': 'ban_roles', 'value': f"{ban_text}", 'inline': False},
+			{'name': 'sub_roles', 'value': f"{sub_text}", 'inline': False},
 			{'name': 'banwords', 'value': f"Use the website to configure banwords.", 'inline': False},
 			{'name': 'log_channel', 'value': f"{log_channel}", 'inline': False},
 			{'name': 'override_silent', 'value': f"{guild_config['override_silent']}", 'inline': False},
@@ -159,9 +166,9 @@ class BotConfig(Command):
 	async def _add_role(self, context: CommandContext) -> None:
 		which = context.params[1]
 
-		if which not in ['admin_roles', 'mod_roles', 'ban_roles']:
+		if which not in ['admin_roles', 'mod_roles', 'ban_roles', 'sub_roles']:
 			fields= [
-				{'name': 'add *_roles', 'value': f"Available lists are: `admin_roles`, `mod_roles`, `ban_roles`", 'inline': False}
+				{'name': 'add *_roles', 'value': f"Available lists are: `admin_roles`, `mod_roles`, `ban_roles`, `sub_roles`", 'inline': False}
 			]
 
 			await self._bot.send_embed_message(context.channel_id, "Server Configuration", fields=fields)
@@ -190,9 +197,9 @@ class BotConfig(Command):
 	async def _remove_role(self, context: CommandContext) -> None:
 		which = context.params[1]
 
-		if which not in ['admin_roles', 'mod_roles', 'ban_roles']:
+		if which not in ['admin_roles', 'mod_roles', 'ban_roles', 'sub_roles']:
 			fields= [
-				{'name': 'add *_roles', 'value': f"Available lists are: `admin_roles`, `mod_roles`, `ban_roles`", 'inline': False}
+				{'name': 'add *_roles', 'value': f"Available lists are: `admin_roles`, `mod_roles`, `ban_roles`, `sub_roles`", 'inline': False}
 			]
 
 			await self._bot.send_embed_message(context.channel_id, "Server Configuration", fields=fields)
