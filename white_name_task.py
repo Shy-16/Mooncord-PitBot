@@ -138,12 +138,14 @@ def remove_unsub_roles(token: str, config: dict) -> None:
 
 		# update last length to know if we continue the loop
 		last_length = len(users)
+		last_id = users[-1]['user']['id']
 
 		for user in users:
 			# first check if they have at least one of the roles
 			needs_purge = len([role for role in user['roles'] if role in sub_roles]) <= 0
+			user_roles = db.get_stored_roles(user['user']['id'], guild['id'])
 
-			if needs_purge:
+			if needs_purge and not user_roles:
 				# store the roles in database
 				db.store_roles(user, guild['id'])
 
