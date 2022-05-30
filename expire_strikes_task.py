@@ -115,7 +115,7 @@ def review_strikes(token: str, config: dict) -> None:
 	db = Database(config['database'])
 	pit_db = PitBotDatabase(database=db)
 	now = datetime.datetime.now()
-	expired_strikes = 0
+	total_expired_strikes = 0
 
 	# get all strikes that are older than a month and still active
 	min_date = datetime.datetime.now() - datetime.timedelta(days=30)
@@ -144,7 +144,7 @@ def review_strikes(token: str, config: dict) -> None:
 		# >>> datetime.timedelta(days=30).total_seconds() >>> 2592000.0
 		if (now-strike_date).total_seconds() >= 2592000.0 and (now-last_strike_date).total_seconds() >= 2592000.0:
 			strike_info = expire_strike(pit_db, user_id, user_strikes[-1]['_id'])
-			expired_strikes += 1
+			total_expired_strikes += 1
 
 			# Send a DM to the user
 			description = f"A month has passed in {guild['name']} since your last strike so your oldest strike has been forgiven.\r\n\r\n\
@@ -162,8 +162,8 @@ def review_strikes(token: str, config: dict) -> None:
 				log.error(e)
 				pass
 
-	if expired_strikes > 0:
-		send_embed_message(guild['log_channel'], "Strikes Expired", f"Today **{expired_strikes}** strikes expired.", token=token)
+	if total_expired_strikes > 0:
+		send_embed_message(guild['log_channel'], "Strikes Expired", f"Today **{total_expired_strikes}** strikes expired.", token=token)
 
 if __name__ == '__main__':
 	args = parse_args()
