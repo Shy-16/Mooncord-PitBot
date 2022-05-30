@@ -174,7 +174,7 @@ def timeout(bot: discord.Client) -> None:
 			"type": 5,
 			"data": {
                 "tts": False,
-                "content": "Pitting yourself, please wait...",
+                "content": "Sending a user to the pit, please wait...",
                 "embeds": [],
                 "allowed_mentions": { "parse": [] },
                 "flags": 64

@@ -99,18 +99,6 @@ def send_embed_dm(user_id: int, title: str = "", description: str = "", color: i
 
 	return message
 
-def expire_strike(pit_db: PitBotDatabase, user: dict) -> Optional[dict]:
-	"""
-	Sets a timeout as expired
-	"""
-
-	params = {'status': 'expired', 'updated_date': datetime.datetime.now().isoformat()}
-	query = {'user_id': user['id'], 'status': 'active'}
-
-	timeout = pit_db.update_timeout(params=params, query=query)
-
-	return timeout
-
 def expire_strike(pit_db: PitBotDatabase, user_id: str, strike_id: int) -> Optional[dict]:
 	"""
 	Sets a strike as expired
@@ -142,13 +130,19 @@ def review_strikes(token: str, config: dict) -> None:
 	for user_id in users:
 		# We need to get all active strikes for the user and compare dates
 		user_strikes = pit_db.get_strikes(query={'status': 'active', 'user_id': user_id}, sort=('_id', -1))
+		expired_strikes = pit_db.get_strikes(query={'status': 'expired', 'user_id': user_id}, sort=('_id', -1))
+		last_strike_date = iso_to_datetime('2000-01-01T00:00:00.000000') # set this to some old ass date.
+		if len(expired_strikes) > 0:
+			last_strike_date = iso_to_datetime(expired_strikes[0]['updated_date'])
 
 		# get newest strike date
 		strike_date = iso_to_datetime(user_strikes[0]['created_date'])
 
-		# if the amount of time between newest strike and today is greater than a month, delete oldest strike
+		# if the amount of time between newest strike and today is greater than a month
+		# and the amount of time between the last expired strike updated_date and today is greater than a month
+		# , delete oldest strike
 		# >>> datetime.timedelta(days=30).total_seconds() >>> 2592000.0
-		if (now-strike_date).total_seconds() >= 2592000.0:
+		if (now-strike_date).total_seconds() >= 2592000.0 && (now-last_strike_date).total_seconds() >= 2592000.0:
 			strike_info = expire_strike(pit_db, user_id, user_strikes[-1]['_id'])
 			expired_strikes += 1
 

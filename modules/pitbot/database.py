@@ -247,6 +247,8 @@ class PitBotDatabase:
 		if query.get("_id"): query['_id'] = ObjectId(query['_id'])
 		if params.get("_id"): params['_id'] = ObjectId(params['_id'])
 
+		params['updated_date'] = datetime.now()
+
 		result = col.find_one_and_update(query, {"$set" : params })
 
 		return result
