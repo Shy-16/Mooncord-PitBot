@@ -142,7 +142,7 @@ def review_strikes(token: str, config: dict) -> None:
 		# and the amount of time between the last expired strike updated_date and today is greater than a month
 		# , delete oldest strike
 		# >>> datetime.timedelta(days=30).total_seconds() >>> 2592000.0
-		if (now-strike_date).total_seconds() >= 2592000.0 && (now-last_strike_date).total_seconds() >= 2592000.0:
+		if (now-strike_date).total_seconds() >= 2592000.0 and (now-last_strike_date).total_seconds() >= 2592000.0:
 			strike_info = expire_strike(pit_db, user_id, user_strikes[-1]['_id'])
 			expired_strikes += 1
 
