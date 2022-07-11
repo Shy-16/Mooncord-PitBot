@@ -46,8 +46,8 @@ class BulletHellCommand(Command):
         # vars
         lead = {'name': 'Lead', 'odds': 2, 'timeout': 7200} # 2h
         silver = {'name': 'Silver', 'odds': 4, 'timeout': 14400} # 4h
-        gold = {'name': 'Gold', 'odds': 6, 'timeout': 28800} # 8h
-        platinum = {'name': 'Platinum', 'odds': 8, 'timeout': 43200} # 12h
+        gold = {'name': 'Gold', 'odds': 8, 'timeout': 28800} # 8h
+        platinum = {'name': 'Platinum', 'odds': 12, 'timeout': 43200} # 12h
         diamond = {'name': 'Diamond', 'odds': 16, 'timeout': 57600} # 16h
         obsidian = {'name': 'Obsidian', 'odds': 24, 'timeout': 86400} # 24h
         cosmic = {'name': 'Cosmic', 'odds': 36, 'timeout': 129600} # 36h
