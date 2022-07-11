@@ -44,17 +44,16 @@ class BulletHellCommand(Command):
             return
 
         # vars
-        rubber = {'name': 'Rubber', 'odds': 2, 'timeout': 3600} # 1h
-        lead = {'name': 'Lead', 'odds': 6, 'timeout': 7200} # 2h
-        silver = {'name': 'Silver', 'odds': 12, 'timeout': 10800} # 3h
-        gold = {'name': 'Gold', 'odds': 24, 'timeout': 14400} # 4h
-        platinum = {'name': 'Platinum', 'odds': 48, 'timeout': 28800} # 8h
-        diamond = {'name': 'Diamond', 'odds': 96, 'timeout': 43200} # 12h
-        obsidian = {'name': 'Obsidian', 'odds': 128, 'timeout': 57600} # 16h
-        cosmic = {'name': 'Cosmic', 'odds': 256, 'timeout': 86400} # 24h
+        lead = {'name': 'Lead', 'odds': 2, 'timeout': 7200} # 2h
+        silver = {'name': 'Silver', 'odds': 4, 'timeout': 14400} # 4h
+        gold = {'name': 'Gold', 'odds': 6, 'timeout': 28800} # 8h
+        platinum = {'name': 'Platinum', 'odds': 8, 'timeout': 43200} # 12h
+        diamond = {'name': 'Diamond', 'odds': 16, 'timeout': 57600} # 16h
+        obsidian = {'name': 'Obsidian', 'odds': 24, 'timeout': 86400} # 24h
+        cosmic = {'name': 'Cosmic', 'odds': 36, 'timeout': 129600} # 36h
         shiny = {'name': 'Shiny', 'odds': 4096, 'timeout': 172800} # 48h
 
-        bullets = [shiny, cosmic, obsidian, diamond, platinum, gold, silver, lead, rubber]
+        bullets = [shiny, cosmic, obsidian, diamond, platinum, gold, silver, lead]
         mods = [
             '468937023307120660', # Moon
             '186562579412418560', # Amaya
