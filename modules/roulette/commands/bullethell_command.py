@@ -49,25 +49,25 @@ class BulletHellCommand(Command):
         gold = {'name': 'Gold', 'odds': 8, 'timeout': 28800} # 8h
         platinum = {'name': 'Platinum', 'odds': 12, 'timeout': 43200} # 12h
         diamond = {'name': 'Diamond', 'odds': 16, 'timeout': 57600} # 16h
-        obsidian = {'name': 'Obsidian', 'odds': 20, 'timeout': 86400} # 24h
-        cosmic = {'name': 'Cosmic', 'odds': 24, 'timeout': 129600} # 36h
+        obsidian = {'name': 'Obsidian', 'odds': 24, 'timeout': 86400} # 24h
+        cosmic = {'name': 'Cosmic', 'odds': 36, 'timeout': 129600} # 36h
         shiny = {'name': 'Shiny', 'odds': 4096, 'timeout': 172800} # 48h
 
         bullets = [shiny, cosmic, obsidian, diamond, platinum, gold, silver, lead]
         mods = [
-            '468937023307120660', # Moon
-            '186562579412418560', # Amaya
-            '178015162287128576', # Brock
-            '157411268624384002', # Cheeky
-            '177904844412026880', # Duke
-             '69945889182986240', # Grimace
-            '117373803344035841', # Jestar
-            '187308638321246209', # Kyro
-             '66292645407760384', # IpN
-            '115843971804037120', # Nyx
-            '184528528572678145', # Shy
-            '109782272663629824', # Sunshine
-            '539881999926689829', # Yui
+            '468937023307120660',  # Moon
+            '186562579412418560',  # Amaya
+            '178015162287128576',  # Brock
+            '157411268624384002',  # Cheeky
+            '177904844412026880',  # Duke
+            '69945889182986240',   # Grimace
+            '117373803344035841',  # Jestar
+            '187308638321246209',  # Kyro
+            '66292645407760384',   # IpN
+            '115843971804037120',  # Nyx
+            '184528528572678145',  # Shy
+            '109782272663629824',  # Sunshine
+            '539881999926689829',  # Yui
         ]
 
         for bullet in bullets:
