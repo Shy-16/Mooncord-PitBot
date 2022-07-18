@@ -45,8 +45,8 @@ class StickerCommand(Command):
 
                 sticker_text = "\r\n".join(sticker_messages)
 
-            info_message = 'Sticker was created <t:{}:f>\r\nIt was last used <t:{}:f>' +
-                '\r\nIt has been used a total of {} times'.format(
+            info_message = 'Sticker was created <t:{}:f>\r\nIt was last used <t:{}:f>\
+                \r\nIt has been used a total of {} times'.format(
                 int(iso_to_datetime(sticker['created_date']).timestamp()),
                 int(iso_to_datetime(sticker['updated_date']).timestamp()),
                 sum([sticker['channels'][channel] for channel in sticker['channels']])
