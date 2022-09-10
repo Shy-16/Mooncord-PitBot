@@ -23,6 +23,7 @@ from application_commands import (
 
 log: logging.Logger = logging.getLogger("bot")
 
+
 class Bot(discord.Client):
 
     def __init__(self, config: dict) -> None:
