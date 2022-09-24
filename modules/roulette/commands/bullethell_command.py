@@ -7,6 +7,7 @@ import asyncio
 import random
 import json
 
+from utils import MOD_LIST
 from modules.context import CommandContext
 from modules.command import Command
 from log_utils import do_log
@@ -75,7 +76,7 @@ class BulletHellCommand(Command):
 
             if acc == bullet['odds']:
                 # Player got shot
-                mod = mods[random.randint(0, len(mods)-1)]
+                mod = MOD_LIST[random.randint(0, len(MOD_LIST)-1)]
                 timeout = int(bullet['timeout']/3600)
 
                 # Send a smug notification on the channel
