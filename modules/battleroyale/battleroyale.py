@@ -148,7 +148,7 @@ class BattleRoyale:
         if user_id in MOD_LIST:
             return
 
-        timeout = (datetime.datetime.utcnow() + datetime.timedelta(hours=min(self._round, 24))).isoformat()
+        timeout = (datetime.datetime.utcnow() + datetime.timedelta(hours=min(self._game.round, 24))).isoformat()
         data = {'communication_disabled_until': timeout}
 
-        response = await self._bot.http.modify_member(user_id, guild_id, data)
+        #await self._bot.http.modify_member(user_id, guild_id, data)

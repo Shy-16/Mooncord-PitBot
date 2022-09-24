@@ -77,5 +77,5 @@ class SetupBRCommand(Command):
         }
 
         setup_message: dict = await self._bot.send_embed_message(context.channel_id, "Battle Royale", content, color=10038562, footer=footer, components=[action_row])
-        self._module..game._setup_message = setup_message
+        self._module.game._setup_message = setup_message
         await self._module.start_game_director()

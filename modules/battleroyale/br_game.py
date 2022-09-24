@@ -4,23 +4,23 @@
 # Hosts the logic and execution for each BR Game #
 
 import logging
-from numpy.random import choice
+import random
 import asyncio
-from typing import Optional, List, Union, Tuple
+from typing import Optional, List, Union, Dict, Any
 
-import discord
+from numpy.random import choice
 from discord.ext import tasks
 
-from modules.battleroyale import BattleRoyale
-from .event import Event, events, weights
+from .models.event import Event, events, weights
+from .models.weapon import Fists
 
 log: logging.Logger = logging.getLogger("br")
 
 
 class BRGame:
 
-    def __init__(self, parent: BattleRoyale,
-                 max_participants: Optional[int] = 128) -> None:
+    def __init__(self, parent,
+                max_participants: Optional[int] = 128) -> None:
 
         # keep a pointer to parent just in case
         self._parent = parent
@@ -67,11 +67,13 @@ class BRGame:
         if self._finished:
             return
 
+        if self._started:
+            await self._generate_event()
+            return
+
         if self._edit_cd:
             await self._update_message()
 
-        if self._started:
-            await self._generate_event()
 
     async def _update_message(self) -> None:
         """
@@ -89,8 +91,8 @@ class BRGame:
             'embeds': [embed]
         }
 
-        await self._bot.http.edit_message(self._setup_message['channel_id'], self._setup_message['id'], payload)
-        self._edit_cd = False
+        await self._parent._bot.http.edit_message(self._setup_message['channel_id'], self._setup_message['id'], payload)
+        self._edit_cd = 60
 
     def add_participant(self, member: dict) -> None:
         """
@@ -109,11 +111,11 @@ class BRGame:
             'nickname': member['nick'],
             'permissions': member['permissions'],
             'health': 10,
-            'weapon': None,
+            'weapon': Fists(),
             'items': list()
         }
 
-        this.participants.append(br_member)
+        self.participants.append(br_member)
 
     def has_participant(self, member: dict) -> bool:
         """
@@ -188,7 +190,6 @@ class BRGame:
         """
 
         event = None
-        players = len(self.participants)
         _valid = False
 
         while not _valid:
@@ -248,14 +249,14 @@ class BRGame:
 
             # print messages in chat
             fields.append({'name': 'Players', 'value': f'{len(self.participants)} players remaining.', 'inline': False})
-            await self._bot.send_embed_message(self._setup_message['channel_id'], f"Round {self._round}", fields=fields)
+            await self._parent._bot.send_embed_message(self._setup_message['channel_id'], f"Round {self._round}", fields=fields)
 
             # sleep for 10 seconds then pit all losers
             await asyncio.sleep(10)
 
             for loser in all_losers:
                 # Issue the timeout
-                await self.timeout_user(loser)
+                await self._parent.timeout_user(loser)
 
                 # check and remove friendships with this user
                 self._friendships = [friends for friends in self._friendships if friends[0] != loser and friends[1] != loser]
@@ -280,7 +281,7 @@ class BRGame:
                 fields.append(field)
 
             fields.append({'name': 'Players', 'value': f'{len(self.participants)} players remaining.', 'inline': False})
-            await self._bot.send_embed_message(self._setup_message['channel_id'], f"Round {self._round}", fields=fields)
+            await self._parent._bot.send_embed_message(self._setup_message['channel_id'], f"Round {self._round}", fields=fields)
 
             # increase round by 1
             self._round += 1
@@ -289,14 +290,14 @@ class BRGame:
         elif len(self.participants) <= 2:
             field = self.run_event(all_losers, events[0], [self.participants[0], self.participants[1]])
             fields.append(field)
-            await self._bot.send_embed_message(self._setup_message['channel_id'], f"Round {self._round}", fields=fields)
+            await self._parent._bot.send_embed_message(self._setup_message['channel_id'], f"Round {self._round}", fields=fields)
 
             # announce winner
             description= f'''
-            Mooncord 2022 Battle Royale Winner.
+            Mooncord 2022 2nd edition Battle Royale Winner.
 
-            <@{self.participants[0]}>
+            <@{self.participants[0]['user_id']}>
 
             '''
-            await self._bot.send_embed_message(self._setup_message['channel_id'], f"Battle Royale Winner", description)
+            await self._parent._bot.send_embed_message(self._setup_message['channel_id'], "Battle Royale Winner", description)
             self._finished = True

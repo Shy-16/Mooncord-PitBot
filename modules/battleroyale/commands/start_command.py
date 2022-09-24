@@ -37,4 +37,3 @@ class StartBRCommand(Command):
         await self._bot.send_embed_message(context.channel_id, "Battle Royale", content)
 
         self._module.game._started = True
-        self._module.start_game_director()

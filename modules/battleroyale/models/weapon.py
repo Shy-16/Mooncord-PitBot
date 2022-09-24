@@ -5,7 +5,7 @@
 
 from functools import total_ordering
 
-from .event import Arena
+from .arena import Arena
 
 
 @total_ordering
@@ -50,11 +50,22 @@ class Weapon:
         """
         return ""
 
-    def death(self, killed: dict) -> str:
+    def death(self) -> str:
         """
         Returns a string describing the death
         """
         return ""
+
+
+class Fists(Weapon):
+    def __init__(self, name='fists', power=1) -> None:
+        super().__init__(name, power, 1)
+
+    def use(self) -> str:
+        return f"clench their {self._name} and swings fisting"
+
+    def death(self) -> str:
+        return f"in the face breaking their skull in half."
 
 
 class ShortBlunt(Weapon):
@@ -62,7 +73,7 @@ class ShortBlunt(Weapon):
         super().__init__(name, power, 1)
 
     def use(self) -> str:
-        return f" grips the handle of their {self._name} and swings it smashing "
+        return f"grips the handle of their {self._name} and swings it smashing"
 
 
 class LongBlunt(Weapon):
@@ -70,7 +81,7 @@ class LongBlunt(Weapon):
         super().__init__(name, power, 2)
 
     def use(self) -> str:
-        return f" grips the handle of their {self._name} and swings it smashing "
+        return f"grips the handle of their {self._name} and swings it smashing"
 
 
 class ShortBlade(Weapon):
@@ -78,7 +89,7 @@ class ShortBlade(Weapon):
         super().__init__(name, power, 1)
 
     def use(self) -> str:
-        return f" grips the handle of their {self._name} and slashes it cutting "
+        return f"grips the handle of their {self._name} and slashes it cutting"
 
 
 class LongBlade(Weapon):
@@ -86,7 +97,7 @@ class LongBlade(Weapon):
         super().__init__(name, power, 2)
 
     def use(self) -> str:
-        return f" grips the handle of their {self._name} and swings it cutting "
+        return f"grips the handle of their {self._name} and swings it cutting"
 
 
 class Pistol(Weapon):
@@ -94,7 +105,7 @@ class Pistol(Weapon):
         super().__init__(name, power, 3)
 
     def use(self) -> str:
-        return f" grips the handle of their {self._name} and pulls the trigger shooting "
+        return f"grips the handle of their {self._name} and pulls the trigger shooting"
 
 
 class Rifle(Weapon):
@@ -124,8 +135,8 @@ class Rifle(Weapon):
     def use(self) -> str:
         return "shooting"
 
-    def death(self, killed: dict) -> str:
-        return f"going straight through <@{killed['user_id']}>'s head splashing their brains all over the floor."
+    def death(self) -> str:
+        return "going straight through their head splashing their brains all over the floor."
 
 
 WEAPON_LIST = {
