@@ -13,7 +13,8 @@ def iso_to_datetime(iso_date):
 
 	returns datetime object
 	"""
-
+	if isinstance(iso_date, datetime.datetime):
+		return iso_date
 	return datetime.datetime.fromisoformat(iso_date)
 
 def datetime_to_iso(datetime_date):
