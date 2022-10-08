@@ -36,7 +36,7 @@ class Fluff:
 		"""
 		pass
 
-	async def handle_commands(self, message: discord.Context) -> None:
+	async def handle_commands(self, message: str) -> None:
 		"""
 		Handles any commands given through the designed character
 		"""
@@ -53,7 +53,7 @@ class Fluff:
 			await self.commands[command].execute(CommandContext(self._bot, command, params, message))
 		return
 
-	async def handle_ping_commands(self, message: discord.Context) -> None:
+	async def handle_ping_commands(self, message: str) -> None:
 		"""
 		Handles any commands given by a user through a ping
 		"""

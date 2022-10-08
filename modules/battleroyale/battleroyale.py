@@ -50,7 +50,7 @@ class BattleRoyale:
 
         handle_join_br_button(self._bot)
 
-    async def handle_commands(self, message: discord.Context) -> None:
+    async def handle_commands(self, message: str) -> None:
         """
         Handles any commands given through the designed character
         """

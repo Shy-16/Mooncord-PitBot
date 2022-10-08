@@ -4,7 +4,7 @@ import discord
 from discord.enums import OptionType
 
 from .context import ApplicationCommandContext
-from utils import iso_to_datetime, date_string_to_timedelta, seconds_to_string
+from utils import iso_to_datetime, date_string_to_timedelta
 
 def selfpit(bot: discord.Client):
 	@bot.command(
@@ -15,7 +15,7 @@ def selfpit(bot: discord.Client):
 		options=[{"name":"time", "description":"<1-2 digit number><one of: m, h, d> where m is minute, h is hour, d is day.",
 			"required":True, "type":int(OptionType.STRING)}]
 	)
-	async def handle_selfpit_slash(ctx: discord.Context) -> None:
+	async def handle_selfpit_slash(ctx: str) -> None:
 		# ctx: 'application_id', 'channel_id', 'data', 'guild_id', 'id', 'member', 'send', 'token', 'type', 'version'
 		# ctx.member: {'username': 'yuigahamayui', 'public_flags': 128, 'id': '539881999926689829', 'discriminator': '7441', 
 		#    'avatar': 'f493550c33cd55aaa0819be4e9a988a6', 'roles': ['553472623300968448', ...], 'premium_since': None, 'permissions': '1099511627775',
@@ -164,7 +164,7 @@ def timeout(bot: discord.Client) -> None:
 		options=options,
 		default_member_permissions=default_member_permissions
 	)
-	async def handle_timeout_slash(ctx: discord.Context) -> None:
+	async def handle_timeout_slash(ctx: str) -> None:
 		# ctx: 'application_id', 'channel_id', 'data', 'guild_id', 'id', 'member', 'send', 'token', 'type', 'version'
 
 		context = ApplicationCommandContext(bot, ctx)
@@ -321,7 +321,7 @@ def timeoutns(bot: discord.Client) -> None:
 		options=options,
 		default_member_permissions=default_member_permissions
 	)
-	async def handle_timeout_slash(ctx: discord.Context) -> None:
+	async def handle_timeout_slash(ctx: str) -> None:
 		# ctx: 'application_id', 'channel_id', 'data', 'guild_id', 'id', 'member', 'send', 'token', 'type', 'version'
 
 		context = ApplicationCommandContext(bot, ctx)

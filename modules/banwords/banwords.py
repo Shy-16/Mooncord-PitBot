@@ -33,7 +33,7 @@ class Banwords:
 		self.banwords = list(banwords)
 		self.banword_list = [banword['word'] for banword in banwords]
 
-	async def handle_message(self, ctx: discord.Context) -> None:
+	async def handle_message(self, ctx: str) -> None:
 		"""
 		Handles a new message caught to the bot that didnt fall into any command category
 		and was written in a public channel, not in DMs

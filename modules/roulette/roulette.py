@@ -57,7 +57,7 @@ class Roulette:
         self.refresh_cache.start()
         # self.report_timeouts.start()
 
-    async def handle_commands(self, message: discord.Context) -> None:
+    async def handle_commands(self, message: str) -> None:
         """
         Handles any commands given through the designed character
         """

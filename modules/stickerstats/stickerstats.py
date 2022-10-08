@@ -36,7 +36,7 @@ class StickerStats:
         """
         pass
 
-    async def handle_commands(self, message: discord.Context) -> None:
+    async def handle_commands(self, message: str) -> None:
         """
         Handles any commands given through the designed character
         """
@@ -71,7 +71,7 @@ class StickerStats:
 
         return sticker
 
-    def update_sticker(self, *, message:discord.Context) -> None:
+    def update_sticker(self, *, message:str) -> None:
         """
         Updates info about sticker(s)
         """

@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "pitbot"
+version = "2.0.0"
+description = "PitBot moderation bot for Mooncord"
+authors = ["Aitor Martin <sakurazaki.setsunita@gmail.com>"]
+license = "GPL"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pymongo = "^4.2.0"
+pytz = "^2022.2.1"
+PyYAML = "^6.0"
+thefuzz = {extras = ["speedup"], version = "^0.19.0"}
+DateTime = "^4.7"
+numpy = "^1.23.3"
+py-cord = "^2.2.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
