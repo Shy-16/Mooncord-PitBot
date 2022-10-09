@@ -66,7 +66,7 @@ class PitBotDatabase:
                 'discord_id': str(user.id),
                 'username': user.name,
                 'username_handle': user.discriminator,
-                'avatar': user.avatar,
+                'avatar': user.avatar.url,
                 'created_date': datetime.now().isoformat(),
                 'updated_date': datetime.now().isoformat()
             }
@@ -178,7 +178,7 @@ class PitBotDatabase:
                 'discord_id': str(user.id),
                 'username': user.name,
                 'username_handle': user.discriminator,
-                'avatar': user.avatar,
+                'avatar': user.avatar.url,
                 'created_date': datetime.now().isoformat(),
                 'updated_date': datetime.now().isoformat()
             }
