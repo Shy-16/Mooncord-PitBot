@@ -43,7 +43,7 @@ class Strike(Command):
         if isinstance(user, int):
             user = self._bot.get_user(user)
         elif isinstance(user, dict):
-            user = self._bot.get_user(user['id'])
+            user = context.guild.get_member(int(user['discord_id']))
 
         if len(context.params) > 1:
             if context.params[1] == "add":

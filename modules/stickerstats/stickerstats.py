@@ -41,7 +41,7 @@ class StickerStats:
         Handles any commands given through the designed character
         """
         
-        command = message.content.replace(self._bot.guild_config[message.guild_id]['command_character'], '')
+        command = message.content.replace(self._bot.guild_config[message.guild.id]['command_character'], '')
         params = list()
 
         if ' ' in command:
@@ -62,7 +62,7 @@ class StickerStats:
         query = dict()
 
         if sticker_id is not None:
-            query['id'] = sticker_id
+            query['id'] = str(sticker_id)
 
         if name is not None:
             query['name'] = name
@@ -71,16 +71,14 @@ class StickerStats:
 
         return sticker
 
-    def update_sticker(self, *, message:str) -> None:
-        """
-        Updates info about sticker(s)
-        """
+    def update_sticker(self, *, message: discord.Message) -> None:
+        """Updates info about sticker(s)"""
 
-        for sticker_info in message.sticker_items:
-            sticker = self._db.get_sticker({'id': sticker_info['id']})
+        for sticker in message.stickers:
+            sticker_info = self._db.get_sticker({'id': str(sticker.id)})
 
-            if not sticker:
-                sticker = self._db.create_sticker(sticker_info, message.guild_id, message.channel_id)
+            if not sticker_info:
+                self._db.create_sticker(sticker, channel_id=str(message.channel.id))
 
             else:
-                sticker = self._db.update_sticker_stats(sticker=sticker, channel_id=message.channel_id)
+                self._db.update_sticker_stats(sticker=sticker, channel_id=str(message.channel.id))

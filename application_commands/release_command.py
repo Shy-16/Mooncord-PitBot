@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import discord
-from discord import option
+from discord import option, default_permissions
 
 from utils import iso_to_datetime
 
@@ -12,20 +12,22 @@ def release(bot: discord.Bot) -> None:
         description="Send a user to the pit without a strike.",
         guild_ids=[bot.guilds[0].id]
     )
-    @option("user", discord.Member, description="User to be released.", required=True)
+    @default_permissions(moderate_members=True)
+    @option("user", discord.User, description="User to be released.", required=True)
     @option("amend", bool, description="Remove last strike.", required=False)
     async def handle_timeout_slash(
         ctx: discord.ApplicationContext,
-        user: discord.Member,
+        user: discord.User,
         amend: bool
     ) -> None:
 
         # Defer the message so we dont fuck up the command
         await ctx.response.defer(ephemeral=True)
         issued_by = ctx.user
-        guild_config = bot.guild_config[bot.guilds[0].id]
+        guild_config = bot.guild_config[ctx.guild.id]
+        ban_roles = [discord.Object(int(role)) for role in guild_config['ban_roles']]
 
-        await user.remove_roles(guild_config['ban_roles'], reason="User released by a mod.")
+        await user.remove_roles(*ban_roles, reason="User released by a mod.")
 
         timeout_info = bot.pitbot_module.expire_timeout(user=user)
         strike_info = None
@@ -37,19 +39,19 @@ def release(bot: discord.Bot) -> None:
         embed = {
             "type": "rich",
             "title": "/release",
-            "description": f"<@{user['id']}> was released from the pit.",
+            "description": f"<@{user.id}> was released from the pit.",
             "color": 0x6658ff,
             "fields": [],
             "footer": {"text": f'{ctx.guild.name} Mod Team'}
         }
-        await ctx.response.edit_message(embed=discord.Embed.from_dict(embed), ephemeral=True)
+        await ctx.send_followup(embed=discord.Embed.from_dict(embed), ephemeral=True)
 
         # Post information in log_channel
-        log_channel = guild_config['log_channel']
+        log_channel = int(guild_config['log_channel'])
+        user_strikes = bot.pitbot_module.get_user_strikes(user, sort=('_id', -1), partial=False)
+        user_timeouts = bot.pitbot_module.get_user_timeouts(user=user, status='expired')
+        
         if not bot.is_silent and log_channel:
-            user_strikes = bot.pitbot_module.get_user_strikes(user, sort=('_id', -1), partial=False)
-            user_timeouts = bot.pitbot_module.get_user_timeouts(user=user, status='expired')
-
             strike_text = ""
             if len(user_strikes) > 0:
                 strike_messages = list()
@@ -87,4 +89,4 @@ def release(bot: discord.Bot) -> None:
                 to get a summary of your disciplinary history on {ctx.guild.name}.", 'inline': False}
         ]
 
-        await bot.send_embed_dm(user.id, "User Timeout", info_message, fields=fields)
+        await bot.send_embed_dm(user, "User Timeout", info_message, fields=fields)

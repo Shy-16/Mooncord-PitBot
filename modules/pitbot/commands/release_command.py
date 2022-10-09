@@ -46,7 +46,7 @@ class Release(Command):
         if isinstance(user, int):
             user = self._bot.get_user(user)
         elif isinstance(user, dict):
-            user = self._bot.get_user(user['id'])
+            user = context.guild.get_member(int(user['discord_id']))
         await user.remove_roles(*context.ban_roles, reason="User released by a mod.")
 
         timeout_info = self._module.expire_timeout(user=user)

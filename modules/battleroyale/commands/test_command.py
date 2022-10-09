@@ -1,20 +1,25 @@
 # -*- coding: utf-8 -*-
 
-## SetupBRCommand Command ##
-# A command to setup BR event. #
+## Test Command ##
+# Adds a list of test users for the BR event. #
 
 
 from modules.context import CommandContext
 from modules.command import Command, verify_permission
-from log_utils import do_log
 
+
+class DummyMember:
+    def __init__(self, data: dict):
+        self.id = data['id']
+        self.name = data['name']
+        self.discriminator = data['discriminator']
 
 class TestBRCommand(Command):
     """
     !test_br
     """
 
-    def __init__(self, br, permission: str ='mod', dm_keywords: list = list()) -> None:
+    def __init__(self, br, permission: str ='mod', dm_keywords: list = None) -> None:
         super().__init__(br, permission, dm_keywords)
 
     @verify_permission
@@ -22,58 +27,58 @@ class TestBRCommand(Command):
 
         test_users = [
             {'id': '137736942249967617',
-                'username': 'Ryukin', 'discriminator': '7818'},
+                'name': 'Ryukin', 'discriminator': '7818'},
             {'id': '464457561584828416',
-                'username': 'EN3MIES', 'discriminator': '0111'},
+                'name': 'EN3MIES', 'discriminator': '0111'},
             {'id': '137736942249967617',
-                'username': 'HexaSwell', 'discriminator': '0001'},
+                'name': 'HexaSwell', 'discriminator': '0001'},
             {'id': '137254817943912448',
-                'username': 'SLiK', 'discriminator': '2239'},
+                'name': 'SLiK', 'discriminator': '2239'},
             {'id': '90260276431065088',
-                'username': 'Mira', 'discriminator': '9287'},
+                'name': 'Mira', 'discriminator': '9287'},
             {'id': '665731528801779722',
-                'username': 'BronzeBrowser', 'discriminator': '1420'},
+                'name': 'BronzeBrowser', 'discriminator': '1420'},
             {'id': '340451087397945344',
-                'username': 'Wolrosh', 'discriminator': '8739'},
+                'name': 'Wolrosh', 'discriminator': '8739'},
             {'id': '244256653350928394',
-                'username': 'adman731', 'discriminator': '9221'},
+                'name': 'adman731', 'discriminator': '9221'},
             {'id': '198461501894295552',
-                'username': 'CyanideCocoa', 'discriminator': '8380'},
+                'name': 'CyanideCocoa', 'discriminator': '8380'},
             {'id': '233351152119447553',
-                'username': 'Chilly', 'discriminator': '4031'},
+                'name': 'Chilly', 'discriminator': '4031'},
             {'id': '165289791708069888',
-                'username': 'Yagi', 'discriminator': '7506'},
+                'name': 'Yagi', 'discriminator': '7506'},
             {'id': '394532872117288963',
-                'username': 'Shekel', 'discriminator': '3620'},
+                'name': 'Shekel', 'discriminator': '3620'},
             {'id': '130976019321585664',
-                'username': 'Eufra', 'discriminator': '7864'},
+                'name': 'Eufra', 'discriminator': '7864'},
             {'id': '228073340441591808',
-                'username': 'Menke', 'discriminator': '8099'},
+                'name': 'Menke', 'discriminator': '8099'},
             {'id': '147965531746467840',
-                'username': 'Yeetloaf', 'discriminator': '3939'},
+                'name': 'Yeetloaf', 'discriminator': '3939'},
             {'id': '97450304018083840',
-                'username': 'VerbalSilence', 'discriminator': '2171'}
+                'name': 'VerbalSilence', 'discriminator': '2171'},
+            {'id': '186350500780834817',
+                'name': 'Skurkitty', 'discriminator': '7052'},
+            {'id': '1002375116077944882',
+                'name': 'peacefulhaley', 'discriminator': '3738'},
+            {'id': '153596415128502273',
+                'name': 'thorgot', 'discriminator': '5851'},
+            {'id': '977222975738744882',
+                'name': 'Metal', 'discriminator': '9020'},
+            {'id': '101880837301096448',
+                'name': 'AbeX300', 'discriminator': '7213'},
+            {'id': '121075890372214784',
+                'name': 'PokeYourWaffle', 'discriminator': '0310'},
+            {'id': '129659119358574592',
+                'name': 'EnDecc', 'discriminator': '9038'},
+            {'id': '437665928835104769',
+                'name': 'Ravenaura', 'discriminator': '4480'},
         ]
-
-
-        user_template = {'user': {
-                            'username': 'yuigahamayui', 'public_flags': 128,
-                            'id': '539881999926689829', 'discriminator': '7441',
-                            'avatar': '31f61997206954399620accc101c5928'
-                        },
-                        'roles': [], 'premium_since': None,
-                        'permissions': '4398046511103',
-                        'pending': False, 'nick': 'whocares', 'mute': False,
-                        'joined_at': '2019-03-08T05:49:16.519000+00:00',
-                        'is_pending': False, 'deaf': False,
-                        'communication_disabled_until': None, 'avatar': None}
 
         # check if there is a number as parameter
         for user in test_users:
-            user_template['user']['id'] = user['id']
-            user_template['user']['username'] = user['username']
-            user_template['user']['discriminator'] = user['discriminator']
-            self._module.game.add_participant(user_template)
+            self._module.game.add_participant(DummyMember(user))
 
-        await self._module._bot.send_embed_message(self._module.game._setup_message['channel_id'], f"Added test participants")
+        await self._module._bot.send_embed_message(self._module.game._setup_message.channel, "Added test participants")
         self._module.game._edit_cd = True

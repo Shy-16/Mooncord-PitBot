@@ -12,13 +12,12 @@ from typing import Optional, Union
 import discord
 from database import Database
 from log_utils import init_log
-from modules import PitBot
-#from modules import PitBot, Banwords, StickerStats, Roulette, BattleRoyale, Fluff
+from modules import PitBot, Banwords, StickerStats, Roulette, Fluff, BattleRoyale
 from application_commands import (
     set_help_slash,
-#    set_selfpit_slash,
-#    set_timeout_slash,
-#    set_timeoutns_slash,
+    set_selfpit_slash,
+    set_timeout_slash,
+    set_timeoutns_slash,
     set_release_slash
 )
 
@@ -39,11 +38,11 @@ class Bot(discord.Bot):
         self.db = Database(config['database'])
 
         self.pitbot_module = PitBot(bot=self)
-        #self.banword_module = Banwords(bot=self)
-        #self.sticker_module = StickerStats(bot=self)
-        #self.roulette_module = Roulette(bot=self)
-        #self.br_module = BattleRoyale(bot=self)
-        #self.fluff_module = Fluff(bot=self)
+        self.banword_module = Banwords(bot=self)
+        self.sticker_module = StickerStats(bot=self)
+        self.roulette_module = Roulette(bot=self)
+        self.br_module = BattleRoyale(bot=self)
+        self.fluff_module = Fluff(bot=self)
 
         init_log()
 
@@ -69,20 +68,20 @@ class Bot(discord.Bot):
         
         # Setup help commands
         set_help_slash(self)
-        #set_selfpit_slash(self)
+        set_selfpit_slash(self)
 
         # Setup role-based commands
-        #set_timeout_slash(self)
-        #set_timeoutns_slash(self)
+        set_timeout_slash(self)
+        set_timeoutns_slash(self)
         set_release_slash(self)
 
         # Init all tasks
         self.pitbot_module.init_tasks()
-        #self.banword_module.init_tasks()
-        #self.roulette_module.init_tasks()
-        #self.br_module.init_tasks()
+        self.banword_module.init_tasks()
+        self.roulette_module.init_tasks()
+        self.br_module.init_tasks()
 
-        #activity = discord.Game("DM to contact staff | DM help for more info.")
+        #activity = discord.Game("DM help for more info.")
         #await super().change_presence(activity=activity)
 
     async def on_message(self, message: discord.Message) -> None:
@@ -100,20 +99,20 @@ class Bot(discord.Bot):
         if len(message.mentions) > 0 and message.mentions[0].id == self.user.id:
             # Someone pinged the bot.
             await self.pitbot_module.handle_ping_commands(message)
-            #await self.fluff_module.handle_ping_commands(message)
+            await self.fluff_module.handle_ping_commands(message)
             return
 
         # Someone used a command.
         if message.content.startswith(self.guild_config[message.guild.id]['command_character']):
             await self.pitbot_module.handle_commands(message)
-            #await self.sticker_module.handle_commands(message)
-            #await self.roulette_module.handle_commands(message)
-            #await self.br_module.handle_commands(message)
+            await self.sticker_module.handle_commands(message)
+            await self.roulette_module.handle_commands(message)
+            await self.br_module.handle_commands(message)
             return
 
         # Check for stickers
-        #if hasattr(message, 'sticker_items'):
-        #    self.sticker_module.update_sticker(message=message)
+        if message.stickers:
+            self.sticker_module.update_sticker(message=message)
 
         # If none of the above was checked, its a regular message.
         # If message is empty it means someone just sent an attachment so ignore
@@ -121,7 +120,7 @@ class Bot(discord.Bot):
             return
 
         # We pass the message through our banword filter for automatic timeouts.
-        #await self.banword_module.handle_message(message)
+        await self.banword_module.handle_message(message)
 
     # Main 2 events to detect people joining and leaving.
     # These require Intents.Member to be enabled.
@@ -204,7 +203,7 @@ class Bot(discord.Bot):
         return message
 
     async def send_embed_message(self, channel: Union[int, discord.TextChannel], title: str="", description: str="", 
-        color: int=0x0aeb06, fields: list=None, footer: dict=None, image: dict= None, components: Optional[list]=None) -> dict:
+        color: int=0x0aeb06, fields: list=None, footer: dict=None, image: dict= None, view: Optional[discord.ui.View]=None) -> dict:
         """Sends an embed message to given channel_id"""
         embed = {
             "type": "rich",
@@ -222,9 +221,9 @@ class Bot(discord.Bot):
 
         try:
             if isinstance(channel, int):
-                message = await self.get_channel(channel).send(embed=discord.Embed.from_dict(embed))
+                message = await self.get_channel(channel).send(embed=discord.Embed.from_dict(embed), view=view)
             else:
-                message = await channel.send(embed=discord.Embed.from_dict(embed))
+                message = await channel.send(embed=discord.Embed.from_dict(embed), view=view)
         except Exception:
             message = {}
 

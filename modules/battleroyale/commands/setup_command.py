@@ -3,14 +3,9 @@
 ## SetupBRCommand Command ##
 # A command to setup BR event. #
 
-import asyncio
-import discord
-import random
-import json
-
 from modules.context import CommandContext
 from modules.command import Command, verify_permission
-from log_utils import do_log
+from modules.battleroyale.components import create_br_button
 
 
 class SetupBRCommand(Command):
@@ -18,7 +13,7 @@ class SetupBRCommand(Command):
     !setup_br
     """
 
-    def __init__(self, br, permission: str = 'mod', dm_keywords: list = list()) -> None:
+    def __init__(self, br, permission: str = 'mod', dm_keywords: list = None) -> None:
         super().__init__(br, permission, dm_keywords)
 
     @verify_permission
@@ -46,10 +41,10 @@ class SetupBRCommand(Command):
         -- Pit is handled through discord Timeout feature and not PitBot pit.
         - All the events and the people participating in them are **random**.
 
-        If you win the #1 Victory Royale you get to live, and to brag about it until nobody cares anymore.
+        If you win the #1 Victory Royale you get to live, a cool role for a week or two and to brag about it until nobody cares anymore.
         '''
 
-        await self._bot.send_embed_message(context.channel_id, "Battle Royale", content)
+        await self._bot.send_embed_message(context.channel, "Battle Royale", content)
 
         # Then create the join message
         content = f"To join Battle Royale react with 👑\r\n\r\n\
@@ -59,23 +54,8 @@ class SetupBRCommand(Command):
         }
 
         # Setup the button
-        button_component = {
-            "type": 2,  # button
-            "style": 2,  # secondary or gray
-            "label": "Join BR",
-            "emoji": {
-                "id": None,
-                "name": "👑",
-                "animated": False
-            },
-            "custom_id": "join_br_button"
-        }
-
-        action_row = {
-            "type": 1,
-            "components": [button_component]
-        }
-
-        setup_message: dict = await self._bot.send_embed_message(context.channel_id, "Battle Royale", content, color=10038562, footer=footer, components=[action_row])
+        button = create_br_button(self._bot)
+        setup_message: dict = \
+            await self._bot.send_embed_message(context.channel_id, "Battle Royale", content, color=10038562, footer=footer, view=button)
         self._module.game._setup_message = setup_message
         await self._module.start_game_director()

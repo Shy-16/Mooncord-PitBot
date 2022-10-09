@@ -1,1 +1,1 @@
-from .join_br_button import setup as handle_join_br_button
+from .join_br_button import create_br_button
