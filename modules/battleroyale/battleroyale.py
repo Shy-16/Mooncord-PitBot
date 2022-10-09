@@ -73,12 +73,9 @@ class BattleRoyale:
         """Stops game director after game is over."""
         self._game.game_director.stop()
 
-    async def timeout_user(self, user_id: str) -> None:
+    async def timeout_user(self, user: dict) -> None:
         """Times the given user through discord feature and not a pit"""
-        guild_id = '193277318494420992'
-        if user_id in MOD_LIST:
+        if user['member'].id in MOD_LIST:
             return
-        timeout = (datetime.datetime.utcnow() + datetime.timedelta(hours=min(self._game.round, 24))).isoformat()
-        data = {'communication_disabled_until': timeout}
-
-        #await self._bot.http.modify_member(user_id, guild_id, data)
+        timeout = datetime.datetime.utcnow() + datetime.timedelta(hours=min(self._game.round, 24))
+        await user['member'].timeout(timeout, reason="Lost BR")
