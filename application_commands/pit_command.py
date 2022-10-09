@@ -133,7 +133,7 @@ def timeout(bot: discord.Client) -> None:
             await ctx.send_followup(embed=discord.Embed.from_dict(embed))
             return
         
-        timeout_info = bot.pitbot_module.get_user_timeout(ctx.user)
+        timeout_info = bot.pitbot_module.get_user_timeout(user)
         extended = False
         guild_config = bot.guild_config[ctx.guild.id]
         log_channel = int(guild_config['log_channel'])
@@ -142,14 +142,14 @@ def timeout(bot: discord.Client) -> None:
         bot.pitbot_module.add_strike(user=user, guild_id=ctx.guild.id,
                     issuer_id=ctx.author.id, reason=reason)
         if not timeout_info:
-            bot.pitbot_module.add_timeout(user=ctx.user, guild_id=ctx.guild.id,
+            bot.pitbot_module.add_timeout(user=user, guild_id=ctx.guild.id,
                 time=int(delta.total_seconds()), issuer_id=ctx.author.id, reason="Timeout issued by a mod.")
         else:
             new_time = int(delta.total_seconds() + timeout_info['time'])
-            timeout_info = bot.pitbot_module.extend_timeout(user=ctx.user, time=new_time)
+            timeout_info = bot.pitbot_module.extend_timeout(user=user, time=new_time)
             extended = True
 
-        await ctx.user.add_roles(*ban_roles, reason="Timeout issued by a mod.")
+        await user.add_roles(*ban_roles, reason="Timeout issued by a mod.")
 
         # Answer the request
         embed = {
@@ -244,21 +244,21 @@ def timeoutns(bot: discord.Client) -> None:
             await ctx.send_followup(embed=discord.Embed.from_dict(embed), ephemeral=True)
             return
         
-        timeout_info = bot.pitbot_module.get_user_timeout(ctx.user)
+        timeout_info = bot.pitbot_module.get_user_timeout(user)
         extended = False
         guild_config = bot.guild_config[bot.guilds[0].id]
         log_channel = int(guild_config['log_channel'])
         ban_roles = [discord.Object(int(role)) for role in guild_config['ban_roles']]
 
         if not timeout_info:
-            bot.pitbot_module.add_timeout(user=ctx.user, guild_id=ctx.guild.id,
+            bot.pitbot_module.add_timeout(user=user, guild_id=ctx.guild.id,
                 time=int(delta.total_seconds()), issuer_id=ctx.author.id, reason="Timeout issued by a mod.")
         else:
             new_time = int(delta.total_seconds() + timeout_info['time'])
-            timeout_info = bot.pitbot_module.extend_timeout(user=ctx.user, time=new_time)
+            timeout_info = bot.pitbot_module.extend_timeout(user=user, time=new_time)
             extended = True
 
-        await ctx.user.add_roles(*ban_roles, reason="Timeout issued by a mod.")
+        await user.add_roles(*ban_roles, reason="Timeout issued by a mod.")
 
         # Answer the request
         embed = {
