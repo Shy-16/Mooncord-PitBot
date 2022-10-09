@@ -5,14 +5,13 @@
 
 import sys
 import logging
-import json
 import datetime
-import yaml
+from pathlib import Path
 from typing import Optional
 import requests
-from pathlib import Path
-
 from urllib.parse import quote as _uriquote
+import yaml
+
 from utils import parse_args, iso_to_datetime
 
 from database import Database
