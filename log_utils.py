@@ -4,36 +4,34 @@
 # Helper for logging for all commands, events and everything Discord-related. #
 
 import json
-import datetime, time, pytz
 import logging
 from logging.handlers import WatchedFileHandler
 import traceback
 import pprint
+import datetime
+import time
+import pytz
+
 
 class MyJsonEncoder(json.JSONEncoder): 
     """
     a json encoder that encodes datetime as an ISO date, (default json encoder doesn't handle datetimes)
     """
-    
     def default(self, obj):         # pylint: disable=arguments-differ
         if isinstance(obj, datetime.datetime):
             return obj.isoformat()
-
         return json.JSONEncoder.default(self, obj)
 
+
 def init_log():
-    """
-    Init logging. The must be called only once upon instantiation.
-    """
-
+    """Init logging. The must be called only once upon instantiation."""
     logger = logging.getLogger("bot_log")
-
     logger.setLevel(logging.INFO)    # this sets the min level of logging that this logger will handle.
-
     hand_fh_info  = WatchedFileHandler("discord.log")
     hand_fh_info.setLevel(logging.INFO)
     hand_fh_info.setFormatter(logging.Formatter("%(message)s"))
     logger.addHandler(hand_fh_info)
+
 
 async def do_log(place="guild", data_dict="", context=None, member=None, level=logging.INFO, exception=False):
     """
@@ -64,26 +62,26 @@ async def do_log(place="guild", data_dict="", context=None, member=None, level=l
 
         # add info related to context
         if context is not None:
-        	data_dict['content'] = context.content
-        	data_dict['author_id'] = context.author['id']
-        	data_dict['author_handle'] = context.author['username'] + "#" + context.author['discriminator']
+            data_dict['content'] = context.content
+            data_dict['author_id'] = context.author.id
+            data_dict['author_handle'] = context.author.name + "#" + context.author.discriminator
 
-        	if context.guild is not None:
-        		data_dict['guild_id'] = context.guild.id
+            if context.guild is not None:
+                data_dict['guild_id'] = context.guild.id
 
-        	if len(context.mentions) > 0:
-        		if len(context.mentions) == 1:
-        			data_dict['user_id'] = context.mentions[0]['id']
-        			data_dict['user_handle'] = f'{context.mentions[0]["username"]}#{context.mentions[0]["discriminator"]}'
+            if len(context.mentions) > 0:
+                if len(context.mentions) == 1:
+                    data_dict['user_id'] = context.mentions[0].id
+                    data_dict['user_handle'] = f'{context.mentions[0].name}#{context.mentions[0].discriminator}'
 
-        		else:
-	        		for i in range(len(context.mentions)):
-	        			data_dict[f'mention_{i}'] = context.mentions[i]['id']
-	        			data_dict[f'mention_{i}_handle'] = f'{context.mentions[i]["username"]}#{context.mentions[i]["discriminator"]}'
+                else:
+                    for i, mention in enumerate(context.mentions):
+                        data_dict[f'mention_{i}'] = mention.id
+                        data_dict[f'mention_{i}_handle'] = f'{mention.name}#{mention.discriminator}'
 
         elif member is not None:
-        	data_dict['user_id'] = member['id']
-        	data_dict['user_handle'] = f'{member["username"]}#{member["discriminator"]}'
+            data_dict['user_id'] = member.id
+            data_dict['user_handle'] = f'{member.name}#{member.discriminator}'
 
 
         # if it is an exception, get some traceback info
@@ -102,8 +100,3 @@ async def do_log(place="guild", data_dict="", context=None, member=None, level=l
     except Exception as ex:
         print("utils.do_log() FAILED: %s" % ex)
         pprint.pprint(data_dict)
-
-
-if __name__ == '__main__':
-	init_log()
-	do_log()

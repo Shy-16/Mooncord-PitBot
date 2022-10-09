@@ -10,7 +10,6 @@ from .arena import Arena
 
 @total_ordering
 class Weapon:
-
     def __init__(self, name, power, w_range) -> None:
         self._name = name
         self._power = power
@@ -39,21 +38,15 @@ class Weapon:
         return self._range
 
     def arena(self, arena: str) -> str:
-        """
-        Returns a string in base to the arena
-        """
+        """Returns a string in base to the arena"""
         return ""
 
     def use(self) -> str:
-        """
-        Returns a string to print in BR events
-        """
+        """Returns a string to print in BR events"""
         return ""
 
     def death(self) -> str:
-        """
-        Returns a string describing the death
-        """
+        """Returns a string describing the death"""
         return ""
 
 
@@ -65,7 +58,7 @@ class Fists(Weapon):
         return f"clench their {self._name} and swings fisting"
 
     def death(self) -> str:
-        return f"in the face breaking their skull in half."
+        return "in the face breaking their skull in half."
 
 
 class ShortBlunt(Weapon):
@@ -133,7 +126,7 @@ class Rifle(Weapon):
         return _template
 
     def use(self) -> str:
-        return "shooting"
+        return "shoots"
 
     def death(self) -> str:
         return "going straight through their head splashing their brains all over the floor."
@@ -152,7 +145,6 @@ WEAPON_LIST = {
     'ar14': Rifle('AR-14', 5),
     'sniper': Rifle('Sniper Rifle', 8)
 }
-
 WEAPON_WEIGHTS = [
     0.12,
     0.12,
@@ -165,6 +157,23 @@ WEAPON_WEIGHTS = [
     0.06,
     0.05,
     0.05
+]
+
+SPONSOR_LIST = {
+    'military_knife': ShortBlade('Military Knife', 2),
+    'katana': LongBlade('Katana', 3),
+    'deagle': Pistol('Desert Eagle', 4),
+    'shotgun': Rifle('Shotgun', 4),
+    'ar14': Rifle('AR-14', 5),
+    'sniper': Rifle('Sniper Rifle', 8)
+}
+SPONSOR_WEIGHTS = [
+    0.28,
+    0.20,
+    0.15,
+    0.15,
+    0.12,
+    0.10
 ]
 
 if __name__ == '__main__':

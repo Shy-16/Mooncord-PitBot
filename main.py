@@ -5,11 +5,14 @@
 
 import sys
 import yaml
+import logging
 
 from bot import Bot
 from utils import parse_args
 
 if __name__ == '__main__':
+    
+    logging.basicConfig(level=logging.INFO)
 
     args = parse_args()
     if(not args.token):

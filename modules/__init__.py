@@ -1,5 +1,5 @@
-from .banwords import Banwords
 from .pitbot import PitBot
+from .banwords import Banwords
 from .stickerstats import StickerStats
 from .roulette import Roulette
 from .battleroyale import BattleRoyale
