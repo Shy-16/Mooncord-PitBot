@@ -57,10 +57,10 @@ class Kill(Event):
         death = list()
 
         if isinstance(team_1, list):
-            team_1_names = ",".join([f"<@{user['member'].id}>" for user in team_1[:-1]]) + " and " + team_1[-1]['member'].id
+            team_1_names = ",".join([f"<@{user['member'].id}>" for user in team_1[:-1]]) + " and " + str(team_1[-1]['member'].id)
 
             if isinstance(team_2, list):
-                team_2_names = ",".join([f"<@{user['member'].id}>" for user in team_2[:-1]]) + " and " + team_2[-1]['member'].id
+                team_2_names = ",".join([f"<@{user['member'].id}>" for user in team_2[:-1]]) + " and " + str(team_2[-1]['member'].id)
 
                 _template = f"Two teams clash in the field.\r\n" \
                     f"{team_1_names} cross with {team_2_names} {Arena.get_arena()}.\r\n\r\n"
@@ -112,7 +112,7 @@ class Kill(Event):
 
         else:
             if isinstance(team_2, list):
-                team_2_names = ",".join([f"<@{user['member'].id}>" for user in team_2[:-1]]) + " and " + team_2[-1]['member'].id
+                team_2_names = ",".join([f"<@{user['member'].id}>" for user in team_2[:-1]]) + " and " + str(team_2[-1]['member'].id)
 
                 _template = f"A team and a player cross paths on the battlefield.\r\n\r" \
                     f"{team_2_names} and <@{team_1['member'].id}> meet each other {Arena.get_arena()}.\r\n\r\n"
