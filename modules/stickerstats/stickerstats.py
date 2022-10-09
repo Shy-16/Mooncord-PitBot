@@ -81,4 +81,4 @@ class StickerStats:
                 self._db.create_sticker(sticker, channel_id=str(message.channel.id))
 
             else:
-                self._db.update_sticker_stats(sticker=sticker, channel_id=str(message.channel.id))
+                self._db.update_sticker_stats(sticker=sticker_info, channel_id=str(message.channel.id))

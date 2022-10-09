@@ -98,7 +98,7 @@ class StickerDatabase:
 
         if channel_id in sticker['channels']:
             updated_info = col.find_one_and_update(
-                {'id': str(sticker.id)}, 
+                {'id': str(sticker["id"])}, 
                 {"$set": 
                     {f'channels.{channel_id}': sticker['channels'][channel_id]+1,
                     'updated_date': datetime.now().isoformat()}
@@ -106,7 +106,7 @@ class StickerDatabase:
 
         else:
             updated_info = col.find_one_and_update(
-                {'id': str(sticker.id)}, 
+                {'id': str(sticker["id"])}, 
                 {"$set": 
                     {f'channels.{channel_id}': 1,
                     'updated_date': datetime.now().isoformat()}
