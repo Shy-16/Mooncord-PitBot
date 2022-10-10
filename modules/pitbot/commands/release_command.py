@@ -94,7 +94,7 @@ class Release(Command):
                 info_message += "\r\n\r\nYour last strike was additionally deleted."
 
         fields = [
-            {'name': 'Strikes', 'value': f"You currently have {len(user_strikes)} active strikes in {context.guild.name} (including this one).", 'inline': False},
+            {'name': 'Strikes', 'value': f"You currently have {len(user_strikes)} active strikes in {context.guild.name}.", 'inline': False},
             {'name': 'Info', 'value': f"You can message me `pithistory` or `strikes` \
                 to get a summary of your disciplinary history on {context.guild.name}.", 'inline': False}
         ]

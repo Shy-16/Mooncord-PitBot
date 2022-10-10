@@ -48,7 +48,7 @@ def release(bot: discord.Bot) -> None:
 
         # Post information in log_channel
         log_channel = int(guild_config['log_channel'])
-        user_strikes = bot.pitbot_module.get_user_strikes(user, sort=('_id', -1), partial=False)
+        user_strikes = bot.pitbot_module.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
         user_timeouts = bot.pitbot_module.get_user_timeouts(user=user, status='expired')
         
         if not bot.is_silent and log_channel:
