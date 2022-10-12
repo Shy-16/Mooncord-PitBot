@@ -124,66 +124,41 @@ class Bot(discord.Bot):
 
     # Main 2 events to detect people joining and leaving.
     # These require Intents.Member to be enabled.
-    async def on_guild_member_add(self, context: str) -> None:
-        user = context.user
-
-        # Get timeout info
+    async def on_member_join(self, user: discord.Member) -> None:
         timeout = self.pitbot_module.get_user_timeout(user)
-
         if timeout:
-            # Add a strike to this user.
-            strike_info = self.pitbot_module.add_strike(user=user, guild_id=context.guild_id,
+            self.pitbot_module.add_strike(user=user, guild_id=user.guild.id,
                 issuer_id=self.user.id, reason="User rejoined server after leaving during timeout.")
 
-            if self.guild_config[context.guild_id]['log_channel']:
-                await self.send_embed_message(self.guild_config[context.guild_id]['log_channel'], "User Rejoined after Timeout",
-                    f"User: <@{user['id']}> was timed out, left the server and joined back again.")
+            if self.guild_config[user.guild.id]['log_channel']:
+                await self.send_embed_message(int(self.guild_config[user.guild.id]['log_channel']), "User Rejoined after Timeout",
+                    f"User: <@{user.id}> was timed out, left the server and joined back again.")
 
-            if self.guild_config[context.guild_id]['auto_timeout_on_reenter'] == True:
-                for role in self.guild_config[context.guild_id]['ban_roles']:
-                    await self.http.add_member_role(context.guild_id, user['id'], role, "User rejoined server after leaving during timeout.")
+            if self.guild_config[user.guild.id]['auto_timeout_on_reenter'] is True:
+                ban_roles = [discord.Object(int(role)) for role in self.guild_config[user.guild.id]['ban_roles']]
+                await user.add_roles(*ban_roles, reason="User rejoined server after leaving during timeout.")
 
-    async def on_guild_member_remove(self, context: str) -> None:
-        user = context.user
-
-        # Get timeout info
+    async def on_member_remove(self, user: discord.Member) -> None:
         timeout = self.pitbot_module.get_user_timeout(user)
-
         if timeout:
-            if self.guild_config[context.guild_id]['log_channel']:
-                await self.send_embed_message(self.guild_config[context.guild_id]['log_channel'], "Timeout user left server",
-                    f"User: <@{user['id']}> was timed out and left the server.")
+            if self.guild_config[user.guild.id]['log_channel']:
+                await self.send_embed_message(int(self.guild_config[user.guild.id]['log_channel']), "Timeout user left server",
+                    f"User: <@{user.id}> was timed out and left the server.")
 
     # Event to detect changes on roles
     # This also requires Intents.Member
-    async def on_guild_member_update(self, context: str) -> None:
+    async def on_member_update(self, before: discord.Member, after: discord.Member) -> None:
         '''Check if a member was updated.'''
         # This is related to resubbing and restoring permissions
-        sub_roles = self.guild_config[context.guild_id]['sub_roles']
-        resubbed = False
+        sub_roles = self.guild_config[after.guild.id]['sub_roles']
+        added_roles = [role for role in after.roles if role not in before.roles]
 
-        for role in sub_roles:
-            # If role is in context.roles they could've resubbed so quickly check.
-            if role in context.roles:
-                resubbed = True
-                break
-
-        if resubbed:
-            user_roles = self.db.get_stored_roles(context.user['id'], context.guild_id)
-
-            if user_roles:
-                user_roles = dict(user_roles)
-
-                for role in user_roles['roles']:
-                    try:
-                        await self.http.add_member_role(user_roles['guild_id'], user_roles['user_id'], role, "Role restored after resubbing.")
-                        time.sleep(0.5) # stall hard to avoid ratelimiting, there is no rush to restore roles
-                    except Exception:
-                        # probably ran out of permissions, just skip
-                        pass
-
-                # delete roles from database
-                self.db.delete_stored_roles(context.user['id'], context.guild_id)
+        for role in added_roles:
+            if str(role.id) in sub_roles:
+                user_roles = self.db.get_stored_roles(after.id, after.guild.id)
+                user_roles = [discord.Object(int(role)) for role in user_roles]
+                await after.add_roles(*user_roles, reason="User resubbed after losing roles.")
+                self.db.delete_stored_roles(after.id, after.guild.id)
 
     ### Utils
     def get_timeout_image(self):
