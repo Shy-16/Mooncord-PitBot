@@ -38,15 +38,15 @@ class Timeout(Command):
 
             if not user:
                 # there is a possibility user is not yet in our database
-                user = await self._bot.get_user(user_id)
+                user = await self._bot.fetch_user(user_id)
 
         else:
             user = context.mentions[0]
             
         if isinstance(user, int):
-            user = self._bot.get_user(user)
+            user = await self._bot.fetch_user(user)
         elif isinstance(user, dict):
-            user = context.guild.get_member(int(user['discord_id']))
+            user = await self._bot.fetch_user(int(user['discord_id']))
 
         if len(context.params) == 1:
             await self._send_timeout_info(user, context)
