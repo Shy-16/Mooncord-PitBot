@@ -24,7 +24,7 @@ class Timeout(Command):
             await self.send_help(context)
             return
 
-        user = None
+        uuser = None
 
         # We either need a mention or an ID as first parameter.
         if not context.mentions:
@@ -37,16 +37,24 @@ class Timeout(Command):
             user = self._module.get_user(user_id=user_id)
 
             if not user:
-                # there is a possibility user is not yet in our database
-                user = await self._bot.fetch_user(user_id)
+                user = int(context.params[0])
 
         else:
             user = context.mentions[0]
-            
-        if isinstance(user, int):
-            user = await self._bot.fetch_user(user)
-        elif isinstance(user, dict):
-            user = await self._bot.fetch_user(int(user['discord_id']))
+
+        try:
+            if isinstance(user, int):
+                user = await self._bot.get_guild(context.guild.id).fetch_member(user)
+            elif isinstance(user, dict):
+                user = await self._bot.get_guild(context.guild.id).fetch_member(int(user['discord_id']))
+            await user.remove_roles(*context.ban_roles, reason="User released by a mod.")
+        except NotFound as ex:
+            print(ex)
+            fields = [
+                {'name': 'Error', 'value': f"User {user} is not in the server and cannot be released.", 'inline': True},
+            ]
+            await self._bot.send_embed_message(context.log_channel, "Release user", color=0xb30000, fields=fields)
+            return
 
         if len(context.params) == 1:
             await self._send_timeout_info(user, context)

@@ -3,13 +3,14 @@
 ## Command ##
 # A reusable Command class to execute functionality with ease #
 
+import discord
 
 class Command:
     def __init__(self, module, permission='mod', dm_keywords=None):
         """
         @permissions: A minimum allowed permission to execute command.
         """
-        self._bot = module._bot
+        self._bot: discord.Bot = module._bot
         self._module = module
         self.permission = permission
         self.dm_keywords = dm_keywords or []
