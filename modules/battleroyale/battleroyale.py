@@ -77,5 +77,5 @@ class BattleRoyale:
         """Times the given user through discord feature and not a pit"""
         if user['member'].id in MOD_LIST:
             return
-        #//timeout = datetime.datetime.utcnow() + datetime.timedelta(hours=min(self._game.round, 24))
-        #await user['member'].timeout(timeout, reason="Lost BR")
+        timeout = datetime.datetime.utcnow() + datetime.timedelta(hours=min(self._game.round, 24))
+        await user['member'].timeout(timeout, reason="Lost BR")
