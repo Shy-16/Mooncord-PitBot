@@ -20,7 +20,7 @@ log: logging.Logger = logging.getLogger("br")
 
 
 class BattleRoyale:
-    DEFAULT_MAX_PARTICIPANTS = 256
+    DEFAULT_MAX_PARTICIPANTS = 128
 
     def __init__(self, *, bot: discord.Bot) -> None:
         self._bot: discord.Bot = bot
