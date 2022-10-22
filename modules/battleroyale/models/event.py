@@ -281,8 +281,8 @@ class Loot(Event):
             _weapons = choice([y for _, y in WEAPON_LIST.items()], size=2, replace=False, p=WEAPON_WEIGHTS)
             _players[0]['weapon'] = _weapons[0]
             _players[1]['weapon'] = _weapons[1]
-            _template = f"<@{_players[0]['member'].id}> and <@{_players[1]['member'].id}> find a chest and loot it.\r\n \
-            <@{_players[0]['member'].id}> finds a {_weapons[0].name} and <@{_players[1]['member'].id}> finds a {_weapons[1].name}"
+            _template = f"<@{_players[0]['member'].id}> and <@{_players[1]['member'].id}> find a chest and loot it.\r\n"\
+            + f"<@{_players[0]['member'].id}> finds a {_weapons[0].name} and <@{_players[1]['member'].id}> finds a {_weapons[1].name}"
 
         else:
             _player = game.get_participant()
