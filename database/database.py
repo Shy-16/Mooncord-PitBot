@@ -27,14 +27,13 @@ def get_conn(path):
 class Database:
     def __init__(self, config):
         """Create and configure a connection to database.
-
-        Provide with wrapper for database
+        Provide a wrapper for database.
         """
         self._db_config = config
         self._conn = get_conn(config['path'])
         self._db = self._conn[config['db_name']]
 
-    def close(self):
+    def close(self) -> None:
         """Close connection to database"""
         self._conn.close()
 
@@ -50,39 +49,30 @@ class Database:
         col = self._db['discord_config']
         guild_info = col.find_one({'guild_id': str(guild.id)})
         if guild_info is None:
-            # guild info has the following attrs
-            # 'features', 'icon', 'id', 'name', 'owner', 'permissions'
             dc_guild = await bot.get_guild(guild.id)
             admin_roles = []
-
-            # roles
-            # {'id': '553455586709078024', 'name': 'Bots', 'permissions': '6546775617', 'position': 2, 'color': 0, 
-            # 'hoist': True, 'managed': False, 'mentionable': False, 'icon': None, 'unicode_emoji': None}
             for role in dc_guild['roles']:
                 # 1 << 3 == 0x8 == administrator
-                if (int(role['permissions']) & 1 << 3) == 0x8 and not "tags" in role:
+                if (int(role['permissions']) & 1 << 3) == 0x8:
                     admin_roles.append(role['id'])
-
             guild_info = {
                 'guild_id': str(guild.id),
                 'name': guild.name,
                 'command_character': bot.config['discord']['default_command_character'],
                 'modmail_character': bot.config['discord']['default_command_character'],
-                'allowed_channels': list(),
-                'denied_channels': list(),
+                'allowed_channels': [],
+                'denied_channels': [],
                 'admin_roles': admin_roles,
-                'mod_roles': list(),
-                'ban_roles': list(),
+                'mod_roles': [],
+                'ban_roles': [],
                 'log_channel': None,
                 'modmail_channel': None,
                 'override_silent': False,
                 'auto_timeout_on_reenter': True,
-                'joined_date': datetime.now().isoformat()
+                'joined_date': datetime.utcnow().isoformat()
             }
-
             result = col.insert_one(guild_info)
             guild_info['_id'] = result.inserted_id
-
         return guild_info
 
     def update_server_configuration(self, guild, parameters):

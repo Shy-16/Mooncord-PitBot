@@ -31,8 +31,7 @@ def create_br_button(bot: discord.Bot, disabled: bool=False):
                     "color": 0x0aeb06
                 }
                 await interaction.followup.send(embed=discord.Embed.from_dict(embed), ephemeral=True)
-                button.disabled = True
-                await interaction.response.edit_message(view=self)
+                await br_module.disable_setup_button()
 
             # second, verify the user is not in the tournament already
             if br_module.game.has_participant(interaction.user):

@@ -173,7 +173,7 @@ class BRGame:
         for i, field in enumerate(fields):
             if i != 0:
                 content += "\r\n\r\n"
-            content += f"**{field['name']}**\r\n\{field['value']}"
+            content += f"**{field['name']}**\r\n{field['value']}"
         return content
 
     # Functionality

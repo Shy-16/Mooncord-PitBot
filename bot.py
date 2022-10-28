@@ -6,7 +6,6 @@
 import logging
 import traceback
 import random
-import time
 from typing import Optional, Union
 
 import discord
@@ -25,7 +24,6 @@ log: logging.Logger = logging.getLogger("discord")
 
 
 class Bot(discord.Bot):
-
     def __init__(self, config: dict) -> None:
         intents = discord.Intents.all()
         super().__init__(intents=intents)
@@ -54,15 +52,12 @@ class Bot(discord.Bot):
     ### Client Events
     async def on_ready(self) -> None:
         log.info(f"New bot instance created: {self.user.name} ID: {self.user.id}.")
-
-        log.info('Loading configuration for guilds:')
-        # Load server configuration from database
+        log.info('Loading guild configuration.')
         for guild in self.guilds:
             guild_config = await self.db.load_server_configuration(guild, self)
             self.guild_config[guild.id] = guild_config
             if self.default_guild is None: self.default_guild = guild_config
             log.info(f"Loaded configuration for guild: {guild.id}.")
-
         log.info('Finished loading all guild info.')
         log.info("All configuration finished.")
         
@@ -91,7 +86,7 @@ class Bot(discord.Bot):
             return
 
         # Someone sent a DM to the bot.
-        if not hasattr(message, 'guild'):
+        if not hasattr(message, 'guild') or message.guild is None:
             await self.pitbot_module.handle_dm_commands(message)
             return
 
