@@ -10,9 +10,6 @@ from log_utils import do_log
 
 
 class StickerCommand(Command):
-    def __init__(self, stickerstats, permission: str ='mod', dm_keywords: list = None) -> None:
-        super().__init__(stickerstats, permission, dm_keywords)
-
     @verify_permission
     async def execute(self, context: CommandContext) -> None:
 

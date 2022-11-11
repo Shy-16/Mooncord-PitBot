@@ -49,12 +49,12 @@ class Database:
         col = self._db['discord_config']
         guild_info = col.find_one({'guild_id': str(guild.id)})
         if guild_info is None:
-            dc_guild = await bot.get_guild(guild.id)
+            dc_guild = await bot.fetch_guild(guild.id)
             admin_roles = []
-            for role in dc_guild['roles']:
+            for role in dc_guild.roles:
                 # 1 << 3 == 0x8 == administrator
-                if (int(role['permissions']) & 1 << 3) == 0x8:
-                    admin_roles.append(role['id'])
+                if role.permissions.administrator:
+                    admin_roles.append(role.id)
             guild_info = {
                 'guild_id': str(guild.id),
                 'name': guild.name,

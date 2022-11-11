@@ -8,13 +8,7 @@ from modules.command import Command, verify_permission
 
 
 class ExecuteCommand(Command):
-    """
-    @Pit Bot execute order 66
-    """
-
-    def __init__(self, roulette, permission: str ='mod', dm_keywords: list = None) -> None:
-        super().__init__(roulette, permission, dm_keywords)
-
+    """@Pit Bot execute order 66"""
     @verify_permission
     async def ping(self, context: CommandContext):
         # react to message

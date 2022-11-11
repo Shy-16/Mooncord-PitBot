@@ -11,13 +11,7 @@ from modules.command import Command
 from log_utils import do_log
 
 class RouletteCommand(Command):
-    """
-    !roulette <bullets|optional> <triggers|optional>
-    """
-
-    def __init__(self, roulette, permission: str ='mod', dm_keywords: list = None) -> None:
-        super().__init__(roulette, permission, dm_keywords)
-
+    """!roulette <bullets|optional> <triggers|optional>"""
     async def execute(self, context: CommandContext) -> None:
 
         await do_log(place="guild", data_dict={'event': 'command', 'command': 'roulette'}, context=context)

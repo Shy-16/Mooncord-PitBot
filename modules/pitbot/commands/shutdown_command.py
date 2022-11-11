@@ -9,9 +9,6 @@ from log_utils import do_log
 
 
 class Shutdown(Command):
-    def __init__(self, pitbot, permission: str ='mod', dm_keywords: list = None) -> None:
-        super().__init__(pitbot, permission, dm_keywords)
-
     @verify_permission
     async def execute(self, context: CommandContext) -> None:
         await do_log(place="guild", data_dict={'event': 'command', 'command': 'shutdown'}, context=context)

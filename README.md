@@ -6,7 +6,7 @@ Moderation bot for Mooncord
 
 ### Install latest version of Python 3.
 
-Pit-Bot uses latest version of Python3, at the very least higher than 3.8.
+Pit-Bot uses latest version of Python3, at the very least higher than 3.10.
 Pit-Bot uses poetry as dependency manager.
 Install all modules:
 - `poetry install`
@@ -38,19 +38,31 @@ To invite the bot to your server you have to copy both the `Applcation ID` and `
 The `Application ID` can be found on top of the `General Information` of the application.
 
 The bot uses the following permissions:
-- Permissions number is: `268692550`
+- Permissions number is: `1643630685398`
+- `Send Messages`
+- `View Audit Log`
+- `Create Public Threads`
+- `Create Private Threads`
+- `Send Messages in Threads`
 - `Manage Roles`
+- `Manage Channels`
 - `Kick Members`
 - `Ban Members`
 - `View Channels`
-- `Send Messages`
 - `Manage Messages`
+- `Manage Threads`
 - `Embed Links`
 - `Attack Files`
 - `Read Message History`
-- `Mention Everyone`
+- `Manage Webhooks`
+- `Use External Emojis`
+- `Read Messages / View Channels`
+- `Use External Stickers`
+- `Mamage Events`
 - `Add Reactions`
+- `Moderate Members`
+- `Use Slash Commands`
 
 Once ready, edit the following link with `application_id`, and open it in a new tab.
 
-[https://discord.com/oauth2/authorize?client_id=application_id&permissions=268692550&scope=bot](https://discord.com/oauth2/authorize?client_id= "https://discord.com/oauth2/authorize?client_id=")
+[https://discord.com/oauth2/authorize?client_id=<client_id>&permissions=1643630685398&scope=bot%20applications.commands](https://discord.com/oauth2/authorize?client_id=<client_id>&permissions=1643630685398&scope=bot%20applications.commands)

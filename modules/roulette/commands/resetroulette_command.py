@@ -8,14 +8,7 @@ from modules.command import Command, verify_permission
 from log_utils import do_log
 
 class ResetRouletteCommand(Command):
-    """
-    !resetroulette @user|ID
-    !rr @user|ID
-    """
-
-    def __init__(self, roulette, permission: str ='mod', dm_keywords: list = None) -> None:
-        super().__init__(roulette, permission, dm_keywords)
-
+    """!resetroulette @user|ID / !rr @user|ID"""
     @verify_permission
     async def execute(self, context: CommandContext) -> None:
 

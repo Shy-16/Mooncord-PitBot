@@ -13,13 +13,7 @@ from log_utils import do_log
 
 
 class BulletHellCommand(Command):
-    """
-    !bullethell
-    !bh
-    """
-    def __init__(self, roulette, permission: str ='mod', dm_keywords: list = None) -> None:
-        super().__init__(roulette, permission, dm_keywords)
-
+    """!bullethell / !bh"""
     async def execute(self, context: CommandContext) -> None:
         await do_log(place="guild", data_dict={'event': 'command', 'command': 'bullethell'}, context=context)
 

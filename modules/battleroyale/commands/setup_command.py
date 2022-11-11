@@ -9,13 +9,7 @@ from modules.battleroyale.components import create_br_button
 
 
 class SetupBRCommand(Command):
-    """
-    !setup_br
-    """
-
-    def __init__(self, br, permission: str = 'mod', dm_keywords: list = None) -> None:
-        super().__init__(br, permission, dm_keywords)
-
+    """!setup_br"""
     @verify_permission
     async def execute(self, context: CommandContext) -> None:
 

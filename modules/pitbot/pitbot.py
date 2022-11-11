@@ -50,29 +50,25 @@ class PitBot:
 
     async def handle_commands(self, message: discord.Message) -> None:
         """Handles any commands given through the designed character"""
-        
         command = message.content.replace(self._bot.guild_config[message.guild.id]['command_character'], '')
-        params = list()
-
+        params = []
         if ' ' in command:
             command, params = (command.split()[0], command.split()[1:])
-
         command = command.lower()
-        
         if command in self.commands:
             await self.commands[command].execute(CommandContext(self._bot, command, params, message))
         return
 
-    async def handle_dm_commands(self, message: str) -> None:
+    async def handle_dm_commands(self, message: discord.Message) -> None:
         """Handles any commands given by a user through DMs"""
-        for dm_command in self.dm_commands.items():
-            for keyword in self.dm_commands[dm_command].dm_keywords:
+        for _, dm_command in self.dm_commands.items():
+            for keyword in dm_command.dm_keywords:
                 if keyword in message.content:
-                    await self.dm_commands[dm_command].dm(DMContext(self._bot, message))
+                    await dm_command.dm(DMContext(self._bot, message))
                     return
         return
 
-    async def handle_ping_commands(self, message: str) -> None:
+    async def handle_ping_commands(self, message: discord.Message) -> None:
         """Handles any commands given by a user through a ping"""
         command = message.content
         params = message.content.split()

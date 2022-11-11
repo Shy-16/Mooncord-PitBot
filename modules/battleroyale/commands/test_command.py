@@ -15,13 +15,7 @@ class DummyMember:
         self.discriminator = data['discriminator']
 
 class TestBRCommand(Command):
-    """
-    !test_br
-    """
-
-    def __init__(self, br, permission: str ='mod', dm_keywords: list = None) -> None:
-        super().__init__(br, permission, dm_keywords)
-
+    """!test_br"""
     @verify_permission
     async def execute(self, context: CommandContext) -> None:
 

@@ -12,9 +12,6 @@ from log_utils import do_log
 
 
 class Release(Command):
-    def __init__(self, pitbot, permission: str ='mod', dm_keywords: list = None) -> None:
-        super().__init__(pitbot, permission, dm_keywords)
-
     @verify_permission
     async def execute(self, context: CommandContext) -> None:
         if len(context.params) == 0:

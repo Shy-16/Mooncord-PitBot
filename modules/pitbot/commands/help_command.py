@@ -8,9 +8,6 @@ from modules.command import Command, verify_permission
 
 
 class Help(Command):
-    def __init__(self, pitbot, permission: str ='mod', dm_keywords: list = None) -> None:
-        super().__init__(pitbot, permission, dm_keywords)
-
     @verify_permission
     async def execute(self, context: CommandContext) -> None:
         description = "Executing the command with no arguments will always show the help for that command."

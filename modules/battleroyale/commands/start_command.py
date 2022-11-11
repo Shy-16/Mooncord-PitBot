@@ -9,13 +9,7 @@ from modules.command import Command, verify_permission
 
 
 class StartBRCommand(Command):
-    """
-    !start_br
-    """
-
-    def __init__(self, br, permission: str = 'mod', dm_keywords: list = None) -> None:
-        super().__init__(br, permission, dm_keywords)
-
+    """!start_br"""
     @verify_permission
     async def execute(self, context: CommandContext) -> None:
 
