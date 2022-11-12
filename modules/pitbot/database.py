@@ -2,11 +2,13 @@
 ## Database Module ##
 # Connect to database and prepare a connection. #
 
+from __future__ import annotations
+
 import logging
 from datetime import datetime
-from bson.objectid import ObjectId
+from typing import Any
 
-from typing import List, Optional, Tuple
+from bson.objectid import ObjectId
 
 log: logging.Logger = logging.getLogger("database")
 
@@ -19,10 +21,9 @@ class PitBotDatabase:
         self._db.close()
 
     # Timeouts
-    def get_timeout(self, query: dict, partial: Optional[bool] = True) -> Optional[dict]:
+    def get_timeout(self, query: dict, partial: bool = True) -> dict[str, Any] | None:
         """
         Return information about a single timeout.
-
         In the case of being multiple it will always return the first.
         """
         col = self._db['users_timeouts']
@@ -35,9 +36,8 @@ class PitBotDatabase:
             result['issuer'] = col.find_one({'discord_id': result['issuer_id']})
         return result
 
-    def get_timeouts(self, query: dict, sort: Optional[Tuple[str, int]] = None, partial: Optional[bool] = True) -> List[dict]:
+    def get_timeouts(self, query: dict, sort: tuple[str, int] | None = None, partial: bool = True) -> list[dict[str, Any]]:
         """Return information about timeout(s)"""
-
         col = self._db['users_timeouts']
         if query.get("_id"):
             query['_id'] = ObjectId(query['_id'])
@@ -57,7 +57,7 @@ class PitBotDatabase:
         return results
 
     def create_timeout(self, user: "discord.User", guild_id: str, time: int, 
-        issuer_id: str = None, reason: Optional[str] = None, source: Optional[str] = 'command') -> dict:
+        issuer_id: str = None, reason: str | None = None, source: str | None = 'command') -> dict[str, Any]:
         """Create a new timeout in the database."""
         col = self._db['users']
         db_user = col.find_one({'discord_id': str(user.id)})
@@ -65,8 +65,7 @@ class PitBotDatabase:
             db_user = {
                 'discord_id': str(user.id),
                 'username': user.name,
-                'username_handle': user.discriminator,
-                'avatar': user.avatar.url,
+                'discriminator': user.discriminator,
                 'created_date': datetime.now().isoformat(),
                 'updated_date': datetime.now().isoformat()
             }
@@ -98,7 +97,7 @@ class PitBotDatabase:
 
         return timeout_info
 
-    def update_timeout(self, *, params: dict, query: dict = None, user_id: str = None) -> Optional[dict]:
+    def update_timeout(self, *, params: dict, query: dict = None, user_id: str = None) -> dict[str, Any] | None:
         """Update a timeout from database."""
         col = self._db['users_timeouts']
 
@@ -120,7 +119,7 @@ class PitBotDatabase:
 
         return result
 
-    def delete_timeout(self, *, query: dict = None, user_id: str = None) -> Optional[dict]:
+    def delete_timeout(self, *, query: dict = None, user_id: str = None) -> dict[str, Any] | None:
         """Delete a timeout from database."""
         col = self._db['users_timeouts']
 
@@ -141,7 +140,7 @@ class PitBotDatabase:
         return result
 
     # Strikes
-    def get_strikes(self, query: dict, sort: Optional[Tuple[str, int]] = None, partial: Optional[bool] = True) -> List[dict]:
+    def get_strikes(self, query: dict, sort: tuple[str, int] | None = None, partial: bool = True) -> list[dict[str, Any]]:
         """Return information about timeout(s)"""
         col = self._db['users_strikes']
 
@@ -167,7 +166,7 @@ class PitBotDatabase:
         return results
 
     def create_strike(self, user: "discord.User", guild_id: str, issuer_id: str,
-        reason: Optional[str] = 'No reason specified') -> dict:
+            reason: str = 'No reason specified') -> dict[str, Any]:
         """Given a member, add a strike to them."""
         col = self._db['users']
 
@@ -177,8 +176,7 @@ class PitBotDatabase:
             db_user = {
                 'discord_id': str(user.id),
                 'username': user.name,
-                'username_handle': user.discriminator,
-                'avatar': user.avatar.url,
+                'discriminator': user.discriminator,
                 'created_date': datetime.now().isoformat(),
                 'updated_date': datetime.now().isoformat()
             }
@@ -204,7 +202,7 @@ class PitBotDatabase:
 
         return strike_info
 
-    def update_strike(self, *, params: dict, query: dict = None, user_id: str = None) -> Optional[dict]:
+    def update_strike(self, *, params: dict, query: dict = None, user_id: str = None) -> dict[str, Any] | None:
         """Update a strike from database"""
         col = self._db['users_strikes']
 
@@ -228,7 +226,7 @@ class PitBotDatabase:
 
         return result
 
-    def delete_strike(self, *, query: dict = None, user_id: str = None) -> Optional[dict]:
+    def delete_strike(self, *, query: dict = None, user_id: str = None) -> dict[str, Any] | None:
         """Delete a strike from database."""
         col = self._db['users_strikes']
 
@@ -249,7 +247,7 @@ class PitBotDatabase:
         return result
 
     # Users
-    def get_user(self, query: dict) -> Optional[dict]:
+    def get_user(self, query: dict) -> dict[str, Any] | None:
         """Get a user from database."""
         col = self._db['users']
         user = col.find_one(query)

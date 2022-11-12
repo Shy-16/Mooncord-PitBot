@@ -3,9 +3,11 @@
 ## Pitbot Module ##
 # Takes care of timing out and releasing people #
 
+from __future__ import annotations
+
 import logging
 import datetime
-from typing import Optional, List, Tuple
+from typing import Any
 
 import discord
 
@@ -92,14 +94,14 @@ class PitBot:
     # Functionality
 
     # Timeouts related
-    def get_user_timeout(self, user: discord.User, partial: Optional[bool]=True) -> Optional[dict]:
+    def get_user_timeout(self, user: discord.User, partial: bool = True) -> dict[str, Any] | None:
         """Gets a timeout for a user. If no active timeouts are found returns None"""
         query = {'user_id': str(user.id), 'status': 'active'}
         timeout = self._db.get_timeout(query, partial)
         return timeout
 
-    def get_user_timeouts(self, user: discord.User, sort: Optional[Tuple[str, int]]=None, 
-                            status: Optional[str]=None, partial: Optional[bool]=True) -> List[dict]:
+    def get_user_timeouts(self, user: discord.User, sort: tuple[str, int] | None = None, 
+                            status: str | None = None, partial: bool = True) -> list[dict[str, Any]]:
         """
         Gets a list of timeouts for a user.
 
@@ -112,34 +114,34 @@ class PitBot:
         return timeouts
 
     def add_timeout(self, *, user: discord.User, guild_id: int, time: int, issuer_id: int,
-        reason: Optional[str] = 'No reason specified.', source: Optional[str] = 'command') -> Optional[dict]:
+        reason: str = 'No reason specified.', source: str = 'command') -> dict[str, Any] | None:
         """Adds a timeout to a user"""
         timeout = self._db.create_timeout(user, guild_id, time, issuer_id, reason, source)
         return timeout
 
-    def extend_timeout(self, *, user: discord.User, time: int) -> Optional[dict]:
+    def extend_timeout(self, *, user: discord.User, time: int) -> dict[str, Any] | None:
         """Extends the duration of an active timeout by specified amount"""
         params = {'time': time}
         query = {'user_id': str(user.id), 'status': 'active'}
         timeout = self._db.update_timeout(params=params, query=query)
         return timeout
 
-    def expire_timeout(self, *, user: discord.User) -> Optional[dict]:
+    def expire_timeout(self, *, user: discord.User) -> dict[str, Any] | None:
         """Sets a timeout as expired"""
         params = {'status': 'expired', 'updated_date': datetime.datetime.now().isoformat()}
         query = {'user_id': str(user.id), 'status': 'active'}
         timeout = self._db.update_timeout(params=params, query=query)
         return timeout
 
-    def delete_timeout(self, *, user: discord.User) -> Optional[dict]:
+    def delete_timeout(self, *, user: discord.User) -> dict[str, Any] | None:
         """Deletes a timeout from database"""
         query = {'user_id': str(user.id), 'status': 'active'}
         timeout = self._db.delete_timeout(query=query)
         return timeout
 
     # Strikes related
-    def get_user_strikes(self, user: discord.User, sort: Optional[Tuple[str, int]] = None, 
-                            status: Optional[str] = None, partial: Optional[bool] = True) -> List[dict]:
+    def get_user_strikes(self, user: discord.User, sort: tuple[str, int] | None = None, 
+                            status: str | None = None, partial: bool = True) -> list[dict[str, Any]]:
         """
         Gets all strikes of a user.
 
@@ -153,16 +155,12 @@ class PitBot:
         return strikes
 
     def add_strike(self, *, user: discord.User, guild_id: int, issuer_id: int,
-        reason: Optional[str] = 'No reason specified.') -> Optional[dict]:
-        """
-        Adds a strike to a user.
-
-        returns: created Strike
-        """
+        reason: str = 'No reason specified.') -> dict[str, Any] | None:
+        """Adds a strike to a user."""
         strike = self._db.create_strike(user, guild_id, issuer_id, reason)
         return strike
 
-    def expire_strike(self, *, user: discord.User, strike_id: int) -> Optional[dict]:
+    def expire_strike(self, *, user: discord.User, strike_id: int) -> dict[str, Any] | None:
         """Sets a strike as expired"""
         if strike_id == "oldest":
             # Get all active strikes, sort them by ID, get the ID of the latest
@@ -175,7 +173,7 @@ class PitBot:
         strike = self._db.update_strike(params=params, query=query)
         return strike
 
-    def delete_strike(self, *, user: discord.User, strike_id: int = 'newest') -> Optional[dict]:
+    def delete_strike(self, *, user: discord.User, strike_id: int = 'newest') -> dict[str, Any] | None:
         """Deletes a strike from database"""
         if strike_id == "newest":
             # Get all active strikes, sort them by ID, get the ID of the newest
@@ -188,8 +186,8 @@ class PitBot:
         return strike
 
     # Users related
-    def get_user(self, *, user_id: Optional[str] = None, username: Optional[str] = None,
-        discriminator: Optional[str] = None) -> Optional[dict]:
+    def get_user(self, *, user_id: str | None = None, username: dict[str, Any] | None = None,
+        discriminator: str | None = None) -> dict[str, Any] | None:
         """Get a user from database."""
         if user_id is not None:
             query = {'discord_id': str(user_id)}

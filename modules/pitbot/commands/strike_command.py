@@ -42,7 +42,7 @@ class Strike(Command):
             elif isinstance(user, dict):
                 user = await self._bot.get_guild(context.guild.id).fetch_member(int(user['discord_id']))
             await user.remove_roles(*context.ban_roles, reason="User released by a mod.")
-        except NotFound as ex:
+        except discord.NotFound as ex:
             print(ex)
             fields = [
                 {'name': 'Error', 'value': f"User {user} is not in the server and cannot be released.", 'inline': True},

@@ -5,7 +5,6 @@
 
 import logging
 import datetime
-from typing import Optional, Dict
 
 import discord
 
@@ -27,7 +26,7 @@ class BattleRoyale:
 
         self._game: BRGame = None
 
-        self.commands: Dict[str, Command] = {
+        self.commands: dict[str, Command] = {
             "setup_br": SetupBRCommand(self, 'mod'),
             "start_br": StartBRCommand(self, 'mod'),
             "test_br": TestBRCommand(self, 'mod')
@@ -59,7 +58,7 @@ class BattleRoyale:
         """Disable setup button"""
         await self._game._setup_message.edit(view=create_br_button(self._bot, disabled=True))
 
-    async def create_game(self, max_participants: Optional[int] = 128) -> None:
+    async def create_game(self, max_participants: int = 128) -> None:
         """Properly creates a game"""
         if self._game:
             self._game.game_director.stop()

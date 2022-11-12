@@ -3,10 +3,12 @@
 ## Bot Module ##
 # This is the main Bot module with functionality #
 
+from __future__ import annotations
+
 import logging
 import traceback
 import random
-from typing import Optional, Union
+from typing import Any
 
 import discord
 from database import Database
@@ -24,7 +26,7 @@ log: logging.Logger = logging.getLogger("discord")
 
 
 class Bot(discord.Bot):
-    def __init__(self, config: dict) -> None:
+    def __init__(self, config: dict[str, Any]) -> None:
         intents = discord.Intents.all()
         super().__init__(intents=intents)
 
@@ -161,7 +163,7 @@ class Bot(discord.Bot):
         index = random.randint(0, len(self.default_guild['timeout_images']) -1)
         return self.default_guild['timeout_images'][index]
 
-    async def send_message(self, channel: Union[int, discord.TextChannel], content: str="") -> dict:
+    async def send_message(self, channel: int | discord.TextChannel, content: str="") -> dict[str, Any]:
         """Send a regular message on a channel"""
         try:
             if isinstance(channel, int):
@@ -172,8 +174,9 @@ class Bot(discord.Bot):
             message = {}
         return message
 
-    async def send_embed_message(self, channel: Union[int, discord.TextChannel], title: str="", description: str="", 
-        color: int=0x0aeb06, fields: list=None, footer: dict=None, image: dict= None, view: Optional[discord.ui.View]=None) -> dict:
+    async def send_embed_message(self, channel: int | discord.TextChannel, title: str="", description: str="", 
+        color: int=0x0aeb06, fields: list=None, footer: dict[str, Any]=None, image: dict[str, Any]=None, 
+        view: discord.ui.View | None=None) -> dict[str, Any]:
         """Sends an embed message to given channel_id"""
         embed = {
             "type": "rich",
@@ -199,7 +202,7 @@ class Bot(discord.Bot):
 
         return message
 
-    async def send_dm(self, user: Union[int, discord.User], content: str="") -> dict:
+    async def send_dm(self, user: int | discord.User, content: str="") -> dict[str, Any]:
         """Send a regular DM"""
         try:
             if isinstance(user, int):
@@ -211,8 +214,8 @@ class Bot(discord.Bot):
             message = {}
         return message
 
-    async def send_embed_dm(self, user: Union[int, discord.User], title: str="", description: str="", color: int=0x0aeb06, fields: list=None,
-        footer: dict=None, image: dict=None) -> dict:
+    async def send_embed_dm(self, user: int | discord.User, title: str="", description: str="", color: int=0x0aeb06, fields: list=None,
+        footer: dict[str, Any]=None, image: dict[str, Any]=None) -> dict[str, Any]:
         """Sends an embed DM to given user_id"""
 
         embed = {

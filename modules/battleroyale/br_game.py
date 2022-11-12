@@ -3,10 +3,12 @@
 ## BR Game ##
 # Hosts the logic and execution for each BR Game #
 
+from __future__ import annotations
+
 import logging
 import random
 import asyncio
-from typing import Optional, List, Union
+from typing import Any
 
 from numpy.random import choice
 import discord
@@ -33,7 +35,7 @@ log: logging.Logger = logging.getLogger("br")
 
 
 class BRGame:
-    def __init__(self, parent, max_participants: Optional[int] = 128) -> None:
+    def __init__(self, parent, max_participants: int = 128) -> None:
         self._parent = parent
 
         # the discord message where people sign up
@@ -41,7 +43,7 @@ class BRGame:
         self._edit_cd: bool = False
 
         # br related
-        self.participants: List[dict] = []
+        self.participants: list[dict[str, Any]] = []
         self._max_participants: int = max_participants
         self._started: bool = False
         self._finished: bool = False
@@ -93,7 +95,7 @@ class BRGame:
             'member': member,
             'health': 10,
             'weapon': Fists(),
-            'items': list()
+            'items': []
         }
         self.participants.append(br_member)
 
@@ -112,7 +114,7 @@ class BRGame:
         """
         return len(self._friendships) >= minimum
 
-    def get_friendship(self, user: discord.User = None) -> List[dict]:
+    def get_friendship(self, user: discord.User = None) -> list[dict[str, Any]]:
         """
         Return a random friendship.
         If user is given, return a friendship where the user is present.
@@ -129,18 +131,18 @@ class BRGame:
 
         return random.choice(self._friendships)
 
-    def get_friendships_sample(self, amount: int = 2) -> List[List[dict]]:
+    def get_friendships_sample(self, amount: int = 2) -> list[list[dict[str, Any]]]:
         """Gets a sample of X friendships from _friendships"""
         return random.sample(self._friendships, amount)
 
-    def get_friendship_with_users(self, amount: int = 2) -> List[dict]:
+    def get_friendship_with_users(self, amount: int = 2) -> list[dict[str, Any]]:
         """Gets a friendship with X amount of users"""
         _fss = [fs for fs in self._friendships if len(fs) == amount]
         if not _fss:
-            return list()
+            return []
         return random.choice(_fss)
 
-    def get_participant_or_friendship(self) -> Union[List[dict], dict]:
+    def get_participant_or_friendship(self) -> list[dict[str, Any]] | dict[str, Any]:
         """Draws a participant or friendship at random, from a pool of both"""
         pool = self.participants + self._friendships
         return random.choice(pool)
