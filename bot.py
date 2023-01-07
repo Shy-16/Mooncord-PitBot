@@ -13,7 +13,7 @@ from typing import Any
 import discord
 from database import Database
 from log_utils import init_log
-from modules import PitBot, Banwords, StickerStats, Roulette, Fluff, BattleRoyale
+from modules import PitBot, Banwords, StickerStats, Roulette, Fluff, BattleRoyale, WatchList
 from application_commands import (
     set_help_slash,
     set_selfpit_slash,
@@ -43,6 +43,7 @@ class Bot(discord.Bot):
         self.roulette_module = Roulette(bot=self)
         self.br_module = BattleRoyale(bot=self)
         self.fluff_module = Fluff(bot=self)
+        self.watchlist_module = WatchList(bot=self)
 
         init_log()
 
@@ -105,6 +106,7 @@ class Bot(discord.Bot):
             await self.sticker_module.handle_commands(message)
             await self.roulette_module.handle_commands(message)
             await self.br_module.handle_commands(message)
+            await self.watchlist_module.handle_commands(message)
             return
 
         # Check for stickers

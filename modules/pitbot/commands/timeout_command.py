@@ -24,7 +24,7 @@ class Timeout(Command):
             await self.send_help(context)
             return
 
-        uuser = None
+        user = None
 
         # We either need a mention or an ID as first parameter.
         if not context.mentions:
