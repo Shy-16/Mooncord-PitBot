@@ -54,20 +54,23 @@ class WatchList:
         query = {}
         if status:
             query['status'] = status
-        timeouts = self._db.get_watchlist(query, sort, partial)
-        return timeouts
+        entries = self._db.get_watchlist(query, sort, partial)
+        return entries
 
     def create_watchlist_entry(self, *, user: discord.User, guild_id: int, issuer_id: int,
             reason: str = 'No reason specified.') -> dict[str, Any] | None:
         """Adds a timeout to a user"""
-        timeout = self._db.create_watchlist_entry(user, guild_id, issuer_id, reason)
-        return timeout
+        query = {'user_id': str(user.id), 'status': 'active'}
+        entry = self._db.get_watchlist_entry(query)
+        if entry is None:
+            entry = self._db.create_watchlist_entry(user, guild_id, issuer_id, reason)
+        return entry
 
     def delete_watchlist_entry(self, *, user: discord.User) -> dict[str, Any] | None:
         """Deletes a timeout from database"""
         query = {'user_id': str(user.id), 'status': 'active'}
-        timeout = self._db.delete_watchlist_entry(query=query)
-        return timeout
+        entry = self._db.delete_watchlist_entry(query=query)
+        return entry
 
     # Users related
     def get_user(self, *, user_id: str | None = None, username: dict[str, Any] | None = None,

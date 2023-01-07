@@ -38,6 +38,19 @@ class WatchListDatabase:
                 entry['user'] = col.find_one({'discord_id': entry['user_id']})
                 entry['issuer'] = col.find_one({'discord_id': entry['issuer_id']})
         return results
+    
+    def get_watchlist_entry(self, query: dict, partial: bool = True) -> dict[str, Any] | None:
+        """Return information about one entry"""
+        if query.get("_id"):
+            query['_id'] = ObjectId(query['_id'])
+            
+        col = self._db['watchlist']
+        entry = col.find_onefind_one(query)
+        if not partial:
+            col = self._db['users']
+            entry['user'] = col.find_one({'discord_id': entry['user_id']})
+            entry['issuer'] = col.find_one({'discord_id': entry['issuer_id']})
+        return entry
 
     def create_watchlist_entry(self, user: "discord.User", guild_id: str, issuer_id: str = None, 
             reason: str | None = None) -> dict[str, Any]:

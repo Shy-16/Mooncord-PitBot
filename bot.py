@@ -19,7 +19,10 @@ from application_commands import (
     set_selfpit_slash,
     set_timeout_slash,
     set_timeoutns_slash,
-    set_release_slash
+    set_release_slash,
+    set_watch_slash,
+    set_unwatch_slash,
+    set_watchlist_slash
 )
 
 log: logging.Logger = logging.getLogger("discord")
@@ -72,6 +75,11 @@ class Bot(discord.Bot):
         set_timeout_slash(self)
         set_timeoutns_slash(self)
         set_release_slash(self)
+        
+        # Setup watchlist commands
+        set_watch_slash(self)
+        set_unwatch_slash(self)
+        set_watchlist_slash(self)
 
         # Init all tasks
         self.pitbot_module.init_tasks()
@@ -79,8 +87,8 @@ class Bot(discord.Bot):
         self.roulette_module.init_tasks()
         self.br_module.init_tasks()
 
-        #activity = discord.Game("DM help for more info.")
-        #await super().change_presence(activity=activity)
+        activity = discord.Game("DM help for more info.")
+        await super().change_presence(activity=activity)
 
     async def on_message(self, message: discord.Message) -> None:
         """Handle create message event"""
