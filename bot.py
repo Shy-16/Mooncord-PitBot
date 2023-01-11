@@ -80,6 +80,8 @@ class Bot(discord.Bot):
         set_watch_slash(self)
         set_unwatch_slash(self)
         set_watchlist_slash(self)
+        
+        await self.sync_commands()
 
         # Init all tasks
         self.pitbot_module.init_tasks()
