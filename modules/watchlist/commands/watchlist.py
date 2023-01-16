@@ -22,7 +22,7 @@ class WatchListCommand(Command):
         if context.log_channel:
             userlist = "\r\n".join([f"<@{entry['user_id']}> ({entry['user_id']})\r\n\
                                     {entry['reason'] or '*No reason given*'}\r\n\
-                                    {datetime.fromisoformat(entry['created_date']).strftime('%Y-%m-%d')} - <@{entry['issuer_id']}>" 
+                                    {datetime.fromisoformat(entry['created_date']).strftime('%Y-%m-%d')} - <@{entry['issuer_id']}>\r\n" 
                                     for entry in watchlist[:30]])
             if not userlist or len(userlist) == 0:
                 userlist = "*There are no users in the watchlist*"
