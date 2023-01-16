@@ -22,6 +22,8 @@ class Watch(Command):
         # We either need a mention or an ID as first parameter.
         if not context.mentions:
             user_id = context.params[0]
+            if '@' in user_id:
+                user_id = user_id[2:-1]
             # review its a "valid" snowflake
             if not len(user_id) > 16:
                 await self.send_help(context)
