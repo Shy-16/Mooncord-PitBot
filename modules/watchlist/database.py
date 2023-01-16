@@ -45,7 +45,7 @@ class WatchListDatabase:
             query['_id'] = ObjectId(query['_id'])
             
         col = self._db['watchlist']
-        entry = col.find_onefind_one(query)
+        entry = col.find_one(query)
         if not partial:
             col = self._db['users']
             entry['user'] = col.find_one({'discord_id': entry['user_id']})
