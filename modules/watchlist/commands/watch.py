@@ -30,7 +30,7 @@ class Watch(Command):
                 return
             user = self._module.get_user(user_id=user_id)
             if not user:
-                user = int(context.params[0])
+                user = int(user_id)
         else:
             user = context.mentions[0]
 
