@@ -28,7 +28,7 @@ from application_commands import (
 log: logging.Logger = logging.getLogger("discord")
 
 
-class Bot(discord.Bot):
+class Bot(discord.AutoShardedBot):
     def __init__(self, config: dict[str, Any]) -> None:
         intents = discord.Intents.all()
         super().__init__(intents=intents)
