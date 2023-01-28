@@ -17,13 +17,3 @@ class Shutdown(Command):
             f'Shutting down issued by <@{context.author.id}>.\r\nYou need to start me again from command line.')
 
         await self._bot.close()
-
-
-    async def send_help(self, context):
-        description = f"Use {context.command_character}shutdown to kill the bot."
-
-        fields = [
-            {'name': 'Example', 'value': f"{context.command_character}shutdown", 'inline': False}
-        ]
-
-        await self._bot.send_embed_message(context.channel, "Shutdown", description, fields=fields)

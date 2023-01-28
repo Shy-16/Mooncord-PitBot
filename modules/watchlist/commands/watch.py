@@ -67,11 +67,3 @@ class Watch(Command):
         if not context.is_silent and context.log_channel:
             info_message = f"<@{user.id}> was added to the watchlist."
             await self._bot.send_embed_message(context.log_channel, "Watchlist", info_message)
-
-    async def send_help(self, context):
-        fields = [
-            {'name': '<reason>', 'value': "Provide a reason why this user is being watched.", 'inline': False},
-            {'name': 'Example', 'value': f"{context.command_character}wa <@{self._bot.user.id}> Bickering constantly", 'inline': False}
-        ]
-        await self._bot.send_embed_message(context.log_channel, "Watch User", 
-            f"Use {context.command_character}wa @user <reason:optional> will to add a user to the watchlist.", fields=fields)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import discord
+from .components import help_select_dropdown
 
 def setup(bot: discord.Bot):
     @bot.slash_command(
@@ -33,22 +34,16 @@ def setup(bot: discord.Bot):
                 ],
                 "footer": {"text": f'{ctx.guild.name} Mod Team'}
             }
+            await ctx.response.send_message(embed=discord.Embed.from_dict(embed), ephemeral=True)
+            return
 
-        else:
-            embed = {
-                "type": "rich",
-                "title": "PitBot Help",
-                "description": "Executing the command with no arguments will always show the help for that command.",
-                "color": 0x6658ff,
-                "fields": [
-                    {'name': 'timeout', 'value': "/timeout will set a timeout for a given user.\r\n"+ 
-                        "The time parameter expects the following format: <1-2 digit number><one of: s, m, h, d> where s is second, m is minute, h is hour, d is day."},
-                    {'name': 'timeoutns', 'value': "/imeoutns will set a timeout for a given user without adding a strike to their account."},
-                    {'name': 'release', 'value': "/elease will end a user's timeout immediately.\r\n"+ 
-                        "Optional parameter: `amend`: If amend is provided it will also delete the most recent strike issued to the user."},
-                    {'name': 'strikes', 'value': "/strikes is used to add and remove strikes from a user or view a user's strike history."}
-                ],
-                "footer": {"text": f'{ctx.guild.name} Mod Team'}
-            }
+        help_select = help_select_dropdown(bot)
+        embed = {
+            "type": "rich",
+            "title": "PitBot Help",
+            "description": "Select a module to get information about it.",
+            "color": 0x6658ff,
+            "footer": {"text": f'{ctx.guild.name} Mod Team'}
+        }
 
-        await ctx.response.send_message(embed=discord.Embed.from_dict(embed), ephemeral=True)
+        await ctx.response.send_message(embed=discord.Embed.from_dict(embed), ephemeral=True, view=help_select)

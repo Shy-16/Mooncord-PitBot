@@ -103,11 +103,3 @@ class Release(Command):
         ]
 
         await self._bot.send_embed_dm(user.id, "User Timeout", info_message, fields=fields)
-
-    async def send_help(self, context):
-        fields = [
-            {'name': '<amend>', 'value': "If `amend` is provided after user ping, it will delete the last strike issued from a Timeout.", 'inline': False},
-            {'name': 'Example', 'value': f"{context.command_character}release <@{self._bot.user.id}> amend", 'inline': False}
-        ]
-        await self._bot.send_embed_message(context.log_channel, "Release User", 
-            f"Use {context.command_character}release @user <amend:optional> will release a user from an active timeout.", fields=fields)

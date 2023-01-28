@@ -52,10 +52,3 @@ class UnWatch(Command):
         if not context.is_silent and context.log_channel:
             info_message = f"<@{user.id}> was removed from the watchlist."
             await self._bot.send_embed_message(context.log_channel, "Watchlist", info_message)
-
-    async def send_help(self, context):
-        fields = [
-            {'name': 'Example', 'value': f"{context.command_character}uw <@{self._bot.user.id}>", 'inline': False}
-        ]
-        await self._bot.send_embed_message(context.log_channel, "UnWatch User", 
-            f"Use {context.command_character}uw @user will remove a user from the watchlist.", fields=fields)

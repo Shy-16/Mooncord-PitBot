@@ -4,12 +4,11 @@
 # Shows different stats for sticker usage #
 
 import logging
-import datetime
-from typing import Optional, List, Union, Tuple
+from typing import Any
 
 import discord
 
-from modules.context import CommandContext
+from modules.context import CommandContext, InteractionContext
 from .database import StickerDatabase
 from .commands import StickerCommand
 
@@ -82,3 +81,20 @@ class StickerStats:
 
             else:
                 self._db.update_sticker_stats(sticker=sticker_info, channel_id=str(message.channel.id))
+
+    def get_help(self, interaction: discord.Interaction) -> dict[str, Any]:
+        """Returns a discord Embed in form of dictionary to display as help"""
+        
+        description = "Sticker module reads stickers used in mooncord and gather usage stats for them."
+        context = InteractionContext(self._bot, interaction)
+        fields = [
+            {'name': 'sticker', 'value': f"{context.command_character}sticker will display stats for given sticker.\r\n"+ 
+                "The sticker can be given with the exact name or can be attached as a sticker.\r\n\r\n"+
+                f"Example command: {context.command_character}sticker STARE", 'inline': False},
+        ]
+        return {
+            "title": "Sticker Module Help",
+            "description": description,
+            "fields": fields,
+            "color": 0x0aeb06
+        }

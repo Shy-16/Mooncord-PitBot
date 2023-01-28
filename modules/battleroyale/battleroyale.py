@@ -5,12 +5,13 @@
 
 import logging
 import datetime
+from typing import Any
 
 import discord
 
 from utils import MOD_LIST
 from modules.command import Command
-from modules.context import CommandContext
+from modules.context import CommandContext, InteractionContext
 from modules.battleroyale.components import create_br_button
 from .commands import SetupBRCommand, StartBRCommand, TestBRCommand
 from .br_game import BRGame
@@ -78,3 +79,23 @@ class BattleRoyale:
             return
         timeout = datetime.datetime.utcnow() + datetime.timedelta(hours=min(self._game.round, 24))
         await user['member'].timeout(timeout, reason="Lost BR")
+
+    def get_help(self, interaction: discord.Interaction) -> dict[str, Any]:
+        """Returns a discord Embed in form of dictionary to display as help"""
+        
+        description = "BR module is a Battle Royale event where 128 people join and they get timed out with only one surviving."
+        context = InteractionContext(self._bot, interaction)
+        fields = [
+            {'name': 'setup_br', 'value': f"{context.command_character}setup_br will set up the button to Join the BR.\r\n\r\n"+ 
+                f"Example command: {context.command_character}setup_br", 'inline': False},
+            {'name': 'start_br', 'value': f"{context.command_character}start_br will start the event.\r\n\r\n"+ 
+                f"Example command: {context.command_character}start_br", 'inline': False},
+            {'name': 'test_br', 'value': f"{context.command_character}test_br will start a test event.\r\n\r\n"+ 
+                f"Example command: {context.command_character}test_br", 'inline': False},
+        ]
+        return {
+            "title": "BR Module Help",
+            "description": description,
+            "fields": fields,
+            "color": 0x0aeb06
+        }

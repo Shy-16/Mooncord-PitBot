@@ -24,11 +24,9 @@ class Command:
     async def ping(self, context):
         """Responde to a user pinging the bot"""
 
-    async def send_help(self, context):
-        """Prints the help command"""
-
     async def send_no_permission_message(self, context):
         pass
+
 
 def verify_permission(fn):
     """Verifies if the user is admin or mod"""

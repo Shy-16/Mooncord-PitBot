@@ -5,10 +5,11 @@
 
 import math
 import string
-from thefuzz import fuzz
+from typing import Any
 
 import discord
 from discord.ext import tasks
+from thefuzz import fuzz
 
 from modules.context import CommandContext
 from utils import iso_to_datetime, seconds_to_string
@@ -162,3 +163,15 @@ class Banwords:
         # Delete message
         if banword['delete_message']:
             await context.message.delete(reason='Removed due to containing a banword.')
+
+    # Module help
+    def get_help(self, interaction: discord.Interaction) -> dict[str, Any]:
+        """Returns a discord Embed in form of dictionary to display as help"""
+        
+        description = "Banwords module reviews user messages and times out people who type words added to the banned words list.\r\n" \
+                        + "To manage banwords please use the website."
+        return {
+            "title": "Banwords Module Help",
+            "description": description,
+            "color": 0x0aeb06
+        }

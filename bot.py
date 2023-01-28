@@ -13,7 +13,7 @@ from typing import Any
 import discord
 from database import Database
 from log_utils import init_log
-from modules import PitBot, Banwords, StickerStats, Roulette, Fluff, BattleRoyale, WatchList
+from modules import PitBot, Strikes, Banwords, StickerStats, Roulette, Fluff, BattleRoyale, WatchList
 from application_commands import (
     set_help_slash,
     set_selfpit_slash,
@@ -41,12 +41,23 @@ class Bot(discord.AutoShardedBot):
         self.db = Database(config['database'])
 
         self.pitbot_module = PitBot(bot=self)
+        self.strikes_module = Strikes(bot=self)
         self.banword_module = Banwords(bot=self)
         self.sticker_module = StickerStats(bot=self)
         self.roulette_module = Roulette(bot=self)
         self.br_module = BattleRoyale(bot=self)
         self.fluff_module = Fluff(bot=self)
         self.watchlist_module = WatchList(bot=self)
+        self.all_modules = {
+            "pitbot": self.pitbot_module,
+            "strikes": self.strikes_module,
+            "banwords": self.banword_module,
+            "stickers": self.sticker_module,
+            "roulette": self.roulette_module,
+            "br": self.br_module,
+            "fluff": self.fluff_module,
+            "watchlist": self.watchlist_module,
+        }
 
         init_log()
 

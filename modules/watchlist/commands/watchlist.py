@@ -27,11 +27,3 @@ class WatchListCommand(Command):
             if not userlist or len(userlist) == 0:
                 userlist = "*There are no users in the watchlist*"
             await self._bot.send_embed_message(context.log_channel, "Watchlist", userlist)
-
-    async def send_help(self, context):
-        fields = [
-            {'name': 'watchlist | wl', 'value': f"{context.command_character}wl will show all watchlist.", 'inline': False},
-            {'name': 'watch | wa', 'value': f"{context.command_character}wa will add a user to watchlist.", 'inline': False},
-            {'name': 'unwatch | uw | wr', 'value': f"{context.command_character}uw will remove a user from watchlist.", 'inline': False},
-        ]
-        await self._bot.send_embed_message(context.channel, "Watchlist", fields=fields)

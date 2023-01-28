@@ -96,29 +96,15 @@ class Strike(Command):
         ]
 
         await self._bot.send_embed_dm(context.author, "Strikes Info", info_message, fields=fields)
-        await do_log(place="dm", data_dict={'event': 'command', 'command': 'timeout', 'author_id': context.author.id,
+        await do_log(place="dm", data_dict={'event': 'command', 'command': 'strikes', 'author_id': context.author.id,
                                 'author_handle': f'{context.author.username}#{context.author.discriminator}'})
-
-    async def send_help(self, context: CommandContext) -> None:
-        """Print help information about the command"""
-
-        fields = [
-            {'name': 'Help', 'value': f"Use {context.command_character}strikes @user <verbose:optional> to get all strikes a user has.", 'inline': False},
-            {'name': 'Add', 'value': f"Use {context.command_character}strikes @user add <reason:optional> to add a strike.", 'inline': False},
-            {'name': 'Expire', 'value': f"Use {context.command_character}strikes @user exp|expire <strike_id>|oldest to set a strike as expired.", 'inline': False},
-            {'name': 'Delete', 'value': f"Use {context.command_character}strikes @user del|delete <strike_id>|newest to remove a strike from a user.", 'inline': False},
-            {'name': 'Keywords', 'value': "<strike_id> is the UniqueID provided on the list of strikes of the user, which uniquely identify each strike.\r\n" \
-            "`oldest` will get the oldest strike by date. `newest` will get the newest strike by date.", 'inline': False},
-            {'name': 'Example', 'value': f"{context.command_character}strikes <@{self._bot.user.id}> add Too dumb.", 'inline': False}
-        ]
-        await self._bot.send_embed_message(context.channel, "User Strikes", fields=fields)
 
     async def _do_show_strikes(self, user: discord.User, context: CommandContext, verbose: bool = False) -> None:
         """Shows information about strikes of a user"""
         if not verbose:
             user_strikes = self._module.get_user_strikes(user, status='active')
             description = f"<@{user.id}> has {len(user_strikes)} active strikes."
-            await self._bot.send_embed_message(context.log_channel, "User Timeout", description)
+            await self._bot.send_embed_message(context.log_channel, "User Strikes", description)
             await do_log(place="guild", data_dict={'event': 'command', 'command': 'show_strikes'}, context=context)
             return
 

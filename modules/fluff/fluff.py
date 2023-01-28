@@ -4,6 +4,7 @@
 # Shows different stats for sticker usage #
 
 import logging
+from typing import Any
 
 import discord
 
@@ -11,6 +12,7 @@ from modules.context import CommandContext
 from .commands import ExecuteCommand
 
 log: logging.Logger = logging.getLogger("fluff")
+
 
 class Fluff:
     def __init__(self, *, bot: discord.Client) -> None:
@@ -62,3 +64,17 @@ class Fluff:
         if command in self.ping_commands:
             await self.ping_commands[command].ping(CommandContext(self._bot, command, params, message))
         return
+
+    def get_help(self, interaction: discord.Interaction) -> dict[str, Any]:
+        """Returns a discord Embed in form of dictionary to display as help"""
+        
+        description = "Fluff module adds commands that do literally nothing. They are just for fun."
+        fields = [
+            {'name': 'moon2DOIT', 'value': f"<@{self._bot.user.id}> execute order 66.\r\n", 'inline': False},
+        ]
+        return {
+            "title": "Fluff Module Help",
+            "description": description,
+            "fields": fields,
+            "color": 0x0aeb06
+        }

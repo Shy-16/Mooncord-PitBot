@@ -4,13 +4,13 @@
 # Fluff roulette minigame where people gamble a pit #
 
 import logging
-from typing import Union
+from typing import Union, Any
 
 import datetime
 import discord
 from discord.ext import tasks
 
-from modules.context import CommandContext
+from modules.context import CommandContext, InteractionContext
 from .commands import RouletteCommand, BulletHellCommand, ResetRouletteCommand
 
 log: logging.Logger = logging.getLogger("roulette")
@@ -91,3 +91,32 @@ class Roulette:
         if now.hour > self._reset_time.hour:
             reset = reset + datetime.timedelta(days=1)
         return int(reset.timestamp())
+
+    def get_help(self, interaction: discord.Interaction) -> dict[str, Any]:
+        """Returns a discord Embed in form of dictionary to display as help"""
+        
+        description = "Roulette module adds commands that user can use to pit themselves based on random chances."
+        context = InteractionContext(self._bot, interaction)
+        fields = [
+            {'name': 'roulette', 'value': f"{context.command_character}roulette will simulate a russian roulette.\r\n"+ 
+                "It takes 2 parameters: number of bullets and number of shots. The chamber will be spinned once then shoot in succession.\r\n\r\n"+
+                f"Example command: {context.command_character}roulette 3 3", 'inline': False},
+            {'name': 'bullet hell | bh', 'value': f"{context.command_character}bh will shoot multiple bullets with increasing chances to be pitted.\r\n"+ 
+                """```
+lead: 1/2 2h
+silver: 1/4 4h
+gold: 1/8 8h
+platinum: 1/24 12h
+diamond: 1/32 16h
+obsidian: 1/48 24h
+cosmic: 1/72 36h
+shiny: 1/4096 48h
+```\r\n\r\n"""+
+                f"Example command: {context.command_character}bh", 'inline': False},
+        ]
+        return {
+            "title": "Roulette Module Help",
+            "description": description,
+            "fields": fields,
+            "color": 0x0aeb06
+        }

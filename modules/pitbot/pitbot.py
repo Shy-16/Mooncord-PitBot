@@ -11,9 +11,9 @@ from typing import Any
 
 import discord
 
-from modules.context import CommandContext, DMContext
+from modules.context import CommandContext, DMContext, InteractionContext
 from .database import PitBotDatabase
-from .commands import Timeout, BotConfig, Release, Strike, Roles, Help, Shutdown
+from .commands import Timeout, BotConfig, Release, Roles, Shutdown
 
 log: logging.Logger = logging.getLogger("pitbot")
 
@@ -29,22 +29,15 @@ class PitBot:
             "timeout": Timeout(self, 'mod', ['ban', 'time', 'remaining', 'timeout']),
             "timeoutns": Timeout(self, 'mod', skip_strike=True),
             "release": Release(self, 'mod'),
-            "strikes": Strike(self, 'mod', ['strikes', 'pithistory', 'history']),
             "roles": Roles(self, 'mod'),
-            "help": Help(self, 'mod', ['help', 'elp'])
         }
 
-        self.commands['ban'] = self.commands['timeout']
-
         self.dm_commands = {
-            "timeout": self.commands['timeout'],
-            "strikes": self.commands['strikes'],
-            "help": self.commands['help']
+            "timeout": self.commands['timeout']
         }
 
         self.ping_commands = {
-            "timeout": self.commands['timeout'],
-            "ban": self.commands['timeout']
+            "timeout": self.commands['timeout']
         }
 
     def init_tasks(self) -> None:
@@ -139,52 +132,6 @@ class PitBot:
         timeout = self._db.delete_timeout(query=query)
         return timeout
 
-    # Strikes related
-    def get_user_strikes(self, user: discord.User, sort: tuple[str, int] | None = None, 
-                            status: str | None = None, partial: bool = True) -> list[dict[str, Any]]:
-        """
-        Gets all strikes of a user.
-
-        If partial is false full information of strike will be sent.
-        Including information about users.
-        """
-        query = {'user_id': str(user.id)}
-        if status:
-            query['status'] = status
-        strikes = self._db.get_strikes(query, sort, partial)
-        return strikes
-
-    def add_strike(self, *, user: discord.User, guild_id: int, issuer_id: int,
-        reason: str = 'No reason specified.') -> dict[str, Any] | None:
-        """Adds a strike to a user."""
-        strike = self._db.create_strike(user, guild_id, issuer_id, reason)
-        return strike
-
-    def expire_strike(self, *, user: discord.User, strike_id: int) -> dict[str, Any] | None:
-        """Sets a strike as expired"""
-        if strike_id == "oldest":
-            # Get all active strikes, sort them by ID, get the ID of the latest
-            strikes = self._db.get_strikes({'user_id': str(user.id), 'status': 'active'})
-            if len(strikes) <= 0:
-                return None
-            strike_id = str(strikes[0]['_id'])
-        params = {'status': 'expired', 'updated_date': datetime.datetime.now().isoformat()}
-        query = {'_id': strike_id, 'user_id': str(user.id), 'status': 'active'}
-        strike = self._db.update_strike(params=params, query=query)
-        return strike
-
-    def delete_strike(self, *, user: discord.User, strike_id: int = 'newest') -> dict[str, Any] | None:
-        """Deletes a strike from database"""
-        if strike_id == "newest":
-            # Get all active strikes, sort them by ID, get the ID of the newest
-            strikes = self._db.get_strikes({'user_id': str(user.id), 'status': 'active'}, ('_id', -1))
-            if len(strikes) <= 0:
-                return None
-            strike_id = str(strikes[0]['_id'])
-        query = {'_id': strike_id, 'user_id': str(user.id), 'status': 'active'}
-        strike = self._db.delete_strike(query=query)
-        return strike
-
     # Users related
     def get_user(self, *, user_id: str | None = None, username: dict[str, Any] | None = None,
         discriminator: str | None = None) -> dict[str, Any] | None:
@@ -199,3 +146,26 @@ class PitBot:
         if user:
             user['id'] = user['discord_id']
         return user
+
+    # Module help
+    def get_help(self, interaction: discord.Interaction) -> dict[str, Any]:
+        """Returns a discord Embed in form of dictionary to display as help"""
+        
+        description = "Pit module takes of timing out or releasing users and adding strikes to their history."
+        context = InteractionContext(self._bot, interaction)
+        fields = [
+            {'name': 'timeout', 'value': f"{context.command_character}timeout will set a timeout for a given user.\r\n"+ 
+                "The time parameter expects the following format: <1-2 digit number><one of: s, m, h, d> where s is second, m is minute, h is hour, d is day.\r\n\r\n"+
+                f"Example command: {context.command_character}timeout <@{self._bot.user.id}> 24h Being a bad bot", 'inline': False},
+            {'name': 'timeoutns', 'value': f"{context.command_character}timeoutns will set a timeout for a given user without adding a strike to their account.\r\n"+ 
+                f"Usage is the same as `{context.command_character}timeout`", 'inline': False},
+            {'name': 'release', 'value': f"{context.command_character}release will end a user's timeout immediately.\r\n"+ 
+                "Optional parameter: `amend`: If amend is provided it will also delete the most recent strike issued to the user.\r\n\r\n"+
+                f"Example command: {context.command_character}release <@{self._bot.user.id}> amend", 'inline': False},
+        ]
+        return {
+            "title": "Pit Module Help",
+            "description": description,
+            "fields": fields,
+            "color": 0x0aeb06
+        }

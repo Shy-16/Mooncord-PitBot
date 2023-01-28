@@ -148,7 +148,7 @@ class BotConfig(Command):
             await self._bot.send_embed_message(context.channel, "Server Configuration", fields=fields)
             return
 
-        elf._bot.db.update_server_configuration(context.guild, {'command_character': value})
+        self._bot.db.update_server_configuration(context.guild, {'command_character': value})
         await self._bot.update_guild_configuration(context.guild)
 
         fields= [

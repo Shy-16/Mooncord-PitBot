@@ -10,7 +10,7 @@ from typing import Any
 
 import discord
 
-from modules.context import CommandContext
+from modules.context import CommandContext, InteractionContext
 from .database import WatchListDatabase
 from .commands import WatchListCommand, Watch, UnWatch
 
@@ -86,3 +86,23 @@ class WatchList:
         if user:
             user['id'] = user['discord_id']
         return user
+
+    def get_help(self, interaction: discord.Interaction) -> dict[str, Any]:
+        """Returns a discord Embed in form of dictionary to display as help"""
+        
+        description = "Pit module takes of timing out or releasing users and adding strikes to their history."
+        context = InteractionContext(self._bot, interaction)
+        fields = [
+            {'name': 'watchlist | wl', 'value': f"{context.command_character}wl will show all watchlist.\r\n\r\n"+ 
+                f"Example command: {context.command_character}wl", 'inline': False},
+            {'name': 'watch | wa', 'value': f"{context.command_character}wa will add a user to watchlist.\r\n\r\n"+ 
+                f"Example command: {context.command_character}wa <@{self._bot.user.id}>", 'inline': False},
+            {'name': 'unwatch | uw | wr', 'value': f"{context.command_character}uw will remove a user from watchlist.\r\n\r\n"+ 
+                f"Example command: {context.command_character}uw <@{self._bot.user.id}>", 'inline': False},
+        ]
+        return {
+            "title": "Pit Module Help",
+            "description": description,
+            "fields": fields,
+            "color": 0x0aeb06
+        }
