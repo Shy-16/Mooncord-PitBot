@@ -139,7 +139,7 @@ def timeout(bot: discord.Client) -> None:
         log_channel = int(guild_config['log_channel'])
         ban_roles = [discord.Object(int(role)) for role in guild_config['ban_roles']]
 
-        bot.pitbot_module.add_strike(user=user, guild_id=ctx.guild.id,
+        bot.strikes_module.add_strike(user=user, guild_id=ctx.guild.id,
                     issuer_id=ctx.author.id, reason=reason)
         if not timeout_info:
             bot.pitbot_module.add_timeout(user=user, guild_id=ctx.guild.id,

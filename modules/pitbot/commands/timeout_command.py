@@ -71,7 +71,7 @@ class Timeout(Command):
             reason = ' '.join(context.params[2:])
 
         if not self.skip_strike:
-            self._module.add_strike(user=user, guild_id=context.guild.id,
+            self._bot.strikes_module.add_strike(user=user, guild_id=context.guild.id,
                 issuer_id=context.author.id, reason=reason)
 
         timeout_info = self._module.get_user_timeout(user)
@@ -88,7 +88,7 @@ class Timeout(Command):
         await user.add_roles(*context.ban_roles, reason="Timeout issued by a mod.")
         await do_log(place="guild", data_dict={'event': 'command', 'command': 'timeout'}, context=context)
 
-        user_strikes = self._module.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
+        user_strikes = self._bot.strikes_module.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
 
         if not context.is_silent and context.log_channel:
             user_timeouts = self._module.get_user_timeouts(user=user, status='expired')
@@ -180,12 +180,12 @@ class Timeout(Command):
 
         self._module.add_timeout(user=user, guild_id=context.guild.id,
                 time=int(delta.total_seconds()), issuer_id=context.author.id, reason=reason)
-        self._module.add_strike(user=user, guild_id=context.guild.id,
+        self._bot.strikes_module.add_strike(user=user, guild_id=context.guild.id,
                 issuer_id=context.author.id, reason=reason)
 
         await do_log(place="guild", data_dict={'event': 'command', 'command': 'timeout'}, context=context)
 
-        user_strikes = self._module.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
+        user_strikes = self._bot.strikes_module.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
         if not context.is_silent and context.log_channel:
             # Send a smug notification on the channel
             description = f"<@{user.id}> has been sent to the pit for {amount}"

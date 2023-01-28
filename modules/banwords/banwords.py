@@ -21,6 +21,7 @@ class Banwords:
         self._bot = bot
         self._db = bot.db
         self._pitbot = bot.pitbot_module
+        self._strike = bot.strikes_module
 
         self.banwords = []
         self.banword_list = []
@@ -101,7 +102,7 @@ class Banwords:
             time=int(duration+increment), issuer_id=self._bot.user.id, reason=reason)
 
         # Issue the strike
-        self._pitbot.add_strike(user=user, guild_id=context.guild.id,
+        self._strike.add_strike(user=user, guild_id=context.guild.id,
             issuer_id=self._bot.user.id, reason=reason)
 
         # Add the roles

@@ -59,11 +59,11 @@ class Release(Command):
         strike_info = None
 
         if amend:
-            strike_info = self._module.delete_strike(user=user)
+            strike_info = self._bot.strikes_module.delete_strike(user=user)
 
         await do_log(place="guild", data_dict={'event': 'command', 'command': 'release'}, context=context)
 
-        user_strikes = self._module.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
+        user_strikes = self._bot.strikes_module.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
 
         if not context.is_silent and context.log_channel:
             user_timeouts = self._module.get_user_timeouts(user=user, status='expired')

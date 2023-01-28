@@ -149,7 +149,7 @@ class Bot(discord.AutoShardedBot):
     async def on_member_join(self, user: discord.Member) -> None:
         timeout = self.pitbot_module.get_user_timeout(user)
         if timeout:
-            self.pitbot_module.add_strike(user=user, guild_id=user.guild.id,
+            self.strikes_module.add_strike(user=user, guild_id=user.guild.id,
                 issuer_id=self.user.id, reason="User rejoined server after leaving during timeout.")
 
             if self.guild_config[user.guild.id]['log_channel']:
