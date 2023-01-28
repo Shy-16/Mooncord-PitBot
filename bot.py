@@ -112,6 +112,7 @@ class Bot(discord.AutoShardedBot):
         # Someone sent a DM to the bot.
         if not hasattr(message, 'guild') or message.guild is None:
             await self.pitbot_module.handle_dm_commands(message)
+            await self.strikes_module.handle_dm_commands(message)
             return
 
         # Check for pings
@@ -124,6 +125,7 @@ class Bot(discord.AutoShardedBot):
         # Someone used a command.
         if message.content.startswith(self.guild_config[message.guild.id]['command_character']):
             await self.pitbot_module.handle_commands(message)
+            await self.strikes_module.handle_commands(message)
             await self.sticker_module.handle_commands(message)
             await self.roulette_module.handle_commands(message)
             await self.br_module.handle_commands(message)
