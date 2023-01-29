@@ -7,7 +7,7 @@ from modules.context import CommandContext
 from modules.command import Command, verify_permission
 
 
-class Roles(Command):
+class RolesCommand(Command):
     @verify_permission
     async def execute(self, context: CommandContext) -> None:
         if len(context.params) == 0 or not context.mentions or not context.role_mentions:

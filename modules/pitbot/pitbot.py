@@ -13,7 +13,7 @@ import discord
 
 from modules.context import CommandContext, DMContext, InteractionContext
 from .database import PitBotDatabase
-from .commands import Timeout, BotConfig, Release, Roles, Shutdown
+from .commands import Timeout, Release
 
 log: logging.Logger = logging.getLogger("pitbot")
 
@@ -24,12 +24,9 @@ class PitBot:
         self._db = PitBotDatabase(database=bot.db)
 
         self.commands = {
-            "shutdown": Shutdown(self, 'admin'),
-            "config": BotConfig(self, 'admin'),
             "timeout": Timeout(self, 'mod', ['ban', 'time', 'remaining', 'timeout']),
             "timeoutns": Timeout(self, 'mod', skip_strike=True),
             "release": Release(self, 'mod'),
-            "roles": Roles(self, 'mod'),
         }
 
         self.dm_commands = {

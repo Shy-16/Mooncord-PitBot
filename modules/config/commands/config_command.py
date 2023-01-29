@@ -91,8 +91,6 @@ class BotConfig(Command):
             {'name': 'Help', 'value': f"Use {guild_config['command_character']}config set|add|rm <name> <value> \
                 to set a new value or add/remove a value from an array.", 'inline': False},
             {'name': 'command_character', 'value': f"{guild_config['command_character']}", 'inline': False},
-            #{'name': 'allowed_channels', 'value': f"{guild_config['allowed_channels']}", 'inline': False},
-            #{'name': 'denied_channels', 'value': f"{guild_config['denied_channels']}", 'inline': False},
             {'name': 'admin_roles', 'value': f"{admin_text}", 'inline': False},
             {'name': 'mod_roles', 'value': f"{mod_text}", 'inline': False},
             {'name': 'ban_roles', 'value': f"{ban_text}", 'inline': False},

@@ -34,6 +34,9 @@ class Banwords:
         banwords = self._db.get_banwords({'active': True})
         self.banwords = list(banwords)
         self.banword_list = [banword['word'] for banword in banwords]
+        
+    async def handle_commands(self, message: str) -> None:
+        """Handles any commands given through the designed character"""
 
     async def handle_message(self, ctx: discord.Message) -> None:
         """

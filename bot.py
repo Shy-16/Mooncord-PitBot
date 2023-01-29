@@ -13,12 +13,24 @@ from typing import Any
 import discord
 from database import Database
 from log_utils import init_log
-from modules import PitBot, Strikes, Banwords, StickerStats, Roulette, Fluff, BattleRoyale, WatchList
+from modules import (
+    Banwords,
+    BattleRoyale,
+    Config,
+    Fluff,
+    PitBot,
+    Roles,
+    Roulette,
+    StickerStats,
+    Strikes,
+    WatchList,
+)
 from application_commands import (
     set_help_slash,
     set_selfpit_slash,
     set_timeout_slash,
     set_timeoutns_slash,
+    set_context_timeout,
     set_release_slash,
     set_watch_slash,
     set_unwatch_slash,
@@ -40,25 +52,30 @@ class Bot(discord.AutoShardedBot):
 
         self.db = Database(config['database'])
 
+        # Loading order of modules matter
+        # Pitbot and Strikes should always load first
         self.pitbot_module = PitBot(bot=self)
         self.strikes_module = Strikes(bot=self)
         self.banword_module = Banwords(bot=self)
-        self.sticker_module = StickerStats(bot=self)
-        self.roulette_module = Roulette(bot=self)
         self.br_module = BattleRoyale(bot=self)
+        self.config_module = Config(bot=self)
         self.fluff_module = Fluff(bot=self)
+        self.roles_module = Roles(bot=self)
+        self.roulette_module = Roulette(bot=self)
+        self.sticker_module = StickerStats(bot=self)
         self.watchlist_module = WatchList(bot=self)
         self.all_modules = {
-            "pitbot": self.pitbot_module,
-            "strikes": self.strikes_module,
             "banwords": self.banword_module,
-            "stickers": self.sticker_module,
-            "roulette": self.roulette_module,
             "br": self.br_module,
+            "config": self.config_module,
             "fluff": self.fluff_module,
+            "pitbot": self.pitbot_module,
+            "roles": self.roles_module,
+            "roulette": self.roulette_module,
+            "stickers": self.sticker_module,
+            "strikes": self.strikes_module,
             "watchlist": self.watchlist_module,
         }
-
         init_log()
 
     ## On error handler
@@ -85,6 +102,7 @@ class Bot(discord.AutoShardedBot):
         # Setup role-based commands
         set_timeout_slash(self)
         set_timeoutns_slash(self)
+        set_context_timeout(self)
         set_release_slash(self)
         
         # Setup watchlist commands
@@ -98,7 +116,6 @@ class Bot(discord.AutoShardedBot):
         self.pitbot_module.init_tasks()
         self.banword_module.init_tasks()
         self.roulette_module.init_tasks()
-        self.br_module.init_tasks()
 
         activity = discord.Game("DM help for more info.")
         await super().change_presence(activity=activity)
@@ -124,12 +141,8 @@ class Bot(discord.AutoShardedBot):
 
         # Someone used a command.
         if message.content.startswith(self.guild_config[message.guild.id]['command_character']):
-            await self.pitbot_module.handle_commands(message)
-            await self.strikes_module.handle_commands(message)
-            await self.sticker_module.handle_commands(message)
-            await self.roulette_module.handle_commands(message)
-            await self.br_module.handle_commands(message)
-            await self.watchlist_module.handle_commands(message)
+            for _, mod in self.all_modules.items():
+                await mod.handle_commands(message)
             return
 
         # Check for stickers
