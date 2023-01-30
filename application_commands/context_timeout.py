@@ -39,5 +39,5 @@ def set_context_timeout(bot: discord.Bot):
             required=False
         )
         modal = TimeoutModal(user_id_input, time_input, comment_input,
-                            title="New Modmail", custom_id="timeout_modal", bot=bot)
+                            title="Timeout User", custom_id="timeout_modal", bot=bot)
         await context.response.send_modal(modal)
