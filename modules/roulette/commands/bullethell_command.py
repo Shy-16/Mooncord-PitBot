@@ -42,7 +42,7 @@ class BulletHellCommand(Command):
                     "of Rimjob", "of Goatsie", "of Balding", "up their ass", "of the Pit",
                     "of Fire and Destruction", "of the Abyss", "of the Unending Suffering",
                     "of the Deceased Souls", "of Happiness", "of Infinite Darkness",
-                    "of Mediocrity", "Two Wives"]
+                    "of Mediocrity", "of the Two Wives"]
         platinum = {'odds': 8, 'timeout': 43200} # 12h
         diamond = {'odds': 16, 'timeout': 57600} # 16h
         obsidian = {'odds': 24, 'timeout': 86400} # 24h
