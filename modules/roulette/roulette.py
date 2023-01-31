@@ -38,17 +38,9 @@ class Roulette:
         if datetime.datetime.now(datetime.timezone.utc).hour == self._reset_time.hour:
             self._cache = {}
 
-    @tasks.loop(minutes=20)
-    async def report_timeouts(self) -> None:
-        losers = ", ".join(self._timeouts)
-        if losers and len(losers) > 1:
-            await self._bot.send_embed_message(self._bot.default_guild['log_channel'], "Roulette losers", losers)
-        self._timeouts.clear()
-
     def init_tasks(self) -> None:
         """Initialize the different asks that run in the background"""
         self.refresh_cache.start()
-        # self.report_timeouts.start()
 
     async def handle_commands(self, message: discord.Message) -> None:
         """Handles any commands given through the designed character"""
@@ -103,14 +95,11 @@ class Roulette:
                 f"Example command: {context.command_character}roulette 3 3", 'inline': False},
             {'name': 'bullet hell | bh', 'value': f"{context.command_character}bh will shoot multiple bullets with increasing chances to be pitted.\r\n"+ 
                 """```
-lead: 1/2 2h
-silver: 1/4 4h
-gold: 1/8 8h
-platinum: 1/24 12h
-diamond: 1/32 16h
-obsidian: 1/48 24h
-cosmic: 1/72 36h
-shiny: 1/4096 48h
+platinum:  1/6 - 12h
+diamond:  1/12 - 16h
+obsidian: 1/18 - 24h
+cosmic:   1/24 - 36h
+shiny:   1/192 - 48h
 ```\r\n\r\n"""+
                 f"Example command: {context.command_character}bh", 'inline': False},
         ]

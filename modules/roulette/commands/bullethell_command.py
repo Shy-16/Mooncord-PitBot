@@ -34,16 +34,22 @@ class BulletHellCommand(Command):
             return
 
         # vars
-        lead = {'name': 'Lead', 'odds': 2, 'timeout': 7200} # 2h
-        silver = {'name': 'Silver', 'odds': 4, 'timeout': 14400} # 4h
-        gold = {'name': 'Gold', 'odds': 8, 'timeout': 28800} # 8h
-        platinum = {'name': 'Platinum', 'odds': 24, 'timeout': 43200} # 12h
-        diamond = {'name': 'Diamond', 'odds': 32, 'timeout': 57600} # 16h
-        obsidian = {'name': 'Obsidian', 'odds': 48, 'timeout': 86400} # 24h
-        cosmic = {'name': 'Cosmic', 'odds': 72, 'timeout': 129600} # 36h
-        shiny = {'name': 'Shiny', 'odds': 4096, 'timeout': 172800} # 48h
+        prefix = ["GIGA", "Weak", "Cum", "Burning", "Stinky", "Auto-aim", "Tracking"
+                    "Weeb", "Penetrating", "Thrusting", "Slimy", "Invisible", "Holy",
+                    "Daunting", "Demonic", "Bald", "Rimjob", "Femboy turning", "Catgirl turning",
+                    "Ass gaping", "Mediocre", "Explosive", "Extra large", ""]
+        suffix = ["OFHELL", "of Cum", "of Thrusting", "of Poop", "of Slime", "of Pride",
+                    "of Rimjob", "of Goatsie", "of Balding", "up their ass", "of the Pit",
+                    "of Fire and Destruction", "of the Abyss", "of the Unending Suffering",
+                    "of the Deceased Souls", "of Happiness", "of Infinite Darkness",
+                    "of Mediocrity"]
+        platinum = {'odds': 6, 'timeout': 43200} # 12h
+        diamond = {'odds': 12, 'timeout': 57600} # 16h
+        obsidian = {'odds': 18, 'timeout': 86400} # 24h
+        cosmic = {'odds': 24, 'timeout': 129600} # 36h
+        shiny = {'odds': 192, 'timeout': 172800} # 48h
 
-        bullets = [shiny, cosmic, obsidian, diamond, platinum, gold, silver, lead]
+        bullets = [shiny, cosmic, obsidian, diamond, platinum]
         for bullet in bullets:
             acc = random.randint(1, bullet['odds'])
 
@@ -51,13 +57,14 @@ class BulletHellCommand(Command):
                 # Player got shot
                 mod = random.choice(MOD_LIST)
                 timeout = int(bullet['timeout']/3600)
+                pre = random.choice(prefix)
+                suff = random.choice(suffix)
 
                 # Send a smug notification on the channel
-                description = f"<@{context.author.id}> stands tall in front of the Stormtrooper Mod team, ready to face their destiny.\r\n \
-                    **BANG!** A {bullet['name']} bullet shot by <@{mod}> went straight through <@{context.author.id}>'s skull.\r\n\
-                    BACK TO THE PIT for {timeout} hours"
+                description = f"<@{context.author.id}> was hit by <@{mod}>'s {pre} bullet {suff}. " + \
+                                f"BACK TO THE PIT for {timeout} hours."
 
-                await self._bot.send_embed_message(context.channel, "Bullet Hell Loser", description)
+                await self._bot.send_embed_message(context.channel, "Bullet Hell Winner", description)
 
                 await asyncio.sleep(10)
 
@@ -71,10 +78,6 @@ class BulletHellCommand(Command):
                 # Add the roles
                 await context.author.add_roles(*context.ban_roles, reason=reason)
 
-                # generate logs in proper channel
-                if context.log_channel:
-                    self._module._timeouts.append(f"<@{context.author.id}> bh {timeout}h")
-
                 # Send a DM to the user
                 info_message = f"You've been pitted by {context.guild.name} mod staff for {timeout}h for losing the Bullet Hell. \r\n\
                     This timeout doesn't add any strikes to your acount.\r\n\r\n... loser."
@@ -82,10 +85,8 @@ class BulletHellCommand(Command):
                 await self._bot.send_embed_dm(context.author, "Bullet Hell Loser", info_message)
                 return
 
-        # Send a notification on the channel
-        description = f"<@{context.author.id}> stands tall in front of the Stormtrooper Mod team, ready to face their destiny.\r\n \
-                    *thud* *thunk* All the bullets miss the mark hitting the wall behind <@{context.author.id}>\r\n"
-
+        # Delete invocation
+        description = f"Mods missed every bullet. <@{context.author.id}>'s misery is unending."
         await self._bot.send_embed_message(context.channel, "Bullet Hell Winner", description)
 
     async def send_help(self, context: CommandContext) -> None:
