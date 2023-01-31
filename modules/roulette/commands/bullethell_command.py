@@ -43,10 +43,10 @@ class BulletHellCommand(Command):
                     "of Fire and Destruction", "of the Abyss", "of the Unending Suffering",
                     "of the Deceased Souls", "of Happiness", "of Infinite Darkness",
                     "of Mediocrity"]
-        platinum = {'odds': 6, 'timeout': 43200} # 12h
-        diamond = {'odds': 12, 'timeout': 57600} # 16h
-        obsidian = {'odds': 18, 'timeout': 86400} # 24h
-        cosmic = {'odds': 24, 'timeout': 129600} # 36h
+        platinum = {'odds': 8, 'timeout': 43200} # 12h
+        diamond = {'odds': 16, 'timeout': 57600} # 16h
+        obsidian = {'odds': 24, 'timeout': 86400} # 24h
+        cosmic = {'odds': 32, 'timeout': 129600} # 36h
         shiny = {'odds': 192, 'timeout': 172800} # 48h
 
         bullets = [shiny, cosmic, obsidian, diamond, platinum]
