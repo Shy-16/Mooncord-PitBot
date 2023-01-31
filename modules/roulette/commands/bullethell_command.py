@@ -82,12 +82,12 @@ class BulletHellCommand(Command):
                 info_message = f"You've been pitted by {context.guild.name} mod staff for {timeout}h for losing the Bullet Hell. \r\n\
                     This timeout doesn't add any strikes to your acount.\r\n\r\n... loser."
 
-                await self._bot.send_embed_dm(context.author, "Bullet Hell Loser", info_message)
+                await self._bot.send_embed_dm(context.author, "Bullet Hell Winner", info_message)
                 return
 
         # Delete invocation
         description = f"Mods missed every bullet. <@{context.author.id}>'s misery is unending."
-        await self._bot.send_embed_message(context.channel, "Bullet Hell Winner", description)
+        await self._bot.send_embed_message(context.channel, "Bullet Hell Loser", description)
 
     async def send_help(self, context: CommandContext) -> None:
         """
