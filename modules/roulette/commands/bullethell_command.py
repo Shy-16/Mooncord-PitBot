@@ -34,19 +34,23 @@ class BulletHellCommand(Command):
             return
 
         # vars
-        prefix = ["GIGA", "Weak", "Cum", "Burning", "Stinky", "Auto-aim", "Tracking"
+        prefix = ["GIGA", "Weak", "Cum", "Burning", "Stinky", "Auto-aim", "Tracking",
                     "Weeb", "Penetrating", "Thrusting", "Slimy", "Invisible", "Holy",
                     "Daunting", "Demonic", "Bald", "Rimjob", "Femboy turning", "Catgirl turning",
-                    "Ass gaping", "Mediocre", "Explosive", "Extra large", "Cheating"]
+                    "Ass gaping", "Mediocre", "Explosive", "Extra large", "Cheating",
+                    "Ultra Mastermode Hardcore", "Shitting", "Chugging", "Rotting", "Pissing", 
+                    "Twerking", "Sussy", "REALLY MAD", "Gachi"]
         suffix = ["OFHELL", "of Cum", "of Thrusting", "of Poop", "of Slime", "of Pride",
                     "of Rimjob", "of Goatsie", "of Balding", "up their ass", "of the Pit",
                     "of Fire and Destruction", "of the Abyss", "of the Unending Suffering",
                     "of the Deceased Souls", "of Happiness", "of Infinite Darkness",
-                    "of Mediocrity", "of the Two Wives"]
-        platinum = {'odds': 8, 'timeout': 43200} # 12h
-        diamond = {'odds': 16, 'timeout': 57600} # 16h
-        obsidian = {'odds': 24, 'timeout': 86400} # 24h
-        cosmic = {'odds': 32, 'timeout': 129600} # 36h
+                    "of Mediocrity", "of the Two Wives", "of the Fuck", "of Choking", "of Shitting", 
+                    "of the Locker Room", "of Cringe", "of the Green Frog", "of the Shiny Orb", 
+                    "of the Microwaved Coffee", "of the Chug Boot"]
+        platinum = {'odds': 6, 'timeout': 43200} # 12h
+        diamond = {'odds': 12, 'timeout': 57600} # 16h
+        obsidian = {'odds': 18, 'timeout': 86400} # 24h
+        cosmic = {'odds': 24, 'timeout': 129600} # 36h
         shiny = {'odds': 192, 'timeout': 172800} # 48h
 
         bullets = [shiny, cosmic, obsidian, diamond, platinum]
