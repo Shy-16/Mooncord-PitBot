@@ -138,7 +138,7 @@ class Timeout(Command):
             await self._bot.send_embed_dm(context.author, "Timeout Info", "You don't have an active timeout right now.")
             return
 
-        guild = await self._bot.get_guild(guild_id=timeout['guild_id'])
+        guild = await self._bot.get_guild(id=timeout['guild_id'])
         if not guild:
             guild = self._bot.default_guild
 
