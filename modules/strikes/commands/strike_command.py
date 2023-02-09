@@ -41,7 +41,6 @@ class Strike(Command):
                 user = await self._bot.get_guild(context.guild.id).fetch_member(user)
             elif isinstance(user, dict):
                 user = await self._bot.get_guild(context.guild.id).fetch_member(int(user['discord_id']))
-            await user.remove_roles(*context.ban_roles, reason="User released by a mod.")
         except discord.NotFound as ex:
             print(ex)
             fields = [
@@ -97,7 +96,7 @@ class Strike(Command):
 
         await self._bot.send_embed_dm(context.author, "Strikes Info", info_message, fields=fields)
         await do_log(place="dm", data_dict={'event': 'command', 'command': 'strikes', 'author_id': context.author.id,
-                                'author_handle': f'{context.author.username}#{context.author.discriminator}'})
+                                'author_handle': f'{context.author.name}#{context.author.discriminator}'})
 
     async def _do_show_strikes(self, user: discord.User, context: CommandContext, verbose: bool = False) -> None:
         """Shows information about strikes of a user"""
