@@ -82,7 +82,7 @@ class Banwords:
         user = context.author
 
         # Get user information and user strikes
-        user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
+        user_strikes = self._strike.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
 
         # First check base duration
         duration = banword['duration'] # in seconds
@@ -125,7 +125,7 @@ class Banwords:
             await self._bot.send_embed_message(context.log_channel, "Banword Info", info_message, fields=fields)
 
             # First send timeout info
-            user_strikes = self._pitbot.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
+            user_strikes = self._strike.get_user_strikes(user, sort=('_id', -1), status='active', partial=False)
             user_timeouts = self._pitbot.get_user_timeouts(user=user, status='expired')
 
             strike_text = "```No Previous Strikes```"

@@ -61,8 +61,8 @@ class TimeoutModal(discord.ui.Modal):
 
                 for strike in user_strikes[:5]:
                     date = iso_to_datetime(strike['created_date']).strftime("%m/%d/%Y %H:%M")
-                    issuer = strike['issuer'] if strike.get('issuer') else {'username': 'Unknown Issuer'}
-                    strike_messages.append(f"{date} Strike by {issuer['username']} for {strike['reason'][0:90]} - {strike['_id']}")
+                    strike_issuer = strike['issuer'] if strike.get('issuer') else {'username': 'Unknown Issuer'}
+                    strike_messages.append(f"{date} Strike by {strike_issuer['username']} for {strike['reason'][0:90]} - {strike['_id']}")
 
                 strike_text = "```" + "\r\n".join(strike_messages) + "```"
 
