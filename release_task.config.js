@@ -1,7 +1,8 @@
 module.exports = {
     apps: [{
         name: 'release_task',
-        script: "poetry run release_task.py",
+        interpreter: 'poetry run python3',
+        script: "release_task.py",
         instances: 1,
         exec_mode: 'fork',
         cron_restart: "*/5 * * * *",
