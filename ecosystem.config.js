@@ -1,3 +1,5 @@
+// used to setup chron jobs to re-run tasks like un-pitting people
+
 module.exports = {
     apps: [{
         name: 'pitbot_tasks',
